@@ -187,13 +187,6 @@ const LoginForm = () => {
                 )}
               </Button>
             </form>
-
-            {/* Demo Credentials */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-              <p className="text-sm font-medium text-gray-700 mb-2">Demo Credentials:</p>
-              <p className="text-xs text-gray-600 mb-1">Email: k.shen@onestone.sg</p>
-              <p className="text-xs text-gray-600">Password: onestone123</p>
-            </div>
           </CardContent>
         </Card>
 
