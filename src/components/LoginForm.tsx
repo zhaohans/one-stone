@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -165,8 +164,12 @@ const LoginForm = () => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <Building2 className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-4">
+            <img
+              src="/lovable-uploads/cf8ad19e-3b28-4dba-948b-4f3b7e0d0c85.png"
+              alt="One Stone Capital Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">One Stone Capital</h1>
           <p className="text-gray-600">Client Management System</p>
