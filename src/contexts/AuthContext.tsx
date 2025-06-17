@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
@@ -186,7 +185,7 @@ const validateCredentials = async (email: string, password: string): Promise<boo
   // Administrator account validation
   // For demo purposes - in production, this would be handled by your backend
   // Never store or validate passwords client-side in a real application
-  return email === 'k.shen@onestone.sg' && password === 'onestone123@';
+  return email === 'k.shen@onestone.sg' && password === 'Onestone123@';
 };
 
 export const useAuth = () => {
