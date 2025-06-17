@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -53,6 +52,26 @@ const LoginWrapper = () => {
   return <LoginForm />;
 };
 
+// Component to handle root redirect - temporarily disable landing page
+const RootRedirect = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+  
+  // Temporarily disable landing page - redirect directly to dashboard or login
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  } else {
+    return <Navigate to="/login" replace />;
+  }
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -63,7 +82,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginWrapper />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<RootRedirect />} />
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <MainLayout>
