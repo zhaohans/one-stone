@@ -183,9 +183,10 @@ const validateCredentials = async (email: string, password: string): Promise<boo
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) return false;
   
+  // Administrator account validation
   // For demo purposes - in production, this would be handled by your backend
   // Never store or validate passwords client-side in a real application
-  return email === 'k.shen@onestone.sg' && password === 'onestone123';
+  return email === 'k.shen@onestone.sg' && password === 'onestone123@';
 };
 
 export const useAuth = () => {
