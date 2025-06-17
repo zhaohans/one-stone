@@ -10,18 +10,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { isAuthenticated, user, isLoading, checkSession } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const location = useLocation();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      // Check session validity on route change
-      if (!checkSession()) {
-        toast.error('Your session has expired. Please log in again.');
-        return;
-      }
-    }
-  }, [location, isAuthenticated, isLoading, checkSession]);
 
   // Show loading state
   if (isLoading) {

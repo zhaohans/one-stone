@@ -36,7 +36,7 @@ const UserProfile = () => {
   const [profileData, setProfileData] = useState({
     avatar: '',
     gender: 'prefer-not-to-say',
-    memberName: user?.name || '',
+    memberName: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User' : 'User',
     officeNo: 'OSC-001',
     officeAddress: '1 Raffles Place, #40-61, Singapore 048616',
     workEmail: user?.email || '',
@@ -105,6 +105,14 @@ const UserProfile = () => {
     return phone.replace(/\d(?=\d{4})/g, '*');
   };
 
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    const firstName = user.first_name || '';
+    const lastName = user.last_name || '';
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U';
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
@@ -136,7 +144,7 @@ const UserProfile = () => {
                 <Avatar className="w-20 h-20">
                   <AvatarImage src={profileData.avatar} />
                   <AvatarFallback className="text-lg">
-                    {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                    {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
