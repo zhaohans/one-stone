@@ -36,7 +36,9 @@ import {
   MoreHorizontal,
   Tag,
   Users,
-  Building2
+  Building2,
+  TrendingUp,
+  Shield
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
