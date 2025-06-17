@@ -145,11 +145,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {!sidebarCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
-                <span className="text-white font-bold text-sm">OSC</span>
+              <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center shadow-md relative">
+                <div className="w-6 h-6 bg-white transform rotate-45 rounded-sm relative">
+                  <div className="absolute inset-1 bg-gray-800 rounded-sm transform -rotate-45"></div>
+                </div>
               </div>
               <div>
-                <span className="font-bold text-gray-900 text-lg">One Stone</span>
+                <span className="font-bold text-gray-800 text-lg">One Stone</span>
                 <div className="text-xs text-gray-500 font-medium">Capital</div>
               </div>
             </div>
@@ -176,13 +178,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     className={cn(
                       "flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group",
                       isActive
-                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
+                        ? "bg-gray-100 text-gray-800 border-r-2 border-gray-800 shadow-sm"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     <item.icon className={cn(
                       "w-5 h-5 transition-colors",
-                      isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                      isActive ? "text-gray-800" : "text-gray-500 group-hover:text-gray-700"
                     )} />
                     {!sidebarCollapsed && <span className="font-medium text-sm">{item.label}</span>}
                   </Link>
@@ -195,7 +197,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
           <Link to="/profile" className="flex items-center space-x-3 mb-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
                 {getUserInitials()}
               </span>
@@ -239,7 +241,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   placeholder="Search clients, accounts, ISIN, trades..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className={`pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200 ${
+                  className={`pl-10 pr-4 w-96 focus:ring-2 focus:ring-gray-800 focus:border-transparent bg-gray-50 border-gray-200 ${
                     searchError ? 'border-red-500' : ''
                   }`}
                   maxLength={200}

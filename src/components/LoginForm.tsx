@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Lock, Mail, Building2, User, Shield } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginSchema, signupSchema } from '@/lib/validation';
@@ -161,22 +161,24 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <Building2 className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-800 rounded-lg mb-4 shadow-lg">
+            <div className="w-8 h-8 bg-white transform rotate-45 rounded-sm relative">
+              <div className="absolute inset-1 bg-gray-800 rounded-sm transform -rotate-45"></div>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">One Stone Capital</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">One Stone Capital</h1>
           <p className="text-gray-600">Client Management System</p>
         </div>
 
         {/* Login/Signup Card */}
-        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur">
+        <Card className="shadow-xl border border-gray-200 bg-white">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-semibold text-center text-gray-900 flex items-center justify-center gap-2">
-              <Shield className="w-5 h-5 text-blue-600" />
+            <CardTitle className="text-2xl font-semibold text-center text-gray-800 flex items-center justify-center gap-2">
+              <Shield className="w-5 h-5 text-gray-700" />
               {isSignup ? 'Create Account' : 'Sign In'}
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
@@ -212,7 +214,7 @@ const LoginForm = () => {
                         placeholder="First name"
                         value={firstName}
                         onChange={(e) => handleInputChange('firstName', e.target.value)}
-                        className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                        className={`pl-10 h-12 border-gray-200 focus:border-gray-800 focus:ring-gray-800 ${
                           errors.firstName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                         }`}
                         maxLength={50}
@@ -235,7 +237,7 @@ const LoginForm = () => {
                         placeholder="Last name"
                         value={lastName}
                         onChange={(e) => handleInputChange('lastName', e.target.value)}
-                        className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                        className={`pl-10 h-12 border-gray-200 focus:border-gray-800 focus:ring-gray-800 ${
                           errors.lastName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                         }`}
                         maxLength={50}
@@ -261,7 +263,7 @@ const LoginForm = () => {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                    className={`pl-10 h-12 border-gray-200 focus:border-gray-800 focus:ring-gray-800 ${
                       errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                     }`}
                     required
@@ -286,7 +288,7 @@ const LoginForm = () => {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    className={`pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                    className={`pl-10 pr-10 h-12 border-gray-200 focus:border-gray-800 focus:ring-gray-800 ${
                       errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                     }`}
                     required
@@ -331,7 +333,7 @@ const LoginForm = () => {
                       placeholder="Confirm your password"
                       value={confirmPassword}
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                      className={`pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                      className={`pl-10 pr-10 h-12 border-gray-200 focus:border-gray-800 focus:ring-gray-800 ${
                         errors.confirmPassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                       }`}
                       required
@@ -358,13 +360,13 @@ const LoginForm = () => {
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-gray-800 border-gray-300 rounded focus:ring-gray-800"
                     />
                     <span className="text-sm text-gray-600">Remember me</span>
                   </label>
                   <button
                     type="button"
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                    className="text-sm text-gray-700 hover:text-gray-900 font-medium transition-colors"
                   >
                     Forgot password?
                   </button>
@@ -373,7 +375,7 @@ const LoginForm = () => {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full h-12 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -399,7 +401,7 @@ const LoginForm = () => {
                   setFirstName('');
                   setLastName('');
                 }}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                className="text-sm text-gray-700 hover:text-gray-900 font-medium transition-colors"
               >
                 {isSignup 
                   ? 'Already have an account? Sign in' 
