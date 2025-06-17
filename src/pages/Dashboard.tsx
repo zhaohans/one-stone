@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,41 @@ const Dashboard = () => {
     { name: '5.50% Notes...', percentage: 1.42 },
     { name: '5.25% Notes...', percentage: 1.22 },
   ];
+
+  // Chart configurations
+  const barChartConfig = {
+    value: {
+      label: "Value",
+      color: "#3B82F6",
+    },
+  };
+
+  const pieChartConfig = {
+    "Fixed Income": {
+      label: "Fixed Income",
+      color: "#3B82F6",
+    },
+    "Structure Products": {
+      label: "Structure Products", 
+      color: "#EF4444",
+    },
+    "Equities": {
+      label: "Equities",
+      color: "#10B981",
+    },
+    "Deposit": {
+      label: "Deposit",
+      color: "#F59E0B",
+    },
+    "Cash": {
+      label: "Cash",
+      color: "#8B5CF6",
+    },
+    "Hedge Fund": {
+      label: "Hedge Fund",
+      color: "#06B6D4",
+    },
+  };
 
   return (
     <div className="space-y-6">
@@ -150,15 +186,15 @@ const Dashboard = () => {
 
                 {/* Bar Chart */}
                 <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ChartContainer config={barChartConfig}>
                     <BarChart data={cashDistributionData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
                       <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="value" fill="#3B82F6" />
+                      <Bar dataKey="value" fill="var(--color-value)" />
                     </BarChart>
-                  </ResponsiveContainer>
+                  </ChartContainer>
                 </div>
               </div>
             </CardContent>
@@ -176,7 +212,7 @@ const Dashboard = () => {
                 <div className="flex items-center space-x-6">
                   {/* Pie Chart */}
                   <div className="w-48 h-48">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ChartContainer config={pieChartConfig}>
                       <PieChart>
                         <Pie
                           data={productAllocationData}
@@ -192,7 +228,7 @@ const Dashboard = () => {
                         </Pie>
                         <ChartTooltip content={<ChartTooltipContent />} />
                       </PieChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </div>
 
                   {/* Legend */}
