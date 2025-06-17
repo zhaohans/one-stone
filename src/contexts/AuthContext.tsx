@@ -74,6 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log('Login attempt for:', email);
     setIsLoading(true);
     
     try {
@@ -83,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // In a real app, this would be an API call to your backend
       // For demo purposes, we'll use a secure validation approach
       const validCredentials = await validateCredentials(email, password);
+      console.log('Credential validation result:', validCredentials);
       
       if (validCredentials) {
         const userData: User = {
@@ -92,11 +94,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           role: 'admin'
         };
         
+        console.log('Setting user data:', userData);
         setUser(userData);
         refreshSession(userData);
         toast.success('Login successful! Welcome to One Stone Capital.');
         return true;
       } else {
+        console.log('Invalid credentials provided');
         toast.error('Invalid credentials. Please try again.');
         return false;
       }
@@ -178,14 +182,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 // Secure credential validation (in real app, this would be server-side)
 const validateCredentials = async (email: string, password: string): Promise<boolean> => {
+  console.log('Validating credentials for email:', email);
+  console.log('Password provided:', password);
+  console.log('Expected email:', 'k.shen@onestone.sg');
+  console.log('Expected password:', 'Onestone123@');
+  
   // Basic email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) return false;
+  const emailValid = emailRegex.test(email);
+  console.log('Email format valid:', emailValid);
+  
+  if (!emailValid) return false;
   
   // Administrator account validation
   // For demo purposes - in production, this would be handled by your backend
   // Never store or validate passwords client-side in a real application
-  return email === 'k.shen@onestone.sg' && password === 'Onestone123@';
+  const emailMatch = email === 'k.shen@onestone.sg';
+  const passwordMatch = password === 'Onestone123@';
+  
+  console.log('Email match:', emailMatch);
+  console.log('Password match:', passwordMatch);
+  
+  const result = emailMatch && passwordMatch;
+  console.log('Final validation result:', result);
+  
+  return result;
 };
 
 export const useAuth = () => {
