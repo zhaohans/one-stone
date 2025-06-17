@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -18,10 +18,14 @@ import {
   Building2,
   TrendingUp,
   Receipt,
-  Newspaper
+  Newspaper,
+  LogOut
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { searchSchema } from '@/lib/validation';
+import { toast } from 'sonner';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -29,7 +33,10 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchError, setSearchError] = useState('');
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -42,6 +49,51 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Shield, label: 'Compliance', path: '/compliance' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
+
+  // Security headers effect
+  useEffect(() => {
+    // Set security headers via meta tags (in a real app, these would be set server-side)
+    const setSecurityHeaders = () => {
+      // Content Security Policy
+      const cspMeta = document.createElement('meta');
+      cspMeta.httpEquiv = 'Content-Security-Policy';
+      cspMeta.content = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:";
+      document.head.appendChild(cspMeta);
+
+      // X-Frame-Options
+      const frameMeta = document.createElement('meta');
+      frameMeta.httpEquiv = 'X-Frame-Options';
+      frameMeta.content = 'DENY';
+      document.head.appendChild(frameMeta);
+
+      // X-Content-Type-Options
+      const typeMeta = document.createElement('meta');
+      typeMeta.httpEquiv = 'X-Content-Type-Options';
+      typeMeta.content = 'nosniff';
+      document.head.appendChild(typeMeta);
+    };
+
+    setSecurityHeaders();
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const validated = searchSchema.parse({ query: searchQuery });
+      setSearchError('');
+      
+      // Implement search functionality here
+      console.log('Searching for:', validated.query);
+      toast.info(`Searching for: ${validated.query}`);
+    } catch (error: any) {
+      setSearchError(error.errors[0]?.message || 'Invalid search query');
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -105,17 +157,30 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">KS</span>
+              <span className="text-white text-sm font-medium">
+                {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+              </span>
             </div>
             {!sidebarCollapsed && (
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">K. Shen</p>
+                <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
                 <p className="text-xs text-gray-500">Relationship Manager</p>
               </div>
             )}
           </div>
+          {!sidebarCollapsed && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          )}
         </div>
       </div>
 
@@ -138,14 +203,27 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             
             <div className="flex items-center space-x-4">
               {/* Global Search */}
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   type="text"
                   placeholder="Search clients, accounts, ISIN, trades..."
-                  className="pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (searchError) setSearchError('');
+                  }}
+                  className={`pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200 ${
+                    searchError ? 'border-red-500' : ''
+                  }`}
+                  maxLength={200}
                 />
-              </div>
+                {searchError && (
+                  <div className="absolute top-full left-0 mt-1 text-xs text-red-600 bg-white px-2 py-1 rounded shadow">
+                    {searchError}
+                  </div>
+                )}
+              </form>
               
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative hover:bg-gray-100">

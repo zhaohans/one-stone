@@ -6,32 +6,71 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, Lock, Mail, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { loginSchema, checkRateLimit, generateCSRFToken } from '@/lib/validation';
+import { z } from 'zod';
 
-interface LoginFormProps {
-  onLogin: () => void;
-}
-
-const LoginForm = ({ onLogin }: LoginFormProps) => {
+const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [csrfToken] = useState(() => generateCSRFToken());
+  const { login, isLoading } = useAuth();
+
+  const validateForm = (): boolean => {
+    try {
+      loginSchema.parse({ email, password });
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const formErrors: { email?: string; password?: string } = {};
+        error.errors.forEach((err) => {
+          if (err.path[0] === 'email') formErrors.email = err.message;
+          if (err.path[0] === 'password') formErrors.password = err.message;
+        });
+        setErrors(formErrors);
+      }
+      return false;
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate login process
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    if (email === 'k.shen@onestone.sg' && password === 'onestone123') {
-      toast.success('Login successful! Welcome to One Stone Capital.');
-      onLogin();
-    } else {
-      toast.error('Invalid credentials. Please try again.');
+    
+    // Rate limiting check
+    const clientId = 'login_' + (navigator.userAgent + window.location.href).slice(0, 50);
+    if (!checkRateLimit(clientId, 5, 300000)) { // 5 attempts per 5 minutes
+      toast.error('Too many login attempts. Please try again in 5 minutes.');
+      return;
     }
 
-    setIsLoading(false);
+    // Validate form
+    if (!validateForm()) {
+      toast.error('Please fix the errors below.');
+      return;
+    }
+
+    // Sanitize inputs (already done in schema transform)
+    const sanitizedEmail = email.trim().toLowerCase();
+    
+    const success = await login(sanitizedEmail, password);
+    
+    if (!success) {
+      // Clear password on failed login
+      setPassword('');
+    }
+  };
+
+  const handleInputChange = (field: 'email' | 'password', value: string) => {
+    if (field === 'email') {
+      setEmail(value);
+      if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+    } else {
+      setPassword(value);
+      if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+    }
   };
 
   return (
@@ -58,6 +97,8 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
+              <input type="hidden" name="_csrf" value={csrfToken} />
+              
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                   Email Address
@@ -69,11 +110,18 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                      errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                    }`}
                     required
+                    autoComplete="email"
+                    maxLength={254}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -87,9 +135,13 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    className={`pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                      errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                    }`}
                     required
+                    autoComplete="current-password"
+                    maxLength={128}
                   />
                   <button
                     type="button"
@@ -99,6 +151,9 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">

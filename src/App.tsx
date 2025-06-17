@@ -4,8 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { AuthProvider } from "./contexts/AuthContext";
 import LoginForm from "./components/LoginForm";
+import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import ClientManagement from "./pages/ClientManagement";
@@ -18,45 +19,99 @@ import TradesPage from "./pages/TradesPage";
 import News from "./pages/News";
 import Settings from "./pages/Settings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error: any) => {
+        // Don't retry on authentication errors
+        if (error?.status === 401 || error?.status === 403) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  if (!isAuthenticated) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <LoginForm onLogin={() => setIsAuthenticated(true)} />
-        </TooltipProvider>
-      </QueryClientProvider>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <MainLayout>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
             <Routes>
+              <Route path="/login" element={<LoginForm />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/clients" element={<ClientManagement />} />
-              <Route path="/accounts" element={<AccountsPage />} />
-              <Route path="/trades" element={<TradesPage />} />
-              <Route path="/fees" element={<FeeRetrocession />} />
-              <Route path="/documents" element={<DocumentVault />} />
-              <Route path="/news" element={<News />} />
-              <Route path="/compliance" element={<ComplianceDashboard />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/clients" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <ClientManagement />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/accounts" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AccountsPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/trades" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <TradesPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/fees" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <FeeRetrocession />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/documents" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <DocumentVault />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/news" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <News />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/compliance" element={
+                <ProtectedRoute requiredRole="admin">
+                  <MainLayout>
+                    <ComplianceDashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute requiredRole="admin">
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </MainLayout>
-        </BrowserRouter>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
