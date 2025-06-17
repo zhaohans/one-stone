@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
 import { 
   Building2, 
   Users, 
@@ -69,6 +69,7 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('company');
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showAddRoleModal, setShowAddRoleModal] = useState(false);
+  const [disableLandingPage, setDisableLandingPage] = useState(false);
 
   const companyForm = useForm({
     defaultValues: {
@@ -106,6 +107,14 @@ const Settings = () => {
     toast({
       title: "User Added",
       description: `Invitation sent to ${data.email}`,
+    });
+  };
+
+  const handleSecuritySettingsSave = () => {
+    console.log('Security settings updated:', { disableLandingPage });
+    toast({
+      title: "Security Settings Updated",
+      description: "Landing page settings have been saved successfully.",
     });
   };
 
@@ -661,40 +670,67 @@ const Settings = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Require Uppercase</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Require Numbers</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Require Special Characters</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <Switch defaultChecked />
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Two-Factor Authentication</CardTitle>
-                <CardDescription>Enhance security with 2FA</CardDescription>
+                <CardTitle>Access Control</CardTitle>
+                <CardDescription>Control user access and landing behavior</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium">Disable Landing Page</span>
+                    <p className="text-xs text-gray-500">Skip landing page and redirect users directly to dashboard</p>
+                  </div>
+                  <Switch 
+                    checked={disableLandingPage}
+                    onCheckedChange={setDisableLandingPage}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Enforce 2FA for all users</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <Switch />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Allow SMS 2FA</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Allow App-based 2FA</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <Switch defaultChecked />
                 </div>
+                <div className="pt-4">
+                  <Button onClick={handleSecuritySettingsSave} className="w-full">
+                    Save Security Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Emergency Controls</CardTitle>
+                <CardDescription>Emergency security measures</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Emergency Lockout</span>
                   <Button variant="destructive" size="sm">Activate</Button>
+                </div>
+                <div className="text-xs text-gray-500">
+                  Emergency lockout will immediately disable all user access to the system.
                 </div>
               </CardContent>
             </Card>
