@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Users, FileText, Shield, FolderOpen, DollarSign, Home, Building2, TrendingUp, Receipt, Newspaper, LogOut, MessageSquare, Clipboard, Tasks } from 'lucide-react';
+import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Users, FileText, Shield, FolderOpen, DollarSign, Home, Building2, TrendingUp, Receipt, Newspaper, LogOut, MessageSquare, Clipboard, CheckSquare } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,7 +44,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Newspaper, label: 'News', path: '/news' },
     { icon: Shield, label: 'Compliance', path: '/compliance' },
     { icon: MessageSquare, label: 'Messages', path: '/messages' },
-    { icon: Tasks, label: 'Tasks', path: '/tasks' },
+    { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
     { icon: Settings, label: 'Settings', path: '/settings' }
   ];
 
