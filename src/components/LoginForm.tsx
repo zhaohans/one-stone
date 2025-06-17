@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginSchema, checkRateLimit, generateCSRFToken } from '@/lib/validation';
 import { z } from 'zod';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -17,6 +17,8 @@ const LoginForm = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [csrfToken] = useState(() => generateCSRFToken());
   const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const validateForm = (): boolean => {
     try {
@@ -55,9 +57,16 @@ const LoginForm = () => {
     // Sanitize inputs (already done in schema transform)
     const sanitizedEmail = email.trim().toLowerCase();
     
+    console.log('Attempting login and navigation...');
     const success = await login(sanitizedEmail, password);
     
-    if (!success) {
+    if (success) {
+      console.log('Login successful, navigating to dashboard...');
+      // Get the intended destination or default to dashboard
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
+    } else {
+      console.log('Login failed');
       // Clear password on failed login
       setPassword('');
     }
