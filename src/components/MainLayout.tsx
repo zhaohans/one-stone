@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -157,7 +156,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3 mb-3">
+          <Link 
+            to="/profile"
+            className="flex items-center space-x-3 mb-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
                 {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
@@ -169,7 +171,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <p className="text-xs text-gray-500">Relationship Manager</p>
               </div>
             )}
-          </div>
+          </Link>
           {!sidebarCollapsed && (
             <Button
               variant="ghost"
@@ -239,9 +241,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               </Button>
               
               {/* Profile */}
-              <Button variant="ghost" size="sm" className="hover:bg-gray-100">
-                <User className="w-5 h-5 text-gray-600" />
-              </Button>
+              <Link to="/profile">
+                <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                  <User className="w-5 h-5 text-gray-600" />
+                </Button>
+              </Link>
             </div>
           </div>
         </header>

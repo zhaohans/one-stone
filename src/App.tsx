@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,7 @@ import AccountsPage from "./pages/AccountsPage";
 import TradesPage from "./pages/TradesPage";
 import News from "./pages/News";
 import Settings from "./pages/Settings";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -101,6 +101,13 @@ const App = () => {
                   <ProtectedRoute>
                     <MainLayout>
                       <Dashboard />
+                    </MainLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <UserProfile />
                     </MainLayout>
                   </ProtectedRoute>
                 } />
