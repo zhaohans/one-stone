@@ -1,17 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, Building2, User, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginSchema, signupSchema } from '@/lib/validation';
 import { validateAndSanitize, RateLimiter, generateCSRFToken } from '@/lib/security';
 import { z } from 'zod';
 import { useNavigate, useLocation } from 'react-router-dom';
-import LoginHeader from './login/LoginHeader';
-import LoginFormFields from './login/LoginFormFields';
-import LoginFormToggle from './login/LoginFormToggle';
 
 const loginRateLimiter = new RateLimiter(5, 900000); // 5 attempts per 15 minutes
 
@@ -161,19 +160,17 @@ const LoginForm = () => {
     }
   };
 
-  const handleToggleMode = () => {
-    setIsSignup(!isSignup);
-    setErrors({});
-    setPassword('');
-    setConfirmPassword('');
-    setFirstName('');
-    setLastName('');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <LoginHeader isSignup={isSignup} />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+            <Building2 className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">One Stone Capital</h1>
+          <p className="text-gray-600">Client Management System</p>
+        </div>
 
         {/* Login/Signup Card */}
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur">
@@ -191,21 +188,188 @@ const LoginForm = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <LoginFormFields
-                isSignup={isSignup}
-                email={email}
-                password={password}
-                confirmPassword={confirmPassword}
-                firstName={firstName}
-                lastName={lastName}
-                showPassword={showPassword}
-                showConfirmPassword={showConfirmPassword}
-                errors={errors}
-                csrfToken={csrfToken}
-                onInputChange={handleInputChange}
-                onTogglePassword={() => setShowPassword(!showPassword)}
-                onToggleConfirmPassword={() => setShowConfirmPassword(!showConfirmPassword)}
-              />
+              {/* CSRF Token (hidden) */}
+              <input type="hidden" name="csrf_token" value={csrfToken} />
+              
+              {/* General Error */}
+              {errors.general && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-600">{errors.general}</p>
+                </div>
+              )}
+
+              {isSignup && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                      First Name
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="First name"
+                        value={firstName}
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                          errors.firstName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                        }`}
+                        maxLength={50}
+                        autoComplete="given-name"
+                      />
+                    </div>
+                    {errors.firstName && (
+                      <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                      Last Name
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="lastName"
+                        type="text"
+                        placeholder="Last name"
+                        value={lastName}
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                          errors.lastName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                        }`}
+                        maxLength={50}
+                        autoComplete="family-name"
+                      />
+                    </div>
+                    {errors.lastName && (
+                      <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                      errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                    }`}
+                    required
+                    autoComplete="email"
+                    maxLength={254}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    className={`pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                      errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                    }`}
+                    required
+                    autoComplete={isSignup ? 'new-password' : 'current-password'}
+                    maxLength={128}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+                )}
+                {isSignup && (
+                  <div className="text-xs text-gray-500 mt-1 space-y-1">
+                    <p>Password must be at least 12 characters and include:</p>
+                    <ul className="list-disc list-inside ml-2">
+                      <li>Uppercase letter</li>
+                      <li>Lowercase letter</li>
+                      <li>Number</li>
+                      <li>Special character</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {isSignup && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+                    Confirm Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      className={`pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                        errors.confirmPassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                      }`}
+                      required
+                      autoComplete="new-password"
+                      maxLength={128}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>
+                  )}
+                </div>
+              )}
+
+              {!isSignup && (
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-600">Remember me</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -223,9 +387,38 @@ const LoginForm = () => {
               </Button>
             </form>
 
-            <LoginFormToggle isSignup={isSignup} onToggle={handleToggleMode} />
+            {/* Toggle between login and signup */}
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignup(!isSignup);
+                  setErrors({});
+                  setPassword('');
+                  setConfirmPassword('');
+                  setFirstName('');
+                  setLastName('');
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+              >
+                {isSignup 
+                  ? 'Already have an account? Sign in' 
+                  : "Don't have an account? Create one"
+                }
+              </button>
+            </div>
           </CardContent>
         </Card>
+
+        {/* Footer */}
+        <div className="text-center mt-8 space-y-2">
+          <p className="text-xs text-gray-400">
+            © 2024 One Stone Capital. All rights reserved.
+          </p>
+          <p className="text-xs text-gray-400">
+            Protected by enterprise-grade security
+          </p>
+        </div>
       </div>
     </div>
   );
