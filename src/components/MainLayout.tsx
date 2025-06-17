@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +18,8 @@ import {
   Home,
   Building2,
   TrendingUp,
-  ListTodo
+  ListTodo,
+  Receipt
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -35,7 +37,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Users, label: 'Clients', path: '/clients' },
     { icon: Building2, label: 'Accounts', path: '/accounts' },
     { icon: TrendingUp, label: 'Trades', path: '/trades' },
-    { icon: DollarSign, label: 'Fee & Retrocession', path: '/fees' },
+    { icon: Receipt, label: 'Fee Reports', path: '/fees' },
     { icon: BarChart3, label: 'Reports', path: '/reports' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
     { icon: ListTodo, label: 'Tasks', path: '/tasks' },
@@ -120,7 +122,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
         <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
