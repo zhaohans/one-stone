@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -298,9 +297,9 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Interactive Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Asset Allocation Pie Chart - Clickable */}
+      {/* Fixed Interactive Charts Section */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Asset Allocation Pie Chart - Fixed layout */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -310,47 +309,52 @@ const Dashboard = () => {
             <CardDescription>Current portfolio distribution across asset classes (click segments to filter)</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-6">
-              <div className="w-48 h-48">
-                <ChartContainer config={pieChartConfig}>
-                  <RechartsPieChart>
-                    <Pie
-                      data={assetAllocationData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      dataKey="value"
-                      onClick={handleAssetClick}
-                      className="cursor-pointer"
-                    >
-                      {assetAllocationData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={entry.color}
-                          className="hover:opacity-80 transition-opacity"
-                        />
-                      ))}
-                    </Pie>
-                    <ChartTooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="bg-white p-3 border rounded shadow-lg">
-                              <p className="font-medium">{data.name}</p>
-                              <p className="text-sm text-gray-600">{data.value}% (${(data.count * 1000).toLocaleString()}M)</p>
-                              <p className="text-xs text-blue-600 mt-1">Click to filter accounts</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  </RechartsPieChart>
-                </ChartContainer>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+              {/* Pie Chart Container */}
+              <div className="flex justify-center">
+                <div className="w-56 h-56">
+                  <ChartContainer config={pieChartConfig} className="w-full h-full">
+                    <RechartsPieChart width={224} height={224}>
+                      <Pie
+                        data={assetAllocationData}
+                        cx={112}
+                        cy={112}
+                        innerRadius={60}
+                        outerRadius={90}
+                        dataKey="value"
+                        onClick={handleAssetClick}
+                        className="cursor-pointer"
+                      >
+                        {assetAllocationData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={entry.color}
+                            className="hover:opacity-80 transition-opacity"
+                          />
+                        ))}
+                      </Pie>
+                      <ChartTooltip 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-white p-3 border rounded shadow-lg">
+                                <p className="font-medium">{data.name}</p>
+                                <p className="text-sm text-gray-600">{data.value}% (${(data.count * 1000).toLocaleString()}M)</p>
+                                <p className="text-xs text-blue-600 mt-1">Click to filter accounts</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                    </RechartsPieChart>
+                  </ChartContainer>
+                </div>
               </div>
-              <div className="space-y-3 flex-1">
+              
+              {/* Legend */}
+              <div className="space-y-3">
                 {assetAllocationData.map((item, index) => (
                   <div 
                     key={index} 
@@ -372,7 +376,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* AUM Trend Line Chart */}
+        {/* AUM Trend Line Chart - Fixed sizing */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -382,52 +386,53 @@ const Dashboard = () => {
             <CardDescription>7-month performance overview (hover for details)</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
-              <ChartContainer config={lineChartConfig}>
-                <LineChart data={aumTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip 
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-3 border rounded shadow-lg">
-                            <p className="font-medium">{label}</p>
-                            <div className="space-y-1">
-                              <p className="text-sm">AUM: ${payload[0]?.value}M</p>
-                              <p className="text-sm">Retrocession: ${payload[1]?.value}M</p>
-                              <p className="text-sm">Clients: {payload[0]?.payload?.clients}</p>
+            <div className="w-full h-80">
+              <ChartContainer config={lineChartConfig} className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={aumTrendData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <ChartTooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-3 border rounded shadow-lg">
+                              <p className="font-medium">{label}</p>
+                              <div className="space-y-1">
+                                <p className="text-sm">AUM: ${payload[0]?.value}M</p>
+                                <p className="text-sm">Retrocession: ${payload[1]?.value}M</p>
+                                <p className="text-sm">Clients: {payload[0]?.payload?.clients}</p>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="aum" 
-                    stroke="var(--color-aum)" 
-                    strokeWidth={3}
-                    dot={{ fill: 'var(--color-aum)', strokeWidth: 2, r: 4 }}
-                    className="hover:stroke-width-4"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="retrocession" 
-                    stroke="var(--color-retrocession)" 
-                    strokeWidth={3}
-                    dot={{ fill: 'var(--color-retrocession)', strokeWidth: 2, r: 4 }}
-                  />
-                </LineChart>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="aum" 
+                      stroke="var(--color-aum)" 
+                      strokeWidth={3}
+                      dot={{ fill: 'var(--color-aum)', strokeWidth: 2, r: 4 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="retrocession" 
+                      stroke="var(--color-retrocession)" 
+                      strokeWidth={3}
+                      dot={{ fill: 'var(--color-retrocession)', strokeWidth: 2, r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </ChartContainer>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Fee/Retrocession Trend Bar Chart */}
+      {/* Fee/Retrocession Trend Bar Chart - Fixed sizing */}
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
@@ -437,35 +442,37 @@ const Dashboard = () => {
           <CardDescription>Quarterly fee analysis with interactive legend</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-64">
-            <ChartContainer config={barChartConfig}>
-              <BarChart data={feeRetroData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="period" />
-                <YAxis />
-                <ChartTooltip 
-                  content={({ active, payload, label }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-white p-3 border rounded shadow-lg">
-                          <p className="font-medium">{label}</p>
-                          <div className="space-y-1">
-                            {payload.map((entry, index) => (
-                              <p key={index} className="text-sm" style={{ color: entry.color }}>
-                                {entry.name}: ${entry.value}M
-                              </p>
-                            ))}
+          <div className="w-full h-80">
+            <ChartContainer config={barChartConfig} className="w-full h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={feeRetroData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="period" />
+                  <YAxis />
+                  <ChartTooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-3 border rounded shadow-lg">
+                            <p className="font-medium">{label}</p>
+                            <div className="space-y-1">
+                              {payload.map((entry, index) => (
+                                <p key={index} className="text-sm" style={{ color: entry.color }}>
+                                  {entry.name}: ${entry.value}M
+                                </p>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Bar dataKey="fees" fill="var(--color-fees)" />
-                <Bar dataKey="retrocession" fill="var(--color-retrocession)" />
-                <Bar dataKey="netFees" fill="var(--color-netFees)" />
-              </BarChart>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="fees" fill="var(--color-fees)" />
+                  <Bar dataKey="retrocession" fill="var(--color-retrocession)" />
+                  <Bar dataKey="netFees" fill="var(--color-netFees)" />
+                </BarChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </div>
         </CardContent>
