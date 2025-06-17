@@ -9,13 +9,74 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          department: string | null
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          office_number: string | null
+          phone: string | null
+          position: string | null
+          role: string
+          status: string
+          supervisor_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          email: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          office_number?: string | null
+          phone?: string | null
+          position?: string | null
+          role?: string
+          status?: string
+          supervisor_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          office_number?: string | null
+          phone?: string | null
+          position?: string | null
+          role?: string
+          status?: string
+          supervisor_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_admin_user: {
+        Args: { user_email: string; user_password: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

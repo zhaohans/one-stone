@@ -1,22 +1,25 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Lock, Mail, Building2 } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, Building2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { loginSchema, checkRateLimit, generateCSRFToken } from '@/lib/validation';
+import { loginSchema } from '@/lib/validation';
 import { z } from 'zod';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [csrfToken] = useState(() => generateCSRFToken());
-  const { login, isLoading } = useAuth();
+  const [isSignup, setIsSignup] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; firstName?: string; lastName?: string }>({});
+  const { login, signup, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,47 +41,52 @@ const LoginForm = () => {
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Rate limiting check
-    const clientId = 'login_' + (navigator.userAgent + window.location.href).slice(0, 50);
-    if (!checkRateLimit(clientId, 5, 300000)) { // 5 attempts per 5 minutes
-      toast.error('Too many login attempts. Please try again in 5 minutes.');
-      return;
-    }
-
     // Validate form
     if (!validateForm()) {
       toast.error('Please fix the errors below.');
       return;
     }
 
-    // Sanitize inputs (already done in schema transform)
     const sanitizedEmail = email.trim().toLowerCase();
     
-    console.log('Attempting login and navigation...');
-    const success = await login(sanitizedEmail, password);
+    console.log(`Attempting ${isSignup ? 'signup' : 'login'}...`);
     
-    if (success) {
-      console.log('Login successful, navigating to dashboard...');
-      // Get the intended destination or default to dashboard
+    let success = false;
+    if (isSignup) {
+      success = await signup(sanitizedEmail, password, firstName, lastName);
+    } else {
+      success = await login(sanitizedEmail, password);
+    }
+    
+    if (success && !isSignup) {
+      console.log('Login successful, navigating...');
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
+    } else if (success && isSignup) {
+      // For signup, user might need to verify email first
+      console.log('Signup successful');
     } else {
-      console.log('Login failed');
-      // Clear password on failed login
+      console.log(`${isSignup ? 'Signup' : 'Login'} failed`);
       setPassword('');
     }
   };
 
-  const handleInputChange = (field: 'email' | 'password', value: string) => {
+  const handleInputChange = (field: 'email' | 'password' | 'firstName' | 'lastName', value: string) => {
     if (field === 'email') {
       setEmail(value);
       if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
-    } else {
+    } else if (field === 'password') {
       setPassword(value);
       if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+    } else if (field === 'firstName') {
+      setFirstName(value);
+      if (errors.firstName) setErrors(prev => ({ ...prev, firstName: undefined }));
+    } else if (field === 'lastName') {
+      setLastName(value);
+      if (errors.lastName) setErrors(prev => ({ ...prev, lastName: undefined }));
     }
   };
 
@@ -94,19 +102,60 @@ const LoginForm = () => {
           <p className="text-gray-600">Client Management System</p>
         </div>
 
-        {/* Login Card */}
+        {/* Login/Signup Card */}
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur">
           <CardHeader className="space-y-1 pb-6">
             <CardTitle className="text-2xl font-semibold text-center text-gray-900">
-              Sign In
+              {isSignup ? 'Create Account' : 'Sign In'}
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
-              Enter your credentials to access your account
+              {isSignup 
+                ? 'Create your account to get started' 
+                : 'Enter your credentials to access your account'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-6">
-              <input type="hidden" name="_csrf" value={csrfToken} />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {isSignup && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                      First Name
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="First name"
+                        value={firstName}
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        maxLength={50}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                      Last Name
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="lastName"
+                        type="text"
+                        placeholder="Last name"
+                        value={lastName}
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        maxLength={50}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -149,7 +198,7 @@ const LoginForm = () => {
                       errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                     }`}
                     required
-                    autoComplete="current-password"
+                    autoComplete={isSignup ? 'new-password' : 'current-password'}
                     maxLength={128}
                   />
                   <button
@@ -163,23 +212,30 @@ const LoginForm = () => {
                 {errors.password && (
                   <p className="text-sm text-red-600 mt-1">{errors.password}</p>
                 )}
+                {isSignup && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Password must be at least 6 characters long
+                  </p>
+                )}
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-gray-600">Remember me</span>
-                </label>
-                <button
-                  type="button"
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                >
-                  Forgot password?
-                </button>
-              </div>
+              {!isSignup && (
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-600">Remember me</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -189,24 +245,36 @@ const LoginForm = () => {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Signing in...</span>
+                    <span>{isSignup ? 'Creating account...' : 'Signing in...'}</span>
                   </div>
                 ) : (
-                  'Sign In'
+                  isSignup ? 'Create Account' : 'Sign In'
                 )}
               </Button>
             </form>
+
+            {/* Toggle between login and signup */}
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignup(!isSignup);
+                  setErrors({});
+                  setPassword('');
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+              >
+                {isSignup 
+                  ? 'Already have an account? Sign in' 
+                  : "Don't have an account? Create one"
+                }
+              </button>
+            </div>
           </CardContent>
         </Card>
 
         {/* Footer */}
         <div className="text-center mt-8 space-y-2">
-          <p className="text-sm text-gray-500">
-            Don't have an account?{' '}
-            <button className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-              Contact Administrator
-            </button>
-          </p>
           <p className="text-xs text-gray-400">
             © 2024 One Stone Capital. All rights reserved.
           </p>
