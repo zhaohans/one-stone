@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import FeeRetrocession from "./pages/FeeRetrocession";
 import DocumentVault from "./pages/DocumentVault";
 import ComplianceDashboard from "./pages/ComplianceDashboard";
 import NotFound from "./pages/NotFound";
+import AccountsPage from "./pages/AccountsPage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +42,7 @@ const App = () => {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/clients" element={<ClientManagement />} />
+              <Route path="/accounts" element={<AccountsPage />} />
               <Route path="/fees" element={<FeeRetrocession />} />
               <Route path="/documents" element={<DocumentVault />} />
               <Route path="/compliance" element={<ComplianceDashboard />} />
