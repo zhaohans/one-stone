@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import AccountsPage from "./pages/AccountsPage";
 import TradesPage from "./pages/TradesPage";
 import News from "./pages/News";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => {
               <Route path="/documents" element={<DocumentVault />} />
               <Route path="/news" element={<News />} />
               <Route path="/compliance" element={<ComplianceDashboard />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </MainLayout>
