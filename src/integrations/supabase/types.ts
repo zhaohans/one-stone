@@ -74,8 +74,10 @@ export type Database = {
     }
     Functions: {
       create_admin_user: {
-        Args: { user_email: string; user_password: string }
-        Returns: string
+        Args:
+          | { username: string; email: string }
+          | { username: string; email: string; password: string }
+        Returns: undefined
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
