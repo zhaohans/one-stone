@@ -1,109 +1,48 @@
 
 import { z } from 'zod';
-import DOMPurify from 'dompurify';
+import { secureEmailSchema, strongPasswordSchema, nameSchema } from './security';
 
-// Security utilities
-export const sanitizeInput = (input: string): string => {
-  return DOMPurify.sanitize(input.trim());
-};
-
-export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-// Authentication schemas
+// Updated login schema with stronger validation
 export const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address')
-    .max(254, 'Email is too long')
-    .transform(sanitizeInput),
-  password: z
-    .string()
-    .min(1, 'Password is required')
-    .min(8, 'Password must be at least 8 characters')
-    .max(128, 'Password is too long')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one lowercase letter, one uppercase letter, and one number'
-    ),
+  email: secureEmailSchema,
+  password: z.string().min(1, 'Password is required').max(128, 'Password cannot exceed 128 characters')
 });
 
-// Search and general input schemas
+// Updated signup schema with stronger validation
+export const signupSchema = z.object({
+  email: secureEmailSchema,
+  password: strongPasswordSchema,
+  firstName: nameSchema.optional(),
+  lastName: nameSchema.optional(),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+// Search validation
 export const searchSchema = z.object({
-  query: z
-    .string()
-    .max(200, 'Search query is too long')
-    .transform(sanitizeInput),
+  query: z.string()
+    .min(1, 'Search query cannot be empty')
+    .max(200, 'Search query cannot exceed 200 characters')
+    .regex(/^[a-zA-Z0-9\s\-_.@]+$/, 'Search query contains invalid characters')
 });
 
-export const clientNameSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .max(100, 'Name is too long')
-    .regex(/^[a-zA-Z\s\-\.]+$/, 'Name contains invalid characters')
-    .transform(sanitizeInput),
+// Profile update validation
+export const profileUpdateSchema = z.object({
+  first_name: nameSchema.optional(),
+  last_name: nameSchema.optional(),
+  phone: z.string()
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number')
+    .max(20, 'Phone number cannot exceed 20 characters')
+    .optional(),
+  department: z.string()
+    .max(100, 'Department cannot exceed 100 characters')
+    .optional(),
+  position: z.string()
+    .max(100, 'Position cannot exceed 100 characters')
+    .optional(),
+  office_number: z.string()
+    .max(20, 'Office number cannot exceed 20 characters')
+    .optional()
 });
-
-export const financialAmountSchema = z.object({
-  amount: z
-    .number()
-    .positive('Amount must be positive')
-    .max(1000000000, 'Amount is too large')
-    .multipleOf(0.01, 'Amount can have at most 2 decimal places'),
-});
-
-// File upload validation
-export const fileUploadSchema = z.object({
-  file: z
-    .instanceof(File)
-    .refine((file) => file.size <= 10 * 1024 * 1024, 'File size must be less than 10MB')
-    .refine(
-      (file) => ['image/jpeg', 'image/png', 'application/pdf', 'text/csv'].includes(file.type),
-      'File type not supported'
-    ),
-});
-
-// Rate limiting helper
-const requestCounts = new Map<string, { count: number; resetTime: number }>();
-
-export const checkRateLimit = (identifier: string, maxRequests: number = 5, windowMs: number = 300000): boolean => {
-  const now = Date.now();
-  const userRequests = requestCounts.get(identifier);
-  
-  if (!userRequests || now > userRequests.resetTime) {
-    requestCounts.set(identifier, { count: 1, resetTime: now + windowMs });
-    return true;
-  }
-  
-  if (userRequests.count >= maxRequests) {
-    return false;
-  }
-  
-  userRequests.count++;
-  return true;
-};
-
-// CSRF token generation and validation
-export const generateCSRFToken = (): string => {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-};
-
-export const validateCSRFToken = (token: string, storedToken: string): boolean => {
-  return token === storedToken && token.length === 64;
-};
-
-// XSS protection
-export const escapeHtml = (unsafe: string): string => {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};

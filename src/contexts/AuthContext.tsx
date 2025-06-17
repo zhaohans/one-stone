@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,13 +44,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('Error fetching user profile:', error.message);
         return null;
       }
 
       return data;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Error fetching user profile');
       return null;
     }
   };
@@ -70,7 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        // Log auth events without sensitive data
+        console.log('Auth state changed:', event);
         setSession(session);
         
         if (session?.user) {
@@ -88,7 +88,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log('Login attempt for:', email);
     setIsLoading(true);
     
     try {
@@ -98,20 +97,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
-        console.error('Login error:', error);
+        console.error('Login error:', error.message);
         toast.error(error.message || 'Login failed. Please try again.');
         return false;
       }
 
       if (data.user) {
-        console.log('Login successful for:', data.user.email);
         toast.success('Login successful! Welcome to One Stone Capital.');
         return true;
       }
 
       return false;
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error occurred');
       toast.error('Login failed. Please try again.');
       return false;
     } finally {
@@ -125,7 +123,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     firstName?: string, 
     lastName?: string
   ): Promise<boolean> => {
-    console.log('Signup attempt for:', email);
     setIsLoading(true);
 
     try {
@@ -142,20 +139,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
-        console.error('Signup error:', error);
+        console.error('Signup error:', error.message);
         toast.error(error.message || 'Signup failed. Please try again.');
         return false;
       }
 
       if (data.user) {
-        console.log('Signup successful for:', data.user.email);
         toast.success('Account created successfully! Please check your email to verify your account.');
         return true;
       }
 
       return false;
     } catch (error: any) {
-      console.error('Signup error:', error);
+      console.error('Signup error occurred');
       toast.error('Signup failed. Please try again.');
       return false;
     } finally {
@@ -167,7 +163,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Logout error:', error);
+        console.error('Logout error:', error.message);
         toast.error('Error logging out');
       } else {
         setUser(null);
@@ -175,7 +171,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         toast.info('You have been logged out.');
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Logout error occurred');
       toast.error('Error logging out');
     }
   };
@@ -193,7 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('id', user.id);
 
       if (error) {
-        console.error('Profile update error:', error);
+        console.error('Profile update error:', error.message);
         toast.error('Failed to update profile');
         return false;
       }
@@ -208,7 +204,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return false;
     } catch (error) {
-      console.error('Profile update error:', error);
+      console.error('Profile update error occurred');
       toast.error('Failed to update profile');
       return false;
     }
