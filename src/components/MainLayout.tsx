@@ -19,7 +19,8 @@ import {
   Building2,
   TrendingUp,
   ListTodo,
-  Receipt
+  Receipt,
+  Newspaper
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -40,6 +41,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Receipt, label: 'Fee Reports', path: '/fees' },
     { icon: BarChart3, label: 'Reports', path: '/reports' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
+    { icon: Newspaper, label: 'News', path: '/news' },
     { icon: ListTodo, label: 'Tasks', path: '/tasks' },
     { icon: Shield, label: 'Compliance', path: '/compliance' },
     { icon: Settings, label: 'Settings', path: '/settings' },

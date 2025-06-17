@@ -15,6 +15,7 @@ import ComplianceDashboard from "./pages/ComplianceDashboard";
 import NotFound from "./pages/NotFound";
 import AccountsPage from "./pages/AccountsPage";
 import TradesPage from "./pages/TradesPage";
+import News from "./pages/News";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => {
               <Route path="/trades" element={<TradesPage />} />
               <Route path="/fees" element={<FeeRetrocession />} />
               <Route path="/documents" element={<DocumentVault />} />
+              <Route path="/news" element={<News />} />
               <Route path="/compliance" element={<ComplianceDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
