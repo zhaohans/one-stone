@@ -9,7 +9,6 @@ import {
   User, 
   ChevronLeft, 
   ChevronRight,
-  BarChart3,
   Users,
   FileText,
   Shield,
@@ -18,7 +17,6 @@ import {
   Home,
   Building2,
   TrendingUp,
-  ListTodo,
   Receipt,
   Newspaper
 } from 'lucide-react';
@@ -39,10 +37,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Building2, label: 'Accounts', path: '/accounts' },
     { icon: TrendingUp, label: 'Trades', path: '/trades' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees' },
-    { icon: BarChart3, label: 'Reports', path: '/reports' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
     { icon: Newspaper, label: 'News', path: '/news' },
-    { icon: ListTodo, label: 'Tasks', path: '/tasks' },
     { icon: Shield, label: 'Compliance', path: '/compliance' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
