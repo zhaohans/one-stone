@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -131,53 +132,39 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Hidden CSRF token for forms */}
       <input type="hidden" name="csrf_token" value={csrfToken} />
       
-      {/* Sidebar with vibrant styling */}
+      {/* Sidebar */}
       <div className={cn(
-        "bg-white border-r border-orange-200 flex flex-col transition-all duration-300 shadow-lg",
+        "bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm",
         sidebarCollapsed ? "w-16" : "w-64"
       )}>
-        {/* Header with logo */}
-        <div className="p-4 border-b border-orange-200 flex items-center justify-between bg-gradient-to-r from-orange-50 to-red-50">
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {!sidebarCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center shadow-lg logo-pulse relative overflow-hidden">
-                <img 
-                  src="/lovable-uploads/4e7c829c-3064-46fd-82e5-5e44ed5b6be6.png" 
-                  alt="One Stone Capital Logo" 
-                  className="w-8 h-8 object-contain filter brightness-0 invert"
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent transform rotate-45 translate-x-full hover:translate-x-[-100%] transition-transform duration-1000"></div>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-sm">OSC</span>
               </div>
               <div>
-                <span className="font-bold text-gray-800 text-lg">One Stone</span>
-                <div className="text-sm text-orange-600 font-medium">Capital</div>
+                <span className="font-bold text-gray-900 text-lg">One Stone</span>
+                <div className="text-xs text-gray-500 font-medium">Capital</div>
               </div>
-            </div>
-          )}
-          {sidebarCollapsed && (
-            <div className="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center shadow-md logo-pulse">
-              <img 
-                src="/lovable-uploads/4e7c829c-3064-46fd-82e5-5e44ed5b6be6.png" 
-                alt="One Stone Capital Logo" 
-                className="w-6 h-6 object-contain filter brightness-0 invert"
-              />
             </div>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="text-orange-500 hover:text-orange-700 hover:bg-orange-100"
+            className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
           >
             {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </Button>
         </div>
 
-        {/* Navigation with enhanced styling */}
+        {/* Navigation */}
         <nav className="flex-1 p-3">
           <ul className="space-y-1">
             {menuItems.map((item) => {
@@ -189,13 +176,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     className={cn(
                       "flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group",
                       isActive
-                        ? "bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 border-r-2 border-orange-500 shadow-sm"
-                        : "text-gray-600 hover:bg-orange-50 hover:text-orange-700"
+                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     <item.icon className={cn(
                       "w-5 h-5 transition-colors",
-                      isActive ? "text-orange-600" : "text-gray-500 group-hover:text-orange-600"
+                      isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
                     )} />
                     {!sidebarCollapsed && <span className="font-medium text-sm">{item.label}</span>}
                   </Link>
@@ -205,10 +192,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </ul>
         </nav>
 
-        {/* User Profile with enhanced styling */}
-        <div className="p-4 border-t border-orange-200 bg-gradient-to-r from-orange-50 to-red-50">
-          <Link to="/profile" className="flex items-center space-x-3 mb-3 p-2 rounded-lg hover:bg-orange-100 transition-colors">
-            <div className="w-10 h-10 gradient-bg rounded-full flex items-center justify-center shadow-md">
+        {/* User Profile */}
+        <div className="p-4 border-t border-gray-200">
+          <Link to="/profile" className="flex items-center space-x-3 mb-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
                 {getUserInitials()}
               </span>
@@ -216,7 +203,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {!sidebarCollapsed && (
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
-                <p className="text-xs text-orange-600">{user?.position || 'Team Member'}</p>
+                <p className="text-xs text-gray-500">{user?.position || 'Team Member'}</p>
               </div>
             )}
           </Link>
@@ -225,7 +212,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="w-full justify-start text-gray-600 hover:text-orange-700 hover:bg-orange-100"
+              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
@@ -236,23 +223,23 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar with enhanced styling */}
-        <header className="bg-white/95 backdrop-blur-sm border-b border-orange-200 px-6 py-4 shadow-sm">
+        {/* Top Bar */}
+        <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
               
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* Global Search with enhanced styling */}
+              {/* Global Search */}
               <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   type="text"
                   placeholder="Search clients, accounts, ISIN, trades..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className={`pl-10 pr-4 w-96 focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50 border-orange-200 ${
+                  className={`pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200 ${
                     searchError ? 'border-red-500' : ''
                   }`}
                   maxLength={200}
@@ -265,23 +252,23 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 )}
               </form>
               
-              {/* Notifications with vibrant styling */}
-              <Button variant="ghost" size="sm" className="relative hover:bg-orange-100">
-                <Bell className="w-5 h-5 text-orange-600" />
-                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-md">
+              {/* Notifications */}
+              <Button variant="ghost" size="sm" className="relative hover:bg-gray-100">
+                <Bell className="w-5 h-5 text-gray-600" />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                   3
                 </span>
               </Button>
               
               {/* Settings */}
-              <Button variant="ghost" size="sm" className="hover:bg-orange-100">
-                <Settings className="w-5 h-5 text-orange-600" />
+              <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                <Settings className="w-5 h-5 text-gray-600" />
               </Button>
               
               {/* Profile */}
               <Link to="/profile">
-                <Button variant="ghost" size="sm" className="hover:bg-orange-100">
-                  <User className="w-5 h-5 text-orange-600" />
+                <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                  <User className="w-5 h-5 text-gray-600" />
                 </Button>
               </Link>
             </div>
@@ -289,7 +276,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-auto bg-gradient-to-br from-orange-50/30 via-white to-orange-50/30">
+        <main className="flex-1 p-6 overflow-auto bg-gray-50">
           {children}
         </main>
       </div>

@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Lock, Mail, User, Shield } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, Building2, User, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginSchema, signupSchema } from '@/lib/validation';
@@ -160,34 +161,22 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-bg-light flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-r from-orange-300 to-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div className="absolute -bottom-8 -right-4 w-72 h-72 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-red-200 to-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Header with animated logo */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 gradient-bg rounded-xl mb-4 shadow-xl logo-pulse relative overflow-hidden">
-            <img 
-              src="/lovable-uploads/4e7c829c-3064-46fd-82e5-5e44ed5b6be6.png" 
-              alt="One Stone Capital Logo" 
-              className="w-16 h-16 object-contain filter brightness-0 invert"
-            />
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent transform rotate-45 translate-x-full group-hover:translate-x-[-100%] transition-transform duration-1000"></div>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+            <Building2 className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-2">One Stone Capital</h1>
-          <p className="text-gray-600 font-medium">Client Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">One Stone Capital</h1>
+          <p className="text-gray-600">Client Management System</p>
         </div>
 
-        {/* Login/Signup Card with enhanced styling */}
-        <Card className="shadow-2xl border border-orange-200 bg-white/95 backdrop-blur-sm">
-          <CardHeader className="space-y-1 pb-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-t-lg">
-            <CardTitle className="text-2xl font-semibold text-center text-gray-800 flex items-center justify-center gap-2">
-              <Shield className="w-5 h-5 text-orange-600" />
+        {/* Login/Signup Card */}
+        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur">
+          <CardHeader className="space-y-1 pb-6">
+            <CardTitle className="text-2xl font-semibold text-center text-gray-900 flex items-center justify-center gap-2">
+              <Shield className="w-5 h-5 text-blue-600" />
               {isSignup ? 'Create Account' : 'Sign In'}
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
@@ -197,7 +186,7 @@ const LoginForm = () => {
               }
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* CSRF Token (hidden) */}
               <input type="hidden" name="csrf_token" value={csrfToken} />
@@ -216,14 +205,14 @@ const LoginForm = () => {
                       First Name
                     </Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-orange-400" />
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="firstName"
                         type="text"
                         placeholder="First name"
                         value={firstName}
                         onChange={(e) => handleInputChange('firstName', e.target.value)}
-                        className={`pl-10 h-12 border-orange-200 focus:border-orange-500 focus:ring-orange-500 ${
+                        className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
                           errors.firstName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                         }`}
                         maxLength={50}
@@ -239,14 +228,14 @@ const LoginForm = () => {
                       Last Name
                     </Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-orange-400" />
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="lastName"
                         type="text"
                         placeholder="Last name"
                         value={lastName}
                         onChange={(e) => handleInputChange('lastName', e.target.value)}
-                        className={`pl-10 h-12 border-orange-200 focus:border-orange-500 focus:ring-orange-500 ${
+                        className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
                           errors.lastName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                         }`}
                         maxLength={50}
@@ -265,14 +254,14 @@ const LoginForm = () => {
                   Email Address
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-orange-400" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`pl-10 h-12 border-orange-200 focus:border-orange-500 focus:ring-orange-500 ${
+                    className={`pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                     }`}
                     required
@@ -290,14 +279,14 @@ const LoginForm = () => {
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-orange-400" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    className={`pl-10 pr-10 h-12 border-orange-200 focus:border-orange-500 focus:ring-orange-500 ${
+                    className={`pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                     }`}
                     required
@@ -307,7 +296,7 @@ const LoginForm = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-orange-400 hover:text-orange-600 transition-colors"
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -335,14 +324,14 @@ const LoginForm = () => {
                     Confirm Password
                   </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-orange-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
                       placeholder="Confirm your password"
                       value={confirmPassword}
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                      className={`pl-10 pr-10 h-12 border-orange-200 focus:border-orange-500 focus:ring-orange-500 ${
+                      className={`pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
                         errors.confirmPassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
                       }`}
                       required
@@ -352,7 +341,7 @@ const LoginForm = () => {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-3 text-orange-400 hover:text-orange-600 transition-colors"
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
                       tabIndex={-1}
                     >
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -369,13 +358,13 @@ const LoginForm = () => {
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-orange-500 border-orange-300 rounded focus:ring-orange-500"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-600">Remember me</span>
                   </label>
                   <button
                     type="button"
-                    className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
                   >
                     Forgot password?
                   </button>
@@ -384,7 +373,7 @@ const LoginForm = () => {
 
               <Button
                 type="submit"
-                className="w-full h-12 gradient-bg text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -410,7 +399,7 @@ const LoginForm = () => {
                   setFirstName('');
                   setLastName('');
                 }}
-                className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
               >
                 {isSignup 
                   ? 'Already have an account? Sign in' 
@@ -423,10 +412,10 @@ const LoginForm = () => {
 
         {/* Footer */}
         <div className="text-center mt-8 space-y-2">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             © 2024 One Stone Capital. All rights reserved.
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             Protected by enterprise-grade security
           </p>
         </div>
