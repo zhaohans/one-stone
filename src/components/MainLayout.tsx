@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +17,6 @@ import {
   Home,
   Building2,
   TrendingUp,
-  PieChart,
   ListTodo
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
@@ -36,7 +34,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: Users, label: 'Clients', path: '/clients' },
     { icon: Building2, label: 'Accounts', path: '/accounts' },
-    { icon: PieChart, label: 'Holdings', path: '/holdings' },
     { icon: TrendingUp, label: 'Trades', path: '/trades' },
     { icon: DollarSign, label: 'Fee & Retrocession', path: '/fees' },
     { icon: BarChart3, label: 'Reports', path: '/reports' },
