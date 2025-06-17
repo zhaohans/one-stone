@@ -7,7 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Eye, EyeOff, Lock, Mail, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const LoginForm = () => {
+interface LoginFormProps {
+  onLogin: () => void;
+}
+
+const LoginForm = ({ onLogin }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,8 +25,8 @@ const LoginForm = () => {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     if (email === 'k.shen@onestone.sg' && password === 'onestone123') {
-      toast.success('Login successful! Welcome to EasyView.');
-      // In a real app, you would redirect here
+      toast.success('Login successful! Welcome to One Stone Capital.');
+      onLogin();
     } else {
       toast.error('Invalid credentials. Please try again.');
     }
@@ -38,8 +42,8 @@ const LoginForm = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
             <Building2 className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">EasyView</h1>
-          <p className="text-gray-600">Property Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">One Stone Capital</h1>
+          <p className="text-gray-600">Client Management System</p>
         </div>
 
         {/* Login Card */}
@@ -147,7 +151,7 @@ const LoginForm = () => {
             </button>
           </p>
           <p className="text-xs text-gray-400">
-            © 2024 EasyView. All rights reserved.
+            © 2024 One Stone Capital. All rights reserved.
           </p>
         </div>
       </div>
