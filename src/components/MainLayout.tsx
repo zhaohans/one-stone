@@ -6,8 +6,6 @@ import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Users, FileTex
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { searchSchema } from '@/lib/validation';
-import { validateAndSanitize, generateCSRFToken } from '@/lib/security';
 import { toast } from 'sonner';
 
 interface MainLayoutProps {
@@ -17,10 +15,8 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchError, setSearchError] = useState('');
-  const [csrfToken, setCsrfToken] = useState('');
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { profile, logout, role } = useAuth();
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -30,80 +26,17 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Receipt, label: 'Fee Reports', path: '/fees' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
     { icon: Newspaper, label: 'News', path: '/news' },
-    { icon: Shield, label: 'Compliance', path: '/compliance' },
-    { icon: Settings, label: 'Settings', path: '/settings' }
+    { icon: Shield, label: 'Compliance', path: '/compliance', requireRole: 'admin' },
+    { icon: Settings, label: 'Settings', path: '/settings', requireRole: 'admin' }
   ];
-
-  // Security headers and CSRF token setup
-  useEffect(() => {
-    setCsrfToken(generateCSRFToken());
-    
-    // Set security headers via meta tags
-    const setSecurityHeaders = () => {
-      // Enhanced Content Security Policy
-      const cspMeta = document.createElement('meta');
-      cspMeta.httpEquiv = 'Content-Security-Policy';
-      cspMeta.content = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://ufjzxhohsvuxxyajvzma.supabase.co; frame-ancestors 'none';";
-      
-      // Remove existing CSP if present
-      const existingCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
-      if (existingCSP) {
-        document.head.removeChild(existingCSP);
-      }
-      document.head.appendChild(cspMeta);
-
-      // X-Frame-Options
-      let frameMeta = document.querySelector('meta[http-equiv="X-Frame-Options"]');
-      if (!frameMeta) {
-        frameMeta = document.createElement('meta');
-        frameMeta.setAttribute('http-equiv', 'X-Frame-Options');
-        frameMeta.setAttribute('content', 'DENY');
-        document.head.appendChild(frameMeta);
-      }
-
-      // X-Content-Type-Options
-      let typeMeta = document.querySelector('meta[http-equiv="X-Content-Type-Options"]');
-      if (!typeMeta) {
-        typeMeta = document.createElement('meta');
-        typeMeta.setAttribute('http-equiv', 'X-Content-Type-Options');
-        typeMeta.setAttribute('content', 'nosniff');
-        document.head.appendChild(typeMeta);
-      }
-
-      // Referrer Policy
-      let referrerMeta = document.querySelector('meta[name="referrer"]');
-      if (!referrerMeta) {
-        referrerMeta = document.createElement('meta');
-        referrerMeta.setAttribute('name', 'referrer');
-        referrerMeta.setAttribute('content', 'strict-origin-when-cross-origin');
-        document.head.appendChild(referrerMeta);
-      }
-    };
-    
-    setSecurityHeaders();
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!csrfToken) {
-      toast.error('Security error. Please refresh the page.');
-      return;
-    }
+    if (!searchQuery.trim()) return;
     
-    try {
-      const sanitizedQuery = validateAndSanitize.text(searchQuery, 200);
-      const validated = searchSchema.parse({ query: sanitizedQuery });
-      setSearchError('');
-      
-      // Log search without sensitive data
-      console.log('Search performed');
-      toast.info(`Searching for: ${validated.query}`);
-    } catch (error: any) {
-      const errorMessage = error.errors?.[0]?.message || error.message || 'Invalid search query';
-      setSearchError(errorMessage);
-      toast.error(errorMessage);
-    }
+    console.log('Search performed:', searchQuery);
+    toast.info(`Searching for: ${searchQuery}`);
   };
 
   const handleLogout = async () => {
@@ -111,31 +44,31 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   };
 
   const getUserDisplayName = () => {
-    if (!user) return 'User';
-    if (user.first_name || user.last_name) {
-      return `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    if (!profile) return 'User';
+    if (profile.first_name || profile.last_name) {
+      return `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
     }
-    return user.email?.split('@')[0] || 'User';
+    return profile.email?.split('@')[0] || 'User';
   };
 
   const getUserInitials = () => {
-    if (!user) return 'U';
-    if (user.first_name || user.last_name) {
-      return `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase();
+    if (!profile) return 'U';
+    if (profile.first_name || profile.last_name) {
+      return `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase();
     }
-    return user.email?.[0]?.toUpperCase() || 'U';
+    return profile.email?.[0]?.toUpperCase() || 'U';
   };
 
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    if (searchError) setSearchError('');
-  };
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.requireRole) {
+      return role === item.requireRole;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Hidden CSRF token for forms */}
-      <input type="hidden" name="csrf_token" value={csrfToken} />
-      
       {/* Sidebar */}
       <div className={cn(
         "bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm",
@@ -167,7 +100,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Navigation */}
         <nav className="flex-1 p-3">
           <ul className="space-y-1">
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <li key={item.path}>
@@ -203,7 +136,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {!sidebarCollapsed && (
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
-                <p className="text-xs text-gray-500">{user?.position || 'Team Member'}</p>
+                <p className="text-xs text-gray-500">{profile?.position || 'Team Member'}</p>
               </div>
             )}
           </Link>
@@ -238,18 +171,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   type="text"
                   placeholder="Search clients, accounts, ISIN, trades..."
                   value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className={`pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200 ${
-                    searchError ? 'border-red-500' : ''
-                  }`}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200"
                   maxLength={200}
                   autoComplete="off"
                 />
-                {searchError && (
-                  <div className="absolute top-full left-0 mt-1 text-xs text-red-600 bg-white px-2 py-1 rounded shadow border z-10">
-                    {searchError}
-                  </div>
-                )}
               </form>
               
               {/* Notifications */}

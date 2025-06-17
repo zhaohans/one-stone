@@ -1,11 +1,12 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { SettingsProvider, useSettings } from "./contexts/SettingsContext";
-import LoginForm from "./components/LoginForm";
+import { AuthProvider } from "./contexts/AuthContext";
+import { SettingsProvider } from "./contexts/SettingsContext";
+import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/MainLayout";
 import Dashboard from "./pages/Dashboard";
@@ -24,66 +25,15 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error: any) => {
-        // Don't retry on authentication errors
         if (error?.status === 401 || error?.status === 403) {
           return false;
         }
         return failureCount < 3;
       },
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 });
-
-// Component to handle login page redirect logic
-const LoginWrapper = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-  
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  return <LoginForm />;
-};
-
-// Component to handle root redirect based on settings
-const RootRedirect = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const { disableLandingPage } = useSettings();
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-  
-  // If landing page is disabled, redirect based on authentication
-  if (disableLandingPage) {
-    if (isAuthenticated) {
-      return <Navigate to="/dashboard" replace />;
-    } else {
-      return <Navigate to="/login" replace />;
-    }
-  }
-  
-  // If landing page is enabled, we would show a landing page here
-  // For now, still redirect to login/dashboard since no landing page exists
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  } else {
-    return <Navigate to="/login" replace />;
-  }
-};
 
 const App = () => {
   return (
@@ -95,8 +45,13 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/login" element={<LoginWrapper />} />
-                <Route path="/" element={<RootRedirect />} />
+                {/* Authentication routes */}
+                <Route path="/auth/*" element={<AuthPage />} />
+                
+                {/* Root redirect */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                
+                {/* Protected application routes */}
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -104,6 +59,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -111,6 +67,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/clients" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -118,6 +75,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/accounts" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -125,6 +83,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/trades" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -132,6 +91,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/fees" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -139,6 +99,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/documents" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -146,6 +107,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/news" element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -153,6 +115,8 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
+                {/* Admin-only routes */}
                 <Route path="/compliance" element={
                   <ProtectedRoute requiredRole="admin">
                     <MainLayout>
@@ -160,6 +124,7 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/settings" element={
                   <ProtectedRoute requiredRole="admin">
                     <MainLayout>
@@ -167,6 +132,8 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+                
+                {/* 404 page */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
