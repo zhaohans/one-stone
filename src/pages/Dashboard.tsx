@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { 
   TrendingUp, 
   Users, 
@@ -12,18 +11,15 @@ import {
   PieChart,
   BarChart3,
   CheckCircle,
-  Clock,
   AlertTriangle,
-  Search,
-  Bell,
-  Settings,
-  User,
   Plus,
   ArrowUpRight,
-  Activity
+  Activity,
+  Settings,
+  Eye
 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell, LineChart, Line, ResponsiveContainer } from 'recharts';
+import { PieChart as RechartsPieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 const Dashboard = () => {
   // KPI Data
@@ -239,7 +235,7 @@ const Dashboard = () => {
             <div className="flex items-center space-x-6">
               <div className="w-48 h-48">
                 <ChartContainer config={pieChartConfig}>
-                  <PieChart>
+                  <RechartsPieChart>
                     <Pie
                       data={assetAllocationData}
                       cx="50%"
@@ -253,7 +249,7 @@ const Dashboard = () => {
                       ))}
                     </Pie>
                     <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
+                  </RechartsPieChart>
                 </ChartContainer>
               </div>
               <div className="space-y-3 flex-1">
@@ -300,9 +296,7 @@ const Dashboard = () => {
                     dataKey="retrocession" 
                     stroke="var(--color-retrocession)" 
                     strokeWidth={3}
-                    dot={{ fill: 'var(--color-retroc
-
-}ession)', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: 'var(--color-retrocession)', strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
               </ChartContainer>
