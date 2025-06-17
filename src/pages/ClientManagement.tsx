@@ -1,411 +1,703 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
-  FileText, 
-  AlertTriangle,
-  Plus,
-  Download,
-  Eye,
-  Edit,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
+import { 
+  Search, 
+  Plus, 
+  Download, 
+  Upload, 
+  Filter, 
+  Eye, 
+  Edit, 
+  Archive, 
+  Trash, 
   MoreHorizontal,
-  Search,
-  Filter
+  Users,
+  Building2,
+  FileText,
+  Activity,
+  CheckCircle,
+  AlertTriangle,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Calendar,
+  Shield,
+  Flag,
+  Tag,
+  Grid3X3,
+  List,
+  Check,
+  X
 } from 'lucide-react';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 
 const ClientManagement = () => {
-  const stats = [
-    { title: 'Total AUM', value: '83,722,598.67', change: '+5.2%', icon: TrendingUp, color: 'bg-green-500' },
-    { title: 'Active Clients', value: '142', change: '+8', icon: Users, color: 'bg-blue-500' },
-    { title: 'Monthly Fees', value: '2,142,847.00', change: '+12.3%', icon: DollarSign, color: 'bg-purple-500' },
-    { title: 'Pending Reviews', value: '23', change: '-5', icon: FileText, color: 'bg-orange-500' },
-  ];
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const cashDistributionData = [
-    { name: 'UBS SG', value: 2142847, percentage: 67.43 },
-    { name: 'HSBC SG', value: 1034890, percentage: 32.57 },
-  ];
-
-  const productAllocationData = [
-    { name: 'Fixed Income', value: 42994127.71, percentage: 51.35, color: '#3B82F6' },
-    { name: 'Structure Products', value: 18702186.63, percentage: 22.34, color: '#EF4444' },
-    { name: 'Equities', value: 11426138.98, percentage: 13.65, color: '#10B981' },
-    { name: 'Deposit', value: 5710746.00, percentage: 6.82, color: '#F59E0B' },
-    { name: 'Cash', value: 3177737.34, percentage: 3.80, color: '#8B5CF6' },
-    { name: 'Hedge Fund', value: 961444.00, percentage: 1.15, color: '#06B6D4' },
-  ];
-
-  const topHoldingsData = [
-    { name: 'JPM 8 04/12/22', percentage: 33.82 },
-    { name: '6M USD FCN ...', percentage: 19.64 },
-    { name: 'Deposit', percentage: 6.82 },
-    { name: 'ALPHABET INC...', percentage: 6.09 },
-    { name: 'Cash', percentage: 3.80 },
-    { name: '5.902% Notes...', percentage: 1.74 },
-    { name: '5.50% Notes...', percentage: 1.42 },
-    { name: '5.25% Notes...', percentage: 1.22 },
-  ];
-
+  // Mock data for clients
   const clients = [
-    { 
-      id: 'C001', 
-      name: 'John Smith', 
-      email: 'john.smith@email.com', 
-      status: 'Active', 
-      aum: '5,250,000', 
-      lastContact: '2024-01-15',
-      rm: 'K. Shen'
+    {
+      id: 'C001',
+      name: 'John Smith',
+      type: 'Individual',
+      email: 'john.smith@email.com',
+      phone: '+65 9123 4567',
+      rm: 'K. Shen',
+      status: 'Active',
+      kycStatus: 'Approved',
+      onboardedDate: '2024-01-15',
+      country: 'Singapore',
+      countryFlag: '🇸🇬',
+      tags: ['High Net Worth', 'VIP'],
+      accountsCount: 3,
+      aum: '5,250,000',
+      avatar: '',
+      riskProfile: 'Moderate',
+      sourceOfWealth: 'Business Income',
+      address: '1 Marina Bay Sands, Singapore 018956'
     },
-    { 
-      id: 'C002', 
-      name: 'Sarah Johnson', 
-      email: 'sarah.j@email.com', 
-      status: 'Pending KYC', 
-      aum: '2,800,000', 
-      lastContact: '2024-01-12',
-      rm: 'K. Shen'
+    {
+      id: 'C002',
+      name: 'Sarah Johnson',
+      type: 'Individual',
+      email: 'sarah.j@email.com',
+      phone: '+65 8765 4321',
+      rm: 'K. Shen',
+      status: 'Prospect',
+      kycStatus: 'In Progress',
+      onboardedDate: '2024-01-12',
+      country: 'Malaysia',
+      countryFlag: '🇲🇾',
+      tags: ['Referral'],
+      accountsCount: 1,
+      aum: '2,800,000',
+      avatar: '',
+      riskProfile: 'Conservative',
+      sourceOfWealth: 'Inheritance',
+      address: 'Kuala Lumpur, Malaysia'
     },
-    { 
-      id: 'C003', 
-      name: 'Michael Chen', 
-      email: 'michael.chen@email.com', 
-      status: 'Active', 
-      aum: '8,100,000', 
-      lastContact: '2024-01-14',
-      rm: 'A. Wong'
-    },
+    {
+      id: 'C003',
+      name: 'Chen Industries Pte Ltd',
+      type: 'Corporate',
+      email: 'contact@chenindustries.com',
+      phone: '+65 6234 5678',
+      rm: 'A. Wong',
+      status: 'Active',
+      kycStatus: 'Approved',
+      onboardedDate: '2024-01-14',
+      country: 'Singapore',
+      countryFlag: '🇸🇬',
+      tags: ['Corporate', 'Large Cap'],
+      accountsCount: 5,
+      aum: '18,100,000',
+      avatar: '',
+      riskProfile: 'Aggressive',
+      sourceOfWealth: 'Business Operations',
+      address: '50 Raffles Place, Singapore 048623'
+    }
   ];
 
-  // Chart configurations
-  const barChartConfig = {
-    value: {
-      label: "Value",
-      color: "#3B82F6",
-    },
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active': return 'bg-green-100 text-green-800';
+      case 'Prospect': return 'bg-blue-100 text-blue-800';
+      case 'Archived': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
-  const pieChartConfig = {
-    "Fixed Income": {
-      label: "Fixed Income",
-      color: "#3B82F6",
-    },
-    "Structure Products": {
-      label: "Structure Products", 
-      color: "#EF4444",
-    },
-    "Equities": {
-      label: "Equities",
-      color: "#10B981",
-    },
-    "Deposit": {
-      label: "Deposit",
-      color: "#F59E0B",
-    },
-    "Cash": {
-      label: "Cash",
-      color: "#8B5CF6",
-    },
-    "Hedge Fund": {
-      label: "Hedge Fund",
-      color: "#06B6D4",
-    },
+  const getKycStatusColor = (status: string) => {
+    switch (status) {
+      case 'Approved': return 'bg-green-100 text-green-800';
+      case 'In Progress': return 'bg-yellow-100 text-yellow-800';
+      case 'Not Started': return 'bg-red-100 text-red-800';
+      case 'Rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
+
+  const handleClientSelect = (clientId: string) => {
+    setSelectedClients(prev => 
+      prev.includes(clientId) 
+        ? prev.filter(id => id !== clientId)
+        : [...prev, clientId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSelectedClients(
+      selectedClients.length === clients.length 
+        ? []
+        : clients.map(client => client.id)
+    );
+  };
+
+  const ClientDetailView = ({ client }: { client: any }) => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Avatar className="w-16 h-16">
+            <AvatarFallback className="text-xl bg-blue-100 text-blue-600">
+              {client.name.split(' ').map((n: string) => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">{client.name}</h2>
+            <div className="flex items-center space-x-3 mt-1">
+              <Badge variant="outline" className="text-xs">
+                {client.type === 'Individual' ? <User className="w-3 h-3 mr-1" /> : <Building2 className="w-3 h-3 mr-1" />}
+                {client.type}
+              </Badge>
+              <Badge className={getStatusColor(client.status)}>{client.status}</Badge>
+              <span className="text-sm text-gray-500">{client.countryFlag} {client.country}</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm">
+            <Mail className="w-4 h-4 mr-2" />
+            Send KYC Reminder
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="w-4 h-4 mr-2" />
+            Export Profile
+          </Button>
+          <Button variant="outline" size="sm">
+            <Archive className="w-4 h-4 mr-2" />
+            Archive Client
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="accounts">Accounts</TabsTrigger>
+          <TabsTrigger value="holdings">Holdings</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="activity">Activity & Notes</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Shield className="w-5 h-5" />
+                  <span>KYC Details</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Status</span>
+                  <Badge className={getKycStatusColor(client.kycStatus)}>{client.kycStatus}</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Risk Profile</span>
+                  <span className="text-sm">{client.riskProfile}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Last Reviewed</span>
+                  <span className="text-sm text-gray-500">2024-01-10</span>
+                </div>
+                <div className="pt-2">
+                  <Button className="w-full" variant="outline">
+                    <FileText className="w-4 h-4 mr-2" />
+                    View KYC Documents
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <User className="w-5 h-5" />
+                  <span>Contact Information</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">{client.email}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Phone className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">{client.phone}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">{client.address}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">Onboarded: {client.onboardedDate}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Additional Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Source of Wealth</label>
+                <p className="text-sm text-gray-600 mt-1">{client.sourceOfWealth}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Tags</label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {client.tags.map((tag: string, index: number) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      <Tag className="w-3 h-3 mr-1" />
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Notes</label>
+                <textarea 
+                  className="w-full mt-2 p-3 border rounded-md text-sm"
+                  placeholder="Add notes about this client..."
+                  rows={3}
+                />
+                <div className="text-xs text-gray-500 mt-1">500 characters max</div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="accounts">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Linked Accounts ({client.accountsCount})</span>
+                <Button size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Account
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Account details will be displayed here</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="holdings">
+          <Card>
+            <CardHeader>
+              <CardTitle>Portfolio Holdings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Holdings data will be displayed here</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="documents">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Documents</span>
+                <Button size="sm">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Document
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No documents uploaded yet</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activity">
+          <Card>
+            <CardHeader>
+              <CardTitle>Activity Timeline & Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Activity timeline will be displayed here</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="tasks">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Tasks</span>
+                <Button size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Assign Task
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <CheckCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No tasks assigned</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+
+  if (selectedClient) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" onClick={() => setSelectedClient(null)}>
+              ← Back to Clients
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">Client Details</h1>
+          </div>
+        </div>
+        <ClientDetailView client={selectedClient} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Client Management</h1>
-          <p className="text-gray-600">Comprehensive client portfolio analysis and management</p>
+          <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
+          <p className="text-gray-600">Manage your client relationships and onboarding</p>
         </div>
         <div className="flex items-center space-x-3">
           <Button variant="outline" size="sm">
+            <Upload className="w-4 h-4 mr-2" />
+            Import Clients
+          </Button>
+          <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-2" />
-            Export
+            Export Excel
           </Button>
           <Button size="sm">
             <Plus className="w-4 h-4 mr-2" />
-            Add Order
+            Add New Client
           </Button>
         </div>
       </div>
 
-      {/* Client Navigation */}
-      <div className="flex items-center space-x-4 p-4 bg-white rounded-lg border">
-        <Button variant="ghost" size="sm" className="text-blue-600">
-          ← Back
-        </Button>
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm">C</span>
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                type="text"
+                placeholder="Search by name, email, RM, tag, or KYC status..."
+                className="pl-10"
+              />
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+            </Button>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-          <span className="font-medium">Client 0001</span>
-        </div>
-        <div className="flex items-center space-x-6 ml-8">
-          <Button variant="ghost" className="text-sm">Profile</Button>
-          <Button variant="ghost" className="text-sm">Custodians</Button>
-          <Button variant="ghost" className="text-sm font-medium border-b-2 border-blue-600 text-blue-600">Assets</Button>
-          <Button variant="ghost" className="text-sm">Compliance</Button>
-          <Button variant="ghost" className="text-sm">Documents</Button>
-          <Button variant="ghost" className="text-sm">Data Permissions</Button>
-        </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+          {showFilters && (
+            <div className="mt-4 pt-4 border-t">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className={`text-sm ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                    {stat.change}
-                  </p>
+                  <label className="text-sm font-medium text-gray-700">RM</label>
+                  <select className="w-full mt-1 p-2 border rounded-md text-sm">
+                    <option>All RMs</option>
+                    <option>K. Shen</option>
+                    <option>A. Wong</option>
+                  </select>
                 </div>
-                <div className={`${stat.color} p-3 rounded-full`}>
-                  <stat.icon className="w-6 h-6 text-white" />
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Status</label>
+                  <select className="w-full mt-1 p-2 border rounded-md text-sm">
+                    <option>All Status</option>
+                    <option>Active</option>
+                    <option>Prospect</option>
+                    <option>Archived</option>
+                  </select>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="portfolio-analysis" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="portfolio-analysis">Portfolio Analysis</TabsTrigger>
-          <TabsTrigger value="client-directory">Client Directory</TabsTrigger>
-          <TabsTrigger value="holdings">Holdings</TabsTrigger>
-          <TabsTrigger value="profit-loss">Profit & Loss</TabsTrigger>
-          <TabsTrigger value="statement">Statement</TabsTrigger>
-          <TabsTrigger value="report">Report</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="portfolio-analysis" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <span>Cash Distribution</span>
-                <span className="text-lg font-normal text-gray-600">Total Cash Value: 3,177,737.34</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Cash Distribution List */}
-                <div className="space-y-4">
-                  {cashDistributionData.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-4 h-4 rounded-full ${index === 0 ? 'bg-red-500' : 'bg-red-400'}`}></div>
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-gray-500">({item.percentage}%)</p>
-                        </div>
-                      </div>
-                      <p className="font-bold">{item.value.toLocaleString()}</p>
-                    </div>
-                  ))}
+                <div>
+                  <label className="text-sm font-medium text-gray-700">KYC Status</label>
+                  <select className="w-full mt-1 p-2 border rounded-md text-sm">
+                    <option>All KYC</option>
+                    <option>Approved</option>
+                    <option>In Progress</option>
+                    <option>Not Started</option>
+                  </select>
                 </div>
-
-                {/* Bar Chart */}
-                <div className="h-64">
-                  <ChartContainer config={barChartConfig}>
-                    <BarChart data={cashDistributionData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="value" fill="var(--color-value)" />
-                    </BarChart>
-                  </ChartContainer>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Country</label>
+                  <select className="w-full mt-1 p-2 border rounded-md text-sm">
+                    <option>All Countries</option>
+                    <option>Singapore</option>
+                    <option>Malaysia</option>
+                    <option>Hong Kong</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">From Date</label>
+                  <Input type="date" className="text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">To Date</label>
+                  <Input type="date" className="text-sm" />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-          {/* Analysis Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Product Allocation */}
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>Product Allocation</CardTitle>
-                <CardDescription>Market Value: 83,722,598.67</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-6">
-                  {/* Pie Chart */}
-                  <div className="w-48 h-48">
-                    <ChartContainer config={pieChartConfig}>
-                      <PieChart>
-                        <Pie
-                          data={productAllocationData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={90}
-                          dataKey="value"
-                        >
-                          {productAllocationData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                      </PieChart>
-                    </ChartContainer>
-                  </div>
+      {/* Bulk Actions */}
+      {selectedClients.length > 0 && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-blue-800">
+                {selectedClients.length} client(s) selected
+              </span>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm">Bulk Archive</Button>
+                <Button variant="outline" size="sm">Bulk Assign RM</Button>
+                <Button variant="outline" size="sm">Bulk Export</Button>
+                <Button variant="outline" size="sm">Bulk KYC Reminder</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-                  {/* Legend */}
-                  <div className="space-y-2">
-                    {productAllocationData.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: item.color}}></div>
-                          <span>{item.name}</span>
-                        </div>
-                        <div className="text-right">
-                          <div>{item.value.toLocaleString()}</div>
-                          <div className="text-gray-500">{item.percentage}%</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Top Holdings */}
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>TOP 10 Holdings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {topHoldingsData.map((holding, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-sm font-medium text-gray-500">{index + 1}</span>
-                        <span className="text-sm">{holding.name}</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{width: `${Math.min(holding.percentage * 3, 100)}%`}}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium w-12 text-right">{holding.percentage}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      {/* Clients Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Client Directory</CardTitle>
+            <span className="text-sm text-gray-500">Showing {clients.length} of {clients.length} clients</span>
           </div>
-        </TabsContent>
-
-        <TabsContent value="client-directory" className="space-y-6">
-          {/* Search and Filters */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    type="text"
-                    placeholder="Search clients by name, email, or ID..."
-                    className="pl-10"
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-8">
+                  <input 
+                    type="checkbox"
+                    checked={selectedClients.length === clients.length}
+                    onChange={handleSelectAll}
+                    className="rounded"
                   />
-                </div>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filters
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                </TableHead>
+                <TableHead>Client Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>RM</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>KYC Status</TableHead>
+                <TableHead>Onboarded</TableHead>
+                <TableHead>Country</TableHead>
+                <TableHead>Tags</TableHead>
+                <TableHead>Accounts</TableHead>
+                <TableHead className="text-right">AUM</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {clients.map((client) => (
+                <TableRow key={client.id} className="hover:bg-gray-50">
+                  <TableCell>
+                    <input 
+                      type="checkbox"
+                      checked={selectedClients.includes(client.id)}
+                      onChange={() => handleClientSelect(client.id)}
+                      className="rounded"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className="text-sm bg-blue-100 text-blue-600">
+                          {client.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <button 
+                          className="font-medium text-blue-600 hover:text-blue-800 text-left"
+                          onClick={() => setSelectedClient(client)}
+                        >
+                          {client.name}
+                        </button>
+                        <div className="text-xs text-gray-500">{client.email}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-1">
+                      {client.type === 'Individual' ? 
+                        <User className="w-4 h-4 text-gray-500" /> : 
+                        <Building2 className="w-4 h-4 text-gray-500" />
+                      }
+                      <span className="text-sm">{client.type}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Avatar className="w-6 h-6">
+                        <AvatarFallback className="text-xs bg-gray-100">
+                          {client.rm.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm">{client.rm}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(client.status)}>{client.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getKycStatusColor(client.kycStatus)}>{client.kycStatus}</Badge>
+                    {client.kycStatus === 'Not Started' && (
+                      <div className="text-xs text-orange-600 mt-1">⚠️ KYC not started</div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm">{client.onboardedDate}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-1">
+                      <span>{client.countryFlag}</span>
+                      <span className="text-sm">{client.country}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {client.tags.slice(0, 2).map((tag, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {client.tags.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{client.tags.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      {client.accountsCount}
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    ${client.aum}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => setSelectedClient(client)}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Mail className="w-4 h-4 mr-2" />
+                          Send KYC Reminder
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                          <Archive className="w-4 h-4 mr-2" />
+                          Archive
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          <Trash className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-          {/* Client Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Directory</CardTitle>
-              <CardDescription>Comprehensive list of all clients and their status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Client ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>AUM</TableHead>
-                    <TableHead>Last Contact</TableHead>
-                    <TableHead>RM</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {clients.map((client) => (
-                    <TableRow key={client.id}>
-                      <TableCell className="font-medium">{client.id}</TableCell>
-                      <TableCell>{client.name}</TableCell>
-                      <TableCell>{client.email}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          client.status === 'Active' 
-                            ? 'bg-green-100 text-green-800' 
-                            : client.status === 'Pending KYC'
-                            ? 'bg-orange-100 text-orange-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {client.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>${client.aum}</TableCell>
-                      <TableCell>{client.lastContact}</TableCell>
-                      <TableCell>{client.rm}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Other tab contents */}
-        <TabsContent value="holdings">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-center text-gray-500">Holdings content will be implemented next...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          {clients.length === 0 && (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No clients found</h3>
+              <p className="text-gray-500 mb-4">Add your first client to get started.</p>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Client
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
