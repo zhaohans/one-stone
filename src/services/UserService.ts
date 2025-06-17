@@ -94,8 +94,7 @@ class UserService {
         .single();
 
       if (error) throw error;
-      // Only return admin or user, default to user for any other role
-      return data?.role === 'admin' ? 'admin' : 'user';
+      return data?.role || 'user';
     } catch (error) {
       console.error('Error fetching user role:', error);
       return 'user';
@@ -111,19 +110,7 @@ class UserService {
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
-      
-      if (!data) return null;
-      
-      return {
-        theme: data.theme,
-        language: data.language,
-        notifications_enabled: data.notifications_enabled,
-        email_notifications: data.email_notifications,
-        timezone: data.timezone,
-        preferences: typeof data.preferences === 'object' && data.preferences !== null 
-          ? data.preferences as Record<string, any>
-          : {}
-      };
+      return data || null;
     } catch (error) {
       console.error('Error fetching user preferences:', error);
       return null;
@@ -143,17 +130,7 @@ class UserService {
         .single();
 
       if (error) throw error;
-      
-      return {
-        theme: data.theme,
-        language: data.language,
-        notifications_enabled: data.notifications_enabled,
-        email_notifications: data.email_notifications,
-        timezone: data.timezone,
-        preferences: typeof data.preferences === 'object' && data.preferences !== null 
-          ? data.preferences as Record<string, any>
-          : {}
-      };
+      return data;
     } catch (error) {
       console.error('Error updating user preferences:', error);
       return null;
@@ -168,14 +145,7 @@ class UserService {
         .eq('user_id', userId);
 
       if (error) throw error;
-      
-      return (data || []).map(step => ({
-        step: step.step as 'profile_completion' | 'preferences_setup' | 'tutorial_completion',
-        completed_at: step.completed_at,
-        data: typeof step.data === 'object' && step.data !== null 
-          ? step.data as Record<string, any>
-          : {}
-      }));
+      return data || [];
     } catch (error) {
       console.error('Error fetching onboarding status:', error);
       return [];

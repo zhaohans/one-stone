@@ -8,8 +8,8 @@ export interface SessionInfo {
   session_token: string;
   expires_at: string;
   last_activity: string;
-  ip_address?: string | null;
-  user_agent?: string | null;
+  ip_address?: string;
+  user_agent?: string;
 }
 
 class SessionService {
@@ -83,16 +83,7 @@ class SessionService {
         .gt('expires_at', new Date().toISOString());
 
       if (error) throw error;
-      
-      return (data || []).map(session => ({
-        id: session.id,
-        user_id: session.user_id,
-        session_token: session.session_token,
-        expires_at: session.expires_at,
-        last_activity: session.last_activity,
-        ip_address: session.ip_address ? String(session.ip_address) : null,
-        user_agent: session.user_agent
-      }));
+      return data || [];
     } catch (error) {
       console.error('Error fetching user sessions:', error);
       return [];
