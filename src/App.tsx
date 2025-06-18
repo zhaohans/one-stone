@@ -77,7 +77,7 @@ function App() {
               <Route path="/tasks" element={<Navigate to="/messages" replace />} />
               
               <Route path="/fees" element={
-                <SimpleProtectedRoute requireRole="admin">
+                <SimpleProtectedRoute requiredRole="admin">
                   <MainLayout>
                     <FeeReports />
                   </MainLayout>
@@ -101,7 +101,7 @@ function App() {
               } />
               
               <Route path="/compliance" element={
-                <SimpleProtectedRoute requireRole="admin">
+                <SimpleProtectedRoute requiredRole="admin">
                   <MainLayout>
                     <ComplianceDashboard />
                   </MainLayout>
@@ -109,7 +109,7 @@ function App() {
               } />
               
               <Route path="/settings" element={
-                <SimpleProtectedRoute requireRole="admin">
+                <SimpleProtectedRoute requiredRole="admin">
                   <MainLayout>
                     <Settings />
                   </MainLayout>
