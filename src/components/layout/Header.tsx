@@ -26,7 +26,7 @@ interface HeaderProps {
 }
 
 const Header = ({ setSidebarOpen }: HeaderProps) => {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [showSettingsModal, setShowSettingsModal] = React.useState(false);
@@ -80,7 +80,7 @@ const Header = ({ setSidebarOpen }: HeaderProps) => {
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback>
-                    {user?.firstName?.[0]}{user?.lastName?.[0]}
+                    {profile?.firstName?.[0]}{profile?.lastName?.[0]}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -89,7 +89,7 @@ const Header = ({ setSidebarOpen }: HeaderProps) => {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user?.firstName} {user?.lastName}
+                    {profile?.firstName} {profile?.lastName}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user?.email}
