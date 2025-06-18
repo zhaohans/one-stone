@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,17 +14,6 @@ interface FeeCalculationParams {
 export const useFeeCalculation = () => {
   const [isCalculating, setIsCalculating] = useState(false);
   const { toast } = useToast();
-  const channelRef = useRef<any>(null);
-
-  useEffect(() => {
-    // Cleanup any existing channel on unmount
-    return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
-  }, []);
 
   const calculateFee = async (params: FeeCalculationParams) => {
     setIsCalculating(true);
