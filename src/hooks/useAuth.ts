@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import AuthService from '@/services/AuthService';
@@ -43,7 +42,10 @@ export function useAuth(): AuthState & AuthActions {
   });
 
   const updateAuthState = useCallback(async (session: Session | null) => {
+    console.log('🔄 updateAuthState called with session:', session?.user?.id || 'null');
+    
     if (!session?.user) {
+      console.log('❌ No session or user, clearing auth state');
       setState(prev => ({
         ...prev,
         user: null,
@@ -60,16 +62,25 @@ export function useAuth(): AuthState & AuthActions {
     }
 
     try {
+      console.log('🔍 Fetching user profile and role for user:', session.user.id);
+      
       // Fetch user profile and role
       const [profile, role] = await Promise.all([
         UserService.getUserProfile(session.user.id),
         UserService.getUserRole(session.user.id)
       ]);
 
+      console.log('📊 Profile fetched:', profile ? 'Found' : 'Not found');
+      console.log('👤 Role fetched:', role);
+
       if (profile) {
         // Check onboarding status
+        console.log('🎯 Checking onboarding status...');
         const isOnboarded = await UserService.isOnboardingComplete(session.user.id);
         const isApproved = profile.status === 'active';
+        
+        console.log('✅ Onboarded:', isOnboarded);
+        console.log('✅ Approved:', isApproved);
         
         setState(prev => ({
           ...prev,
@@ -84,15 +95,79 @@ export function useAuth(): AuthState & AuthActions {
           isLoading: false,
         }));
 
+        console.log('🎉 Auth state updated successfully');
+
         // Update session activity only if user is approved
         if (isApproved) {
+          console.log('📝 Updating session activity...');
           await SessionService.updateSessionActivity(session.access_token);
+        }
+      } else {
+        console.log('❌ No profile found for user, creating one...');
+        
+        // If no profile exists, create a minimal one to prevent infinite loading
+        const newProfile: Partial<UserProfile> = {
+          id: session.user.id,
+          email: session.user.email || '',
+          first_name: session.user.user_metadata?.first_name || '',
+          last_name: session.user.user_metadata?.last_name || '',
+          role: 'user',
+          status: 'active',
+          email_confirmed_at: session.user.email_confirmed_at || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        // Try to create the profile
+        try {
+          const createdProfile = await UserService.updateUserProfile(session.user.id, newProfile);
+          if (createdProfile) {
+            console.log('✅ Profile created successfully');
+            setState(prev => ({
+              ...prev,
+              user: session.user,
+              profile: createdProfile,
+              session,
+              role: 'user',
+              isAuthenticated: true,
+              isEmailVerified: UserService.isEmailVerified(session.user),
+              isOnboarded: false,
+              isApproved: true,
+              isLoading: false,
+            }));
+          } else {
+            throw new Error('Failed to create profile');
+          }
+        } catch (profileError) {
+          console.error('❌ Failed to create profile:', profileError);
+          // Even if profile creation fails, don't leave user in loading state
+          setState(prev => ({
+            ...prev,
+            user: session.user,
+            profile: null,
+            session,
+            role: 'user',
+            isAuthenticated: true,
+            isEmailVerified: UserService.isEmailVerified(session.user),
+            isOnboarded: false,
+            isApproved: false,
+            isLoading: false,
+          }));
         }
       }
     } catch (error) {
-      console.error('Error updating auth state:', error);
+      console.error('❌ Error updating auth state:', error);
+      // Don't leave user stuck in loading state even on error
       setState(prev => ({
         ...prev,
+        user: session.user,
+        profile: null,
+        session,
+        role: 'user',
+        isAuthenticated: true,
+        isEmailVerified: UserService.isEmailVerified(session.user),
+        isOnboarded: false,
+        isApproved: false,
         isLoading: false,
       }));
     }
@@ -100,15 +175,17 @@ export function useAuth(): AuthState & AuthActions {
 
   useEffect(() => {
     let mounted = true;
+    console.log('🚀 Auth hook initializing...');
 
     // Set up auth state listener
     const { data: { subscription } } = AuthService.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
         
-        console.log('Auth state changed:', event);
+        console.log('🔔 Auth state changed:', event);
         
         if (session) {
+          console.log('📝 Creating session...');
           await SessionService.createSession(session);
         }
         
@@ -117,13 +194,21 @@ export function useAuth(): AuthState & AuthActions {
     );
 
     // Get initial session
+    console.log('🔍 Getting initial session...');
     AuthService.getCurrentSession().then(({ session }) => {
       if (mounted) {
+        console.log('📋 Initial session:', session?.user?.id || 'null');
         updateAuthState(session);
+      }
+    }).catch(error => {
+      console.error('❌ Error getting initial session:', error);
+      if (mounted) {
+        setState(prev => ({ ...prev, isLoading: false }));
       }
     });
 
     return () => {
+      console.log('🧹 Cleaning up auth hook...');
       mounted = false;
       subscription.unsubscribe();
     };
