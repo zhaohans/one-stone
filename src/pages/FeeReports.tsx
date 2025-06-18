@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,7 +19,7 @@ const FeeReports = () => {
   const { getFees } = useFeeCalculation();
   const { accounts } = useAccounts();
 
-  const loadFees = useCallback(async () => {
+  const loadFees = async () => {
     const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
     const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
     
@@ -27,11 +27,21 @@ const FeeReports = () => {
     if (result.success) {
       setFees(result.fees);
     }
-  }, [selectedAccount, dateRange]);
+  };
 
   useEffect(() => {
-    loadFees();
-  }, [selectedAccount, dateRange]);
+    const loadData = async () => {
+      const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
+      const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
+      
+      const result = await getFees(selectedAccount || undefined, startDate, endDate);
+      if (result.success) {
+        setFees(result.fees);
+      }
+    };
+
+    loadData();
+  }, [selectedAccount, dateRange, getFees]);
 
   const totalFees = fees.reduce((sum, fee) => sum + fee.calculated_amount, 0);
   const paidFees = fees.filter(fee => fee.is_paid).reduce((sum, fee) => sum + fee.calculated_amount, 0);
