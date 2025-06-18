@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,11 +27,11 @@ const FeeReports = () => {
     if (result.success) {
       setFees(result.fees);
     }
-  }, [getFees, selectedAccount, dateRange]);
+  }, [selectedAccount, dateRange, getFees]);
 
   useEffect(() => {
     loadFees();
-  }, [loadFees]);
+  }, [selectedAccount, dateRange, getFees]);
 
   const totalFees = fees.reduce((sum, fee) => sum + fee.calculated_amount, 0);
   const paidFees = fees.filter(fee => fee.is_paid).reduce((sum, fee) => sum + fee.calculated_amount, 0);
