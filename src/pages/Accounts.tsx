@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,15 +29,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useAccounts, Account, AccountFilters } from '@/hooks/useAccounts';
+import CreateAccountModal from '@/components/CreateAccountModal';
 import {
   Building2,
   Plus,
@@ -49,7 +45,6 @@ import {
   Edit,
   Archive,
   X,
-  Calendar as CalendarIcon,
   Copy,
   AlertTriangle,
   CheckCircle,
@@ -65,9 +60,9 @@ import {
   UserCheck,
   Pen,
   FileUp,
-  Landmark
+  Landmark,
+  Loader2
 } from 'lucide-react';
-import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const Accounts = () => {
@@ -76,166 +71,81 @@ const Accounts = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<any>(null);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showAuthMatrix, setShowAuthMatrix] = useState(false);
-  const [selectedBank, setSelectedBank] = useState<string | null>(null);
-  const [selectedClient, setSelectedClient] = useState<string | null>(null);
-  const [showPendingOnly, setShowPendingOnly] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
-  const [filters, setFilters] = useState({
-    custodian: '',
-    accountType: '',
-    currency: '',
-    status: '',
-    rm: '',
-    client: '',
-    dateFrom: null as Date | null,
-    dateTo: null as Date | null
+  const [filters, setFilters] = useState<AccountFilters>({
+    account_type: '',
+    account_status: '',
+    base_currency: '',
+    client_search: ''
   });
 
-  // Mock data with additional authorization info
-  const accountsData = [
-    {
-      id: '1',
-      accountName: 'Matthews Investment Account',
-      accountNumber: 'ACC-2024-001',
-      clientName: 'John Matthews',
-      clientId: 'C-1247',
-      custodian: 'BOS (Bank of Singapore)',
-      accountType: 'Brokerage',
-      status: 'Open',
-      currency: 'SGD',
-      aum: 2450000,
-      openedDate: '2024-01-15',
-      holdings: 12,
-      assignedRM: 'Sarah Chen',
-      trend: '+2.3%',
-      authorizationStatus: 'Complete'
-    },
-    {
-      id: '2',
-      accountName: 'Corporate Treasury Account',
-      accountNumber: 'ACC-2024-002',
-      clientName: 'Tech Solutions Pte Ltd',
-      clientId: 'C-1248',
-      custodian: 'CA Indosuez',
-      accountType: 'Corporate',
-      status: 'Pending',
-      currency: 'USD',
-      aum: 5600000,
-      openedDate: '2024-02-01',
-      holdings: 8,
-      assignedRM: 'Michael Wong',
-      trend: '+1.8%',
-      authorizationStatus: 'Pending'
-    },
-    {
-      id: '3',
-      accountName: 'Retirement Portfolio',
-      accountNumber: 'ACC-2024-003',
-      clientName: 'Maria Rodriguez',
-      clientId: 'C-1249',
-      custodian: 'LGT Bank',
-      accountType: 'Retirement',
-      status: 'Blocked',
-      currency: 'SGD',
-      aum: 890000,
-      openedDate: '2024-01-20',
-      holdings: 15,
-      assignedRM: 'David Tan',
-      trend: '-0.5%',
-      authorizationStatus: 'Incomplete'
-    }
-  ];
+  // Use real data hooks
+  const { accounts, isLoading, createAccount, updateAccount, deleteAccount, bulkUpdateAccounts } = useAccounts(filters);
 
-  // Mock authorization matrix data
-  const authorizationMatrix = {
-    'BOS (Bank of Singapore)': {
-      signatories: [
-        {
-          id: '1',
-          name: 'FANG Chen Chun',
-          roles: {
-            'Director': { active: true, mandateLimit: 'Unlimited', effectiveDate: '2024-01-01', expiry: '2025-12-31', status: 'Active' },
-            'ATR': { active: false, mandateLimit: '', effectiveDate: '', expiry: '', status: '' },
-            'AS': { active: true, mandateLimit: '500k', effectiveDate: '2024-01-01', expiry: '2025-12-31', status: 'Active' },
-            'ID Delegate': { active: false, mandateLimit: '', effectiveDate: '', expiry: '', status: '' }
-          }
-        },
-        {
-          id: '2',
-          name: 'LI Jianmin',
-          roles: {
-            'Director': { active: false, mandateLimit: '', effectiveDate: '', expiry: '', status: '' },
-            'ATR': { active: true, mandateLimit: '1M', effectiveDate: '2024-02-01', expiry: '2025-12-31', status: 'Active' },
-            'AS': { active: true, mandateLimit: '750k', effectiveDate: '2024-02-01', expiry: '2025-12-31', status: 'Pending', comments: 'Pending—formal relationship required' },
-            'ID Delegate': { active: true, mandateLimit: 'N/A', effectiveDate: '2024-01-15', expiry: '2025-12-31', status: 'Active' }
-          }
-        }
-      ]
-    },
-    'CA Indosuez': {
-      signatories: [
-        {
-          id: '3',
-          name: 'WANG Mei Lin',
-          roles: {
-            'Director': { active: true, mandateLimit: 'Unlimited', effectiveDate: '2024-01-01', expiry: '2025-12-31', status: 'Active' },
-            'ATR': { active: false, mandateLimit: '', effectiveDate: '', expiry: '', status: '' },
-            'AS': { active: false, mandateLimit: '', effectiveDate: '', expiry: '', status: '' },
-            'ID Delegate': { active: true, mandateLimit: 'N/A', effectiveDate: '2024-01-01', expiry: '2025-12-31', status: 'Active' }
-          }
-        }
-      ]
-    }
-  };
-
-  const custodians = ['BOS (Bank of Singapore)', 'CA Indosuez', 'LGT Bank', 'Standard Chartered', 'Citibank'];
-  const accountTypes = ['Brokerage', 'Corporate', 'Retirement', 'Margin', 'Fund', 'Bank'];
+  const accountTypes = ['brokerage', 'corporate', 'retirement', 'margin', 'fund', 'bank'];
   const currencies = ['SGD', 'USD', 'EUR', 'HKD', 'GBP'];
-  const statuses = ['Open', 'Closed', 'Pending', 'In Progress', 'Blocked'];
-  const rms = ['Sarah Chen', 'Michael Wong', 'David Tan', 'Lisa Kumar', 'James Park'];
-  const roles = ['Director', 'ATR', 'AS', 'ID Delegate'];
+  const statuses = ['active', 'inactive', 'pending', 'closed', 'suspended'];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Open': return 'bg-green-100 text-green-800';
-      case 'Closed': return 'bg-gray-100 text-gray-800';
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'In Progress': return 'bg-blue-100 text-blue-800';
-      case 'Blocked': return 'bg-red-100 text-red-800';
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'suspended': return 'bg-blue-100 text-blue-800';
+      case 'closed': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getAuthStatusColor = (status: string) => {
-    switch (status) {
-      case 'Complete': return 'bg-green-100 text-green-800';
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'Incomplete': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
   };
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency === 'SGD' ? 'SGD' : 'USD',
+      currency: currency || 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(amount);
+    }).format(amount || 0);
   };
 
-  const handleBulkAction = (action: string) => {
-    toast({
-      title: "Bulk Action",
-      description: `${action} applied to ${selectedAccounts.length} account(s)`,
-    });
+  const handleBulkAction = async (action: string) => {
+    if (selectedAccounts.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select accounts to perform bulk actions",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      switch (action) {
+        case 'Close':
+          await bulkUpdateAccounts(selectedAccounts, { account_status: 'closed' });
+          break;
+        case 'Activate':
+          await bulkUpdateAccounts(selectedAccounts, { account_status: 'active' });
+          break;
+        case 'Export':
+          toast({
+            title: "Export Started",
+            description: `Exporting ${selectedAccounts.length} account(s)`,
+          });
+          break;
+        default:
+          toast({
+            title: "Action Applied",
+            description: `${action} applied to ${selectedAccounts.length} account(s)`,
+          });
+      }
+      setSelectedAccounts([]);
+    } catch (error) {
+      console.error('Bulk action error:', error);
+    }
   };
 
   const copyAccountNumber = (accountNumber: string) => {
@@ -246,52 +156,41 @@ const Accounts = () => {
     });
   };
 
-  const handleCreateAccount = () => {
-    setShowCreateModal(false);
+  const handleExport = () => {
+    const csvContent = accounts.map(account => [
+      account.account_number,
+      account.account_name,
+      `${account.client?.first_name || ''} ${account.client?.last_name || ''}`,
+      account.account_type,
+      account.account_status,
+      account.base_currency,
+      formatCurrency(account.total_aum || 0, account.base_currency)
+    ].join(',')).join('\n');
+
+    const blob = new Blob([`Account Number,Account Name,Client,Type,Status,Currency,AUM\n${csvContent}`], 
+      { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'accounts_export.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Account Created",
-      description: "Account created and assigned to RM successfully",
+      title: "Export Complete",
+      description: "Accounts data exported to CSV",
     });
   };
 
-  const handleAuthorizationClick = (clientName: string, bankName?: string) => {
-    setSelectedClient(clientName);
-    setSelectedBank(bankName || null);
-    setShowAuthMatrix(true);
-  };
-
-  const handleUpdateSignatories = (bankName: string) => {
-    setSelectedBank(bankName);
-    setSelectedClient(null);
-    setShowAuthMatrix(true);
-  };
-
-  const handleExportMatrix = (bankName: string) => {
-    toast({
-      title: "Export Started",
-      description: `Authorization matrix for ${bankName} is being exported`,
-    });
-  };
-
-  const filteredAccounts = accountsData.filter(account => {
-    return (
-      (!filters.custodian || account.custodian === filters.custodian) &&
-      (!filters.accountType || account.accountType === filters.accountType) &&
-      (!filters.currency || account.currency === filters.currency) &&
-      (!filters.status || account.status === filters.status) &&
-      (!filters.rm || account.assignedRM === filters.rm) &&
-      (!filters.client || account.clientName.toLowerCase().includes(filters.client.toLowerCase()))
-    );
-  });
-
-  const groupedByBank = filteredAccounts.reduce((acc, account) => {
-    const bank = account.custodian;
+  const groupedByBank = accounts.reduce((acc, account) => {
+    // For now, we'll group by a default custodian since it's not in our current schema
+    const bank = 'Default Custodian';
     if (!acc[bank]) {
       acc[bank] = [];
     }
     acc[bank].push(account);
     return acc;
-  }, {} as Record<string, typeof accountsData>);
+  }, {} as Record<string, Account[]>);
 
   const renderClientView = () => (
     <Card>
@@ -299,12 +198,17 @@ const Accounts = () => {
         <div className="flex items-center justify-between">
           <CardTitle>Client Accounts Overview</CardTitle>
           <span className="text-sm text-gray-500">
-            Showing {filteredAccounts.length} of {accountsData.length} accounts
+            Showing {accounts.length} accounts
           </span>
         </div>
       </CardHeader>
       <CardContent>
-        {filteredAccounts.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span className="ml-2">Loading accounts...</span>
+          </div>
+        ) : accounts.length === 0 ? (
           <div className="text-center py-12">
             <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No accounts found</h3>
@@ -320,10 +224,10 @@ const Accounts = () => {
               <TableRow>
                 <TableHead className="w-12">
                   <Checkbox
-                    checked={selectedAccounts.length === filteredAccounts.length}
+                    checked={selectedAccounts.length === accounts.length}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setSelectedAccounts(filteredAccounts.map(a => a.id));
+                        setSelectedAccounts(accounts.map(a => a.id));
                       } else {
                         setSelectedAccounts([]);
                       }
@@ -333,10 +237,8 @@ const Accounts = () => {
                 <TableHead>Account Name</TableHead>
                 <TableHead>Account Number</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Bank</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Bank Authorization</TableHead>
                 <TableHead>Currency</TableHead>
                 <TableHead className="text-right">AUM</TableHead>
                 <TableHead>Holdings</TableHead>
@@ -344,7 +246,7 @@ const Accounts = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAccounts.map((account) => (
+              {accounts.map((account) => (
                 <TableRow 
                   key={account.id} 
                   className="hover:bg-gray-50 cursor-pointer"
@@ -366,17 +268,17 @@ const Accounts = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="font-semibold text-gray-900">{account.accountName}</div>
+                    <div className="font-semibold text-gray-900">{account.account_name}</div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono text-sm">{account.accountNumber}</span>
+                      <span className="font-mono text-sm">{account.account_number}</span>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation();
-                          copyAccountNumber(account.accountNumber);
+                          copyAccountNumber(account.account_number);
                         }}
                       >
                         <Copy className="w-3 h-3" />
@@ -387,53 +289,35 @@ const Accounts = () => {
                     <div className="flex items-center space-x-2">
                       <Avatar className="w-6 h-6">
                         <AvatarFallback className="text-xs">
-                          {getInitials(account.clientName)}
+                          {getInitials(account.client?.first_name || '', account.client?.last_name || '')}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm">{account.clientName}</span>
+                      <span className="text-sm">
+                        {account.client?.first_name} {account.client?.last_name}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Building2 className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm">{account.custodian}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{account.accountType}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(account.status)}>
-                      {account.status}
+                    <Badge variant="outline">
+                      {account.account_type?.charAt(0).toUpperCase() + account.account_type?.slice(1)}
                     </Badge>
                   </TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center space-x-2">
-                      <Badge className={getAuthStatusColor(account.authorizationStatus)}>
-                        {account.authorizationStatus}
-                      </Badge>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleAuthorizationClick(account.clientName, account.custodian)}
-                        title="View Bank Authorization"
-                      >
-                        <Shield className="w-4 h-4" />
-                      </Button>
-                    </div>
+                  <TableCell>
+                    <Badge className={getStatusColor(account.account_status)}>
+                      {account.account_status?.charAt(0).toUpperCase() + account.account_status?.slice(1)}
+                    </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className="font-medium">{account.currency}</span>
+                    <span className="font-medium">{account.base_currency}</span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="font-semibold">
-                      {formatCurrency(account.aum, account.currency)}
+                      {formatCurrency(account.total_aum || 0, account.base_currency)}
                     </div>
-                    <div className="text-xs text-green-600">{account.trend}</div>
                   </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" className="text-blue-600">
-                      {account.holdings}
+                      {account.holdings_count || 0}
                     </Button>
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
@@ -460,7 +344,7 @@ const Accounts = () => {
 
   const renderBankView = () => (
     <div className="space-y-6">
-      {Object.entries(groupedByBank).map(([bankName, accounts]) => (
+      {Object.entries(groupedByBank).map(([bankName, bankAccounts]) => (
         <Card key={bankName}>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -468,15 +352,11 @@ const Accounts = () => {
                 <Landmark className="w-6 h-6 text-blue-600" />
                 <div>
                   <CardTitle className="text-lg">{bankName}</CardTitle>
-                  <CardDescription>{accounts.length} accounts</CardDescription>
+                  <CardDescription>{bankAccounts.length} accounts</CardDescription>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleUpdateSignatories(bankName)}
-                >
+                <Button variant="outline" size="sm">
                   <UserCheck className="w-4 h-4 mr-2" />
                   Update Signatories
                 </Button>
@@ -484,11 +364,7 @@ const Accounts = () => {
                   <FileUp className="w-4 h-4 mr-2" />
                   Upload Documents
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleExportMatrix(bankName)}
-                >
+                <Button variant="outline" size="sm" onClick={handleExport}>
                   <Download className="w-4 h-4 mr-2" />
                   Export Matrix
                 </Button>
@@ -504,25 +380,24 @@ const Accounts = () => {
                   <TableHead>Client</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Authorization</TableHead>
                   <TableHead>Currency</TableHead>
                   <TableHead className="text-right">AUM</TableHead>
                   <TableHead>Holdings</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {accounts.map((account) => (
+                {bankAccounts.map((account) => (
                   <TableRow key={account.id} className="hover:bg-gray-50">
                     <TableCell>
-                      <div className="font-semibold text-gray-900">{account.accountName}</div>
+                      <div className="font-semibold text-gray-900">{account.account_name}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <span className="font-mono text-sm">{account.accountNumber}</span>
+                        <span className="font-mono text-sm">{account.account_number}</span>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => copyAccountNumber(account.accountNumber)}
+                          onClick={() => copyAccountNumber(account.account_number)}
                         >
                           <Copy className="w-3 h-3" />
                         </Button>
@@ -532,47 +407,35 @@ const Accounts = () => {
                       <div className="flex items-center space-x-2">
                         <Avatar className="w-6 h-6">
                           <AvatarFallback className="text-xs">
-                            {getInitials(account.clientName)}
+                            {getInitials(account.client?.first_name || '', account.client?.last_name || '')}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{account.clientName}</span>
+                        <span className="text-sm">
+                          {account.client?.first_name} {account.client?.last_name}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{account.accountType}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(account.status)}>
-                        {account.status}
+                      <Badge variant="outline">
+                        {account.account_type?.charAt(0).toUpperCase() + account.account_type?.slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Badge className={getAuthStatusColor(account.authorizationStatus)}>
-                          {account.authorizationStatus}
-                        </Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleAuthorizationClick(account.clientName, bankName)}
-                          title="View Authorization Details"
-                        >
-                          <Shield className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      <Badge className={getStatusColor(account.account_status)}>
+                        {account.account_status?.charAt(0).toUpperCase() + account.account_status?.slice(1)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium">{account.currency}</span>
+                      <span className="font-medium">{account.base_currency}</span>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="font-semibold">
-                        {formatCurrency(account.aum, account.currency)}
+                        {formatCurrency(account.total_aum || 0, account.base_currency)}
                       </div>
-                      <div className="text-xs text-green-600">{account.trend}</div>
                     </TableCell>
                     <TableCell>
                       <Button variant="ghost" size="sm" className="text-blue-600">
-                        {account.holdings}
+                        {account.holdings_count || 0}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -580,22 +443,12 @@ const Accounts = () => {
               </TableBody>
             </Table>
 
-            {/* Bank Summary */}
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  <span className="font-medium">Summary:</span> {accounts.length} accounts • 
-                  Total AUM: {formatCurrency(accounts.reduce((sum, acc) => sum + acc.aum, 0), 'USD')} • 
-                  Authorized Signatories: {authorizationMatrix[bankName]?.signatories?.length || 0}
+                  <span className="font-medium">Summary:</span> {bankAccounts.length} accounts • 
+                  Total AUM: {formatCurrency(bankAccounts.reduce((sum, acc) => sum + (acc.total_aum || 0), 0), 'USD')}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleAuthorizationClick('', bankName)}
-                >
-                  <Users className="w-4 h-4 mr-2" />
-                  View All Signatories
-                </Button>
               </div>
             </div>
           </CardContent>
@@ -617,7 +470,7 @@ const Accounts = () => {
             <Upload className="w-4 h-4 mr-2" />
             Import Accounts
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
             Export Excel
           </Button>
@@ -668,30 +521,21 @@ const Accounts = () => {
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            <Select value={filters.custodian} onValueChange={(value) => setFilters({...filters, custodian: value})}>
-              <SelectTrigger>
-                <SelectValue placeholder="Bank/Custodian" />
-              </SelectTrigger>
-              <SelectContent>
-                {custodians.map(custodian => (
-                  <SelectItem key={custodian} value={custodian}>{custodian}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.accountType} onValueChange={(value) => setFilters({...filters, accountType: value})}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Select value={filters.account_type} onValueChange={(value) => setFilters({...filters, account_type: value})}>
               <SelectTrigger>
                 <SelectValue placeholder="Account Type" />
               </SelectTrigger>
               <SelectContent>
                 {accountTypes.map(type => (
-                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                  <SelectItem key={type} value={type}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filters.currency} onValueChange={(value) => setFilters({...filters, currency: value})}>
+            <Select value={filters.base_currency} onValueChange={(value) => setFilters({...filters, base_currency: value})}>
               <SelectTrigger>
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
@@ -702,32 +546,23 @@ const Accounts = () => {
               </SelectContent>
             </Select>
 
-            <Select value={filters.status} onValueChange={(value) => setFilters({...filters, status: value})}>
+            <Select value={filters.account_status} onValueChange={(value) => setFilters({...filters, account_status: value})}>
               <SelectTrigger>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 {statuses.map(status => (
-                  <SelectItem key={status} value={status}>{status}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.rm} onValueChange={(value) => setFilters({...filters, rm: value})}>
-              <SelectTrigger>
-                <SelectValue placeholder="Assigned RM" />
-              </SelectTrigger>
-              <SelectContent>
-                {rms.map(rm => (
-                  <SelectItem key={rm} value={rm}>{rm}</SelectItem>
+                  <SelectItem key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Input
               placeholder="Search client..."
-              value={filters.client}
-              onChange={(e) => setFilters({...filters, client: e.target.value})}
+              value={filters.client_search}
+              onChange={(e) => setFilters({...filters, client_search: e.target.value})}
             />
           </div>
           
@@ -736,7 +571,7 @@ const Accounts = () => {
               variant="outline"
               size="sm"
               onClick={() => setFilters({
-                custodian: '', accountType: '', currency: '', status: '', rm: '', client: '', dateFrom: null, dateTo: null
+                account_type: '', account_status: '', base_currency: '', client_search: ''
               })}
             >
               Clear Filters
@@ -757,14 +592,11 @@ const Accounts = () => {
                 <Button size="sm" variant="outline" onClick={() => handleBulkAction('Close')}>
                   Bulk Close
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('Assign RM')}>
-                  Bulk Assign RM
+                <Button size="sm" variant="outline" onClick={() => handleBulkAction('Activate')}>
+                  Bulk Activate
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => handleBulkAction('Export')}>
                   Bulk Export
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('Update Authorization')}>
-                  Bulk Update Authorization
                 </Button>
               </div>
             </div>
@@ -775,169 +607,29 @@ const Accounts = () => {
       {/* Main Content */}
       {activeView === 'client' ? renderClientView() : renderBankView()}
 
-      {/* Authorization Matrix Modal */}
-      <Dialog open={showAuthMatrix} onOpenChange={setShowAuthMatrix}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="flex items-center space-x-3">
-                  <Shield className="w-6 h-6" />
-                  <div>
-                    <div className="text-xl font-bold">Authorization Matrix</div>
-                    <div className="text-sm text-gray-500">
-                      {selectedBank ? `Bank: ${selectedBank}` : ''}
-                      {selectedClient ? ` • Client: ${selectedClient}` : ''}
-                    </div>
-                  </div>
-                </DialogTitle>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="pending-only"
-                    checked={showPendingOnly}
-                    onCheckedChange={(checked) => setShowPendingOnly(checked === true)}
-                  />
-                  <label htmlFor="pending-only" className="text-sm">Show pending changes only</label>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Matrix
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import Matrix
-                </Button>
-              </div>
-            </div>
-          </DialogHeader>
-
-          <div className="space-y-6">
-            {selectedBank && authorizationMatrix[selectedBank] && (
-              <div>
-                <h3 className="text-lg font-semibold mb-4">{selectedBank} - Authorized Signatories</h3>
-                
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-48">Signatory Name</TableHead>
-                        {roles.map(role => (
-                          <TableHead key={role} className="text-center min-w-32">{role}</TableHead>
-                        ))}
-                        <TableHead className="w-20">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {authorizationMatrix[selectedBank].signatories.map((signatory) => (
-                        <TableRow key={signatory.id}>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Avatar className="w-8 h-8">
-                                <AvatarFallback className="text-xs">
-                                  {getInitials(signatory.name)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium">{signatory.name}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          {roles.map(role => {
-                            const roleData = signatory.roles[role];
-                            return (
-                              <TableCell key={role} className="p-2">
-                                {roleData.active ? (
-                                  <div className="space-y-1">
-                                    <div className="flex items-center justify-center">
-                                      <Badge 
-                                        className={
-                                          roleData.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                          roleData.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                          'bg-gray-100 text-gray-800'
-                                        }
-                                      >
-                                        ✓
-                                      </Badge>
-                                    </div>
-                                    <div className="text-xs text-center space-y-1">
-                                      {roleData.mandateLimit && (
-                                        <div><strong>Limit:</strong> {roleData.mandateLimit}</div>
-                                      )}
-                                      {roleData.effectiveDate && (
-                                        <div><strong>From:</strong> {roleData.effectiveDate}</div>
-                                      )}
-                                      {roleData.expiry && (
-                                        <div><strong>To:</strong> {roleData.expiry}</div>
-                                      )}
-                                      {roleData.status && (
-                                        <div><strong>Status:</strong> {roleData.status}</div>
-                                      )}
-                                      {roleData.comments && (
-                                        <div className="text-yellow-600 italic">{roleData.comments}</div>
-                                      )}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="text-center text-gray-400">—</div>
-                                )}
-                              </TableCell>
-                            );
-                          })}
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Button size="sm" variant="ghost">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button size="sm" variant="ghost">
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between">
-                  <Button variant="outline">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Signatory
-                  </Button>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="outline">
-                      Apply to Multiple Banks
-                    </Button>
-                    <Button>
-                      Save Changes
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Create Account Modal */}
+      <CreateAccountModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onCreateAccount={createAccount}
+      />
 
       {/* Account Detail Modal */}
       <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-3">
               <Building2 className="w-6 h-6" />
               <div>
-                <div className="text-xl font-bold">{selectedAccount?.accountName}</div>
-                <div className="text-sm text-gray-500 font-mono">{selectedAccount?.accountNumber}</div>
+                <div className="text-xl font-bold">{selectedAccount?.account_name}</div>
+                <div className="text-sm text-gray-500 font-mono">{selectedAccount?.account_number}</div>
               </div>
             </DialogTitle>
           </DialogHeader>
 
-          {/* Account Detail Tabs */}
           <div className="border-b">
             <nav className="flex space-x-8">
-              {['profile', 'holdings', 'transactions', 'fees', 'documents', 'activity'].map((tab) => (
+              {['profile', 'holdings', 'transactions', 'documents'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -948,15 +640,14 @@ const Accounts = () => {
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   )}
                 >
-                  {tab === 'fees' ? 'Fee/Retrocession' : tab}
+                  {tab}
                 </button>
               ))}
             </nav>
           </div>
 
-          {/* Tab Content */}
           <div className="py-6">
-            {activeTab === 'profile' && (
+            {activeTab === 'profile' && selectedAccount && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
@@ -964,38 +655,25 @@ const Accounts = () => {
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm font-medium text-gray-600">Account Name</label>
-                        <Input value={selectedAccount?.accountName || ''} />
+                        <div className="mt-1 text-sm">{selectedAccount.account_name}</div>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-600">Account Number</label>
-                        <Input value={selectedAccount?.accountNumber || ''} disabled />
+                        <div className="mt-1 text-sm font-mono">{selectedAccount.account_number}</div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Linked Client</label>
-                        <div className="flex items-center space-x-2 p-2 border rounded">
-                          <Avatar className="w-8 h-8">
-                            <AvatarFallback>
-                              {getInitials(selectedAccount?.clientName || '')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span>{selectedAccount?.clientName}</span>
-                          <Button size="sm" variant="ghost" className="ml-auto text-blue-600">
-                            View Client Profile
-                          </Button>
+                        <label className="text-sm font-medium text-gray-600">Client</label>
+                        <div className="mt-1 text-sm">
+                          {selectedAccount.client?.first_name} {selectedAccount.client?.last_name}
                         </div>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-600">Status</label>
-                        <Select value={selectedAccount?.status}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statuses.map(status => (
-                              <SelectItem key={status} value={status}>{status}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="mt-1">
+                          <Badge className={getStatusColor(selectedAccount.account_status)}>
+                            {selectedAccount.account_status?.charAt(0).toUpperCase() + selectedAccount.account_status?.slice(1)}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1004,69 +682,27 @@ const Accounts = () => {
                     <h3 className="text-lg font-semibold">Additional Details</h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Custodian/Bank</label>
-                        <Select value={selectedAccount?.custodian}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {custodians.map(custodian => (
-                              <SelectItem key={custodian} value={custodian}>{custodian}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
                         <label className="text-sm font-medium text-gray-600">Account Type</label>
-                        <Select value={selectedAccount?.accountType}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {accountTypes.map(type => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="mt-1 text-sm">
+                          {selectedAccount.account_type?.charAt(0).toUpperCase() + selectedAccount.account_type?.slice(1)}
+                        </div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Assigned RM</label>
-                        <Select value={selectedAccount?.assignedRM}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {rms.map(rm => (
-                              <SelectItem key={rm} value={rm}>{rm}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <label className="text-sm font-medium text-gray-600">Base Currency</label>
+                        <div className="mt-1 text-sm">{selectedAccount.base_currency}</div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Currency</label>
-                        <Input value={selectedAccount?.currency || ''} disabled />
+                        <label className="text-sm font-medium text-gray-600">Risk Tolerance</label>
+                        <div className="mt-1 text-sm">
+                          {selectedAccount.risk_tolerance?.charAt(0).toUpperCase() + selectedAccount.risk_tolerance?.slice(1)}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t pt-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Quick Actions</h3>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm">
-                        Request Compliance Review
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Export Profile
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Close Account
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Archive className="w-4 h-4 mr-2" />
-                        Archive
-                      </Button>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Opening Date</label>
+                        <div className="mt-1 text-sm">
+                          {new Date(selectedAccount.opening_date).toLocaleDateString()}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1074,59 +710,20 @@ const Accounts = () => {
             )}
 
             {activeTab === 'holdings' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Holdings Overview</h3>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Export Holdings
-                  </Button>
-                </div>
-                <div className="text-center py-12 text-gray-500">
-                  Holdings data will be displayed here
-                </div>
+              <div className="text-center py-12 text-gray-500">
+                Holdings data will be implemented in the next phase
               </div>
             )}
 
             {activeTab === 'transactions' && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Transaction History</h3>
-                <div className="text-center py-12 text-gray-500">
-                  Transaction data will be displayed here
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'fees' && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Fee & Retrocession</h3>
-                <div className="text-center py-12 text-gray-500">
-                  Fee and retrocession data will be displayed here
-                </div>
+              <div className="text-center py-12 text-gray-500">
+                Transaction data will be implemented in the next phase
               </div>
             )}
 
             {activeTab === 'documents' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Documents</h3>
-                  <Button size="sm">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Document
-                  </Button>
-                </div>
-                <div className="text-center py-12 text-gray-500">
-                  Account documents will be displayed here
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'activity' && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Activity & Notes</h3>
-                <div className="text-center py-12 text-gray-500">
-                  Activity timeline and notes will be displayed here
-                </div>
+              <div className="text-center py-12 text-gray-500">
+                Document management will be implemented in the next phase
               </div>
             )}
           </div>
