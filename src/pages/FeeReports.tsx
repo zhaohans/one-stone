@@ -1,15 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { useFeeCalculation } from '@/hooks/useFeeCalculation';
 import { useAccounts } from '@/hooks/useAccounts';
 import { FeeCalculationModal } from '@/components/FeeCalculationModal';
 import { FeesTable } from '@/components/FeesTable';
-import { Plus, Calculator, TrendingUp, DollarSign, Users } from 'lucide-react';
+import { Calculator, TrendingUp, DollarSign, Users } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 
 const FeeReports = () => {
@@ -21,7 +20,7 @@ const FeeReports = () => {
   const { getFees } = useFeeCalculation();
   const { accounts } = useAccounts();
 
-  const loadFees = async () => {
+  const loadFees = useCallback(async () => {
     const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
     const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
     
@@ -29,11 +28,11 @@ const FeeReports = () => {
     if (result.success) {
       setFees(result.fees);
     }
-  };
+  }, [getFees, selectedAccount, dateRange]);
 
   useEffect(() => {
     loadFees();
-  }, [selectedAccount, dateRange]);
+  }, [loadFees]);
 
   const totalFees = fees.reduce((sum, fee) => sum + fee.calculated_amount, 0);
   const paidFees = fees.filter(fee => fee.is_paid).reduce((sum, fee) => sum + fee.calculated_amount, 0);
