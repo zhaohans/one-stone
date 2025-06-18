@@ -27,11 +27,11 @@ const FeeReports = () => {
     if (result.success) {
       setFees(result.fees);
     }
-  }, [selectedAccount, dateRange, getFees]);
+  }, [selectedAccount, dateRange]);
 
   useEffect(() => {
     loadFees();
-  }, [selectedAccount, dateRange, getFees]);
+  }, [selectedAccount, dateRange]);
 
   const totalFees = fees.reduce((sum, fee) => sum + fee.calculated_amount, 0);
   const paidFees = fees.filter(fee => fee.is_paid).reduce((sum, fee) => sum + fee.calculated_amount, 0);
