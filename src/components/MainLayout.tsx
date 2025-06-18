@@ -21,13 +21,17 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     toast.info(`Searching for: ${searchQuery}`);
   };
 
+  const handleToggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <Sidebar 
           collapsed={sidebarCollapsed} 
-          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)} 
+          onToggleCollapse={handleToggleSidebar} 
         />
       </div>
 
@@ -59,6 +63,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onSearchSubmit={handleSearch}
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleSidebar={handleToggleSidebar}
         />
 
         <main className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-50">

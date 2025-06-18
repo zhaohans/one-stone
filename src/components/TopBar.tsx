@@ -2,21 +2,33 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Bell, Settings } from 'lucide-react';
+import { Search, Bell, Settings, Menu, X } from 'lucide-react';
 import UserProfileDropdown from './UserProfileDropdown';
 
 interface TopBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
-const TopBar = ({ searchQuery, onSearchChange, onSearchSubmit }: TopBarProps) => {
+const TopBar = ({ searchQuery, onSearchChange, onSearchSubmit, sidebarCollapsed, onToggleSidebar }: TopBarProps) => {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm h-16">
       <div className="flex items-center justify-between h-full">
-        {/* Left side - Empty space or can be used for other content */}
-        <div className="flex items-center">
+        {/* Left side - Sidebar toggle */}
+        <div className="flex items-center space-x-4">
+          {onToggleSidebar && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleSidebar}
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            >
+              {sidebarCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+            </Button>
+          )}
         </div>
         
         <div className="flex items-center space-x-2 sm:space-x-4">
