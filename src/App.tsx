@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,8 @@ import AccountsPage from "./pages/AccountsPage";
 import TradesPage from "./pages/TradesPage";
 import News from "./pages/News";
 import Settings from "./pages/Settings";
+import TasksPage from "./pages/TasksPage";
+import MessagesPage from "./pages/MessagesPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,6 +73,20 @@ const App = () => {
                 <ProtectedRoute>
                   <MainLayout>
                     <TradesPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/tasks" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <TasksPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/messages" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <MessagesPage />
                   </MainLayout>
                 </ProtectedRoute>
               } />

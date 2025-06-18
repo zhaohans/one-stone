@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +18,8 @@ import {
   TrendingUp,
   Receipt,
   Newspaper,
-  LogOut
+  LogOut,
+  MessageSquare
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -45,6 +45,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: TrendingUp, label: 'Trades', path: '/trades' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
+    { icon: FileText, label: 'Tasks', path: '/tasks' },
+    { icon: MessageSquare, label: 'Messages', path: '/messages' },
     { icon: Newspaper, label: 'News', path: '/news' },
     { icon: Shield, label: 'Compliance', path: '/compliance' },
     { icon: Settings, label: 'Settings', path: '/settings' },
