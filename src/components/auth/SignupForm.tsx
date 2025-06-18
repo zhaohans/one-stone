@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,13 +19,17 @@ const SignupForm = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const { signup, isLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const validateForm = () => {
@@ -50,20 +54,45 @@ const SignupForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
+
+    console.log('🚀 Starting signup process...');
 
     if (!validateForm()) {
+      setIsSubmitting(false);
       return;
     }
 
-    const success = await signup(
-      formData.email,
-      formData.password,
-      formData.firstName,
-      formData.lastName
-    );
+    try {
+      const success = await signup(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      );
 
-    if (success) {
-      setSuccess(true);
+      console.log('📝 Signup result:', success);
+
+      if (success) {
+        console.log('✅ Signup successful, showing success state');
+        setSuccess(true);
+        // Clear form data for security
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: '',
+          confirmPassword: ''
+        });
+      } else {
+        console.log('❌ Signup failed');
+        setError('Signup failed. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('💥 Signup error:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,7 +112,7 @@ const SignupForm = () => {
           <Alert>
             <Mail className="h-4 w-4" />
             <AlertDescription>
-              Can't find the email? Check your spam folder. You can try signing in once you've verified your email.
+              Can't find the email? Check your spam folder. Your account will need to be approved by an administrator before you can log in.
             </AlertDescription>
           </Alert>
           
@@ -129,6 +158,7 @@ const SignupForm = () => {
                   value={formData.firstName}
                   onChange={handleChange}
                   className="pl-10"
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
@@ -145,6 +175,7 @@ const SignupForm = () => {
                   value={formData.lastName}
                   onChange={handleChange}
                   className="pl-10"
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
@@ -163,6 +194,7 @@ const SignupForm = () => {
                 onChange={handleChange}
                 className="pl-10"
                 required
+                disabled={isSubmitting}
               />
             </div>
           </div>
@@ -180,6 +212,7 @@ const SignupForm = () => {
                 onChange={handleChange}
                 className="pl-10"
                 required
+                disabled={isSubmitting}
               />
             </div>
             <p className="text-xs text-gray-500">Must be at least 6 characters long</p>
@@ -198,12 +231,13 @@ const SignupForm = () => {
                 onChange={handleChange}
                 className="pl-10"
                 required
+                disabled={isSubmitting}
               />
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Creating Account...

@@ -258,7 +258,7 @@ export function useAuth(): AuthState & AuthActions {
     firstName?: string, 
     lastName?: string
   ): Promise<boolean> => {
-    setState(prev => ({ ...prev, isLoading: true }));
+    console.log('🔥 Signup function called');
 
     try {
       const { user, error } = await AuthService.signup({
@@ -268,25 +268,25 @@ export function useAuth(): AuthState & AuthActions {
         lastName
       });
 
+      console.log('📊 Signup response:', { user: user?.id || 'null', error: error?.message || 'none' });
+
       if (error) {
-        console.error('Signup error:', error.message);
+        console.error('❌ Signup error:', error.message);
         toast.error(error.message || 'Signup failed. Please try again.');
-        setState(prev => ({ ...prev, isLoading: false }));
         return false;
       }
 
       if (user) {
+        console.log('✅ User created successfully:', user.id);
         toast.success('Account created successfully! Please check your email to verify your account. Your account will need to be approved by an administrator before you can log in.');
-        setState(prev => ({ ...prev, isLoading: false }));
         return true;
       }
 
-      setState(prev => ({ ...prev, isLoading: false }));
+      console.log('⚠️ No user returned from signup');
       return false;
     } catch (error: any) {
-      console.error('Signup error occurred:', error);
+      console.error('💥 Signup error occurred:', error);
       toast.error('Signup failed. Please try again.');
-      setState(prev => ({ ...prev, isLoading: false }));
       return false;
     }
   }, []);
