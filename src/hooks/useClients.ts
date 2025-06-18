@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useClientOperations } from './useClientOperations';
 
 export interface Client {
   id: string;
@@ -27,18 +29,39 @@ export interface Client {
   user_id?: string;
 }
 
-export const useClients = () => {
+export interface ClientFilters {
+  status?: string;
+  kyc_status?: string;
+  country?: string;
+  search?: string;
+}
+
+export const useClients = (filters: ClientFilters = {}) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { createClient, updateClient, deleteClient, bulkUpdateClients } = useClientOperations();
 
   const fetchClients = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('clients')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
+
+      // Apply filters
+      if (filters.kyc_status) {
+        query = query.eq('kyc_status', filters.kyc_status);
+      }
+      if (filters.country) {
+        query = query.eq('country', filters.country);
+      }
+      if (filters.search) {
+        const searchTerm = `%${filters.search.toLowerCase()}%`;
+        query = query.or(`first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},email.ilike.${searchTerm},client_code.ilike.${searchTerm}`);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       setClients(data || []);
@@ -54,64 +77,58 @@ export const useClients = () => {
     }
   };
 
-  const createClient = async (clientData: Partial<Client>) => {
-    try {
-      // Ensure required fields are present
-      const requiredData = {
-        client_code: clientData.client_code || `CL${Date.now()}`,
-        first_name: clientData.first_name || '',
-        last_name: clientData.last_name || '',
-        email: clientData.email || '',
-        phone: clientData.phone,
-        date_of_birth: clientData.date_of_birth,
-        nationality: clientData.nationality,
-        tax_residence: clientData.tax_residence,
-        address_line1: clientData.address_line1,
-        address_line2: clientData.address_line2,
-        city: clientData.city,
-        state: clientData.state,
-        postal_code: clientData.postal_code,
-        country: clientData.country,
-        risk_profile: clientData.risk_profile || 'moderate',
-        kyc_status: (clientData.kyc_status || 'pending') as 'pending' | 'approved' | 'rejected' | 'expired',
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-        user_id: clientData.user_id
-      };
-
-      const { data, error } = await supabase
-        .from('clients')
-        .insert([requiredData])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Client created successfully",
-      });
-
-      fetchClients(); // Refresh the list
-      return { success: true, data };
-    } catch (error) {
-      console.error('Error creating client:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create client",
-        variant: "destructive",
-      });
-      return { success: false, error };
-    }
-  };
-
   useEffect(() => {
     fetchClients();
+  }, [JSON.stringify(filters)]);
+
+  // Set up real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('clients-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'clients' }, 
+        () => {
+          fetchClients(); // Refresh data on any change
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
     clients,
     isLoading,
-    createClient,
+    createClient: async (clientData: Partial<Client>) => {
+      const result = await createClient(clientData);
+      if (result.success) {
+        fetchClients();
+      }
+      return result;
+    },
+    updateClient: async (id: string, updates: Partial<Client>) => {
+      const result = await updateClient(id, updates);
+      if (result.success) {
+        fetchClients();
+      }
+      return result;
+    },
+    deleteClient: async (id: string) => {
+      const result = await deleteClient(id);
+      if (result.success) {
+        fetchClients();
+      }
+      return result;
+    },
+    bulkUpdateClients: async (clientIds: string[], updates: Pick<Client, 'kyc_status'>) => {
+      const result = await bulkUpdateClients(clientIds, updates);
+      if (result.success) {
+        fetchClients();
+      }
+      return result;
+    },
     refetch: fetchClients
   };
 };
