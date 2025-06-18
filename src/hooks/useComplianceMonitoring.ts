@@ -2,6 +2,9 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type ComplianceTaskStatus = Database['public']['Enums']['compliance_task_status'];
 
 interface ComplianceCheckParams {
   client_id?: string;
@@ -71,7 +74,7 @@ export const useComplianceMonitoring = () => {
     }
   };
 
-  const getComplianceTasks = async (assignedTo?: string, status?: string) => {
+  const getComplianceTasks = async (assignedTo?: string, status?: ComplianceTaskStatus) => {
     try {
       let query = supabase
         .from('compliance_tasks')
@@ -108,7 +111,7 @@ export const useComplianceMonitoring = () => {
     }
   };
 
-  const updateTaskStatus = async (taskId: string, status: string, notes?: string) => {
+  const updateTaskStatus = async (taskId: string, status: ComplianceTaskStatus, notes?: string) => {
     try {
       const updateData: any = { status };
       
