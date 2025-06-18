@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -29,7 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Plus, MoreHorizontal } from 'lucide-react';
 import CreateAccountModal from '@/components/CreateAccountModal';
-import { Account } from '@/hooks/useAccounts';
+import { Account } from '@/types/account';
 import { Badge } from '@/components/ui/badge';
 
 const Accounts = () => {
