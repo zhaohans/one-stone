@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import SessionService, { SessionInfo } from '@/services/SessionService';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/contexts/SimpleAuthContext';
 import { toast } from 'sonner';
 
 export interface SessionState {

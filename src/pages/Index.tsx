@@ -1,8 +1,8 @@
 
-import LoginForm from '@/components/LoginForm';
+import { Navigate } from 'react-router-dom';
 
 const Index = () => {
-  return <LoginForm />;
+  return <Navigate to="/auth/login" replace />;
 };
 
 export default Index;

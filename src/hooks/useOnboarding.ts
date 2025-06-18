@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import UserService, { OnboardingStep } from '@/services/UserService';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/contexts/SimpleAuthContext';
 
 export interface OnboardingState {
   steps: OnboardingStep[];
