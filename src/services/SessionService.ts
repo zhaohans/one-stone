@@ -15,8 +15,8 @@ export interface SessionInfo {
 class SessionService {
   private static instance: SessionService;
   private sessionTimeout: NodeJS.Timeout | null = null;
-  private readonly SESSION_DURATION = 10 * 60 * 1000; // 10 minutes
-  private readonly WARNING_TIME = 2 * 60 * 1000; // 2 minutes before expiry
+  private readonly SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
+  private readonly WARNING_TIME = 5 * 60 * 1000; // 5 minutes before expiry
 
   static getInstance(): SessionService {
     if (!SessionService.instance) {

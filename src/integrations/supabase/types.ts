@@ -9,16 +9,246 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          department: string | null
+          email: string
+          email_confirmed_at: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          office_number: string | null
+          phone: string | null
+          position: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["user_status"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          email: string
+          email_confirmed_at?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          office_number?: string | null
+          phone?: string | null
+          position?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["user_status"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string
+          email_confirmed_at?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          office_number?: string | null
+          phone?: string | null
+          position?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["user_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          failed_attempts: number
+          id: string
+          last_attempt: string
+          locked_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          failed_attempts?: number
+          id?: string
+          last_attempt?: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          failed_attempts?: number
+          id?: string
+          last_attempt?: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_onboarding: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          data: Json | null
+          id: string
+          step: Database["public"]["Enums"]["onboarding_step"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          step: Database["public"]["Enums"]["onboarding_step"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          step?: Database["public"]["Enums"]["onboarding_step"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          email_notifications: boolean
+          id: string
+          language: string
+          notifications_enabled: boolean
+          preferences: Json | null
+          theme: string
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          notifications_enabled?: boolean
+          preferences?: Json | null
+          theme?: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          notifications_enabled?: boolean
+          preferences?: Json | null
+          theme?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          last_activity: string
+          session_token: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          last_activity?: string
+          session_token: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          last_activity?: string
+          session_token?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      handle_failed_login: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
+      is_account_locked: {
+        Args: { user_email: string }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      reset_failed_login_attempts: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      onboarding_step:
+        | "profile_completion"
+        | "preferences_setup"
+        | "tutorial_completion"
+      user_status: "active" | "inactive" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +363,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      onboarding_step: [
+        "profile_completion",
+        "preferences_setup",
+        "tutorial_completion",
+      ],
+      user_status: ["active", "inactive", "suspended"],
+    },
   },
 } as const

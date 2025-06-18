@@ -6,14 +6,16 @@ export interface UserProfile {
   email: string;
   first_name: string | null;
   last_name: string | null;
-  role: string;
+  role: 'admin' | 'user';
   department: string | null;
   position: string | null;
   phone: string | null;
   office_number: string | null;
   avatar_url: string | null;
-  status: string;
-  email_confirmed_at?: string | null;
+  status: 'active' | 'inactive' | 'suspended';
+  email_confirmed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserRole {
@@ -94,8 +96,7 @@ class UserService {
         .single();
 
       if (error) throw error;
-      // Only return admin or user, default to user for any other role
-      return data?.role === 'admin' ? 'admin' : 'user';
+      return data?.role || 'user';
     } catch (error) {
       console.error('Error fetching user role:', error);
       return 'user';

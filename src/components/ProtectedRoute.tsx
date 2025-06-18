@@ -1,50 +1,46 @@
 
 import React from 'react';
-import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'admin' | 'user';
-  requireEmailVerified?: boolean;
-  requireOnboarded?: boolean;
 }
 
-const ProtectedRoute = ({ 
-  children, 
-  requiredRole,
-  requireEmailVerified = false,
-  requireOnboarded = false
-}: ProtectedRouteProps) => {
-  const { isRedirecting, canAccess } = useAuthRedirect({
-    requireAuth: true,
-    requireRole: requiredRole,
-    requireEmailVerified,
-    requireOnboarded,
-  });
+const ProtectedRoute = ({ children, requiredRole = 'user' }: ProtectedRouteProps) => {
+  const { isAuthenticated, isEmailVerified, isLoading, role } = useAuth();
+  const location = useLocation();
 
-  // Show loading state while redirecting
-  if (isRedirecting) {
+  // Show loading while checking authentication
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
 
-  // Show children if user has access
-  if (canAccess) {
-    return <>{children}</>;
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  // This should not be reached due to redirects, but just in case
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-        <p className="text-gray-600">You don't have permission to access this page.</p>
-      </div>
-    </div>
-  );
+  // Redirect to login if email not verified
+  if (!isEmailVerified) {
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  }
+
+  // Check role-based access
+  if (requiredRole === 'admin' && role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

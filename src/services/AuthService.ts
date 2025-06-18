@@ -20,13 +20,6 @@ export interface AuthResult {
   error: AuthError | null;
 }
 
-export interface LockoutStatus {
-  is_locked: boolean;
-  failed_attempts: number;
-  locked_until?: string;
-  max_attempts: number;
-}
-
 class AuthService {
   private static instance: AuthService;
 
@@ -40,11 +33,11 @@ class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResult> {
     try {
       // Check if account is locked before attempting login
-      const { data: lockStatus } = await supabase.rpc('is_account_locked', {
+      const { data: isLocked } = await supabase.rpc('is_account_locked', {
         user_email: credentials.email
       });
 
-      if (lockStatus) {
+      if (isLocked) {
         return {
           user: null,
           session: null,
