@@ -30,7 +30,7 @@ function App() {
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<SimpleAuthPage />} />
+              <Route path="/auth/*" element={<SimpleAuthPage />} />
               
               {/* Protected routes */}
               <Route path="/dashboard" element={
