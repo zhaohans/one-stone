@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,158 +21,115 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { toast } from 'sonner';
 import {
   Plus,
   Search,
   Filter,
-  CheckCircle2,
+  Calendar as CalendarIcon,
   Clock,
   AlertCircle,
+  CheckCircle2,
   User,
-  Users,
+  MessageSquare,
   Building2,
+  Users,
+  Shield,
   FileText,
-  Calendar
+  FolderOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  assignee: string;
-  assigneeId: string;
-  creator: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'overdue';
-  priority: 'high' | 'medium' | 'low';
-  category: string;
-  dueDate: string;
-  createdAt: string;
-  relatedAccount?: string;
-  relatedEntity?: string;
-  entityType?: 'client' | 'account' | 'authorization' | 'document';
-  completedAt?: string;
-  comments: TaskComment[];
-}
-
-interface TaskComment {
-  id: string;
-  author: string;
-  content: string;
-  timestamp: string;
-}
+import { cn } from '@/lib/utils';
 
 const Tasks = () => {
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('all');
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showTaskModal, setShowTaskModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState('all');
-  const [sortBy, setSortBy] = useState('dueDate');
-  const [newComment, setNewComment] = useState('');
-  const [taskForm, setTaskForm] = useState({
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [newTask, setNewTask] = useState({
     title: '',
     description: '',
     assignee: '',
     priority: 'medium',
-    category: 'general',
     dueDate: '',
     relatedAccount: '',
-    entityType: 'account'
+    category: 'general'
   });
 
   // Mock tasks data
-  const tasksData: Task[] = [
+  const tasksData = [
     {
       id: '1',
-      title: 'Review Authorization Matrix - John Matthews',
-      description: 'Update signatory authorization matrix for BOS account. Requires documentation review and approval.',
+      title: 'Update Signatory Authorization - John Matthews',
+      description: 'Review and update the authorization matrix for BOS account. Verify relationship documentation for LI Jianmin.',
       assignee: 'Sarah Chen',
       assigneeId: 'sarah.chen',
-      creator: 'Michael Wong',
-      status: 'pending',
       priority: 'high',
+      status: 'in_progress',
+      dueDate: '2024-01-20',
+      createdDate: '2024-01-15',
       category: 'authorization',
-      dueDate: '2024-01-20T17:00:00Z',
-      createdAt: '2024-01-15T10:00:00Z',
       relatedAccount: 'ACC-2024-001',
-      relatedEntity: 'John Matthews',
-      entityType: 'authorization',
       comments: [
         {
           id: '1-1',
           author: 'Michael Wong',
-          content: 'Please prioritize this as client is waiting for approval.',
-          timestamp: '2024-01-15T10:30:00Z'
+          content: 'Contacted client for additional documentation',
+          timestamp: '2024-01-16T10:30:00Z'
         }
       ]
     },
     {
       id: '2',
       title: 'Prepare Monthly AUM Report',
-      description: 'Generate and review monthly AUM performance report for Tech Solutions Pte Ltd.',
+      description: 'Generate comprehensive AUM performance report for Tech Solutions Pte Ltd including rebalancing recommendations.',
       assignee: 'David Tan',
       assigneeId: 'david.tan',
-      creator: 'Current User',
-      status: 'in_progress',
       priority: 'medium',
+      status: 'pending',
+      dueDate: '2024-01-25',
+      createdDate: '2024-01-14',
       category: 'reporting',
-      dueDate: '2024-01-25T12:00:00Z',
-      createdAt: '2024-01-10T09:00:00Z',
       relatedAccount: 'ACC-2024-002',
-      relatedEntity: 'Tech Solutions Pte Ltd',
-      entityType: 'client',
       comments: []
     },
     {
       id: '3',
-      title: 'Document Upload Follow-up',
-      description: 'Follow up with LGT Bank on pending document submissions for retirement portfolio.',
+      title: 'Process Document Upload - LGT Bank',
+      description: 'Verify and process retirement portfolio documents for Maria Rodriguez received from LGT Bank.',
       assignee: 'Lisa Wang',
       assigneeId: 'lisa.wang',
-      creator: 'Sarah Chen',
-      status: 'completed',
       priority: 'low',
+      status: 'completed',
+      dueDate: '2024-01-18',
+      createdDate: '2024-01-13',
       category: 'documentation',
-      dueDate: '2024-01-18T15:00:00Z',
-      createdAt: '2024-01-12T14:00:00Z',
-      completedAt: '2024-01-17T11:30:00Z',
       relatedAccount: 'ACC-2024-003',
-      relatedEntity: 'LGT Bank',
-      entityType: 'document',
       comments: [
         {
           id: '3-1',
           author: 'Lisa Wang',
-          content: 'Documents received and processed successfully.',
-          timestamp: '2024-01-17T11:30:00Z'
+          content: 'Documents verified and uploaded to system',
+          timestamp: '2024-01-17T14:20:00Z'
         }
       ]
-    },
-    {
-      id: '4',
-      title: 'KYC Review - New Client Onboarding',
-      description: 'Complete KYC documentation review for new client application.',
-      assignee: 'Michael Wong',
-      assigneeId: 'michael.wong',
-      creator: 'Compliance Team',
-      status: 'overdue',
-      priority: 'high',
-      category: 'compliance',
-      dueDate: '2024-01-16T17:00:00Z',
-      createdAt: '2024-01-14T08:00:00Z',
-      relatedAccount: 'ACC-2024-004',
-      relatedEntity: 'New Client Application',
-      entityType: 'client',
-      comments: []
     }
   ];
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -186,31 +142,23 @@ const Tasks = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      case 'in_progress': return <Clock className="w-4 h-4 text-blue-600" />;
-      case 'overdue': return <AlertCircle className="w-4 h-4 text-red-600" />;
-      default: return <Clock className="w-4 h-4 text-yellow-600" />;
+      case 'completed': return <CheckCircle2 className="w-4 h-4" />;
+      case 'in_progress': return <Clock className="w-4 h-4" />;
+      case 'pending': return <AlertCircle className="w-4 h-4" />;
+      case 'overdue': return <AlertCircle className="w-4 h-4" />;
+      default: return <Clock className="w-4 h-4" />;
     }
   };
 
-  const getEntityIcon = (entityType?: string) => {
-    switch (entityType) {
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'authorization': return <Shield className="w-4 h-4" />;
+      case 'reporting': return <FileText className="w-4 h-4" />;
+      case 'documentation': return <FolderOpen className="w-4 h-4" />;
       case 'client': return <User className="w-4 h-4" />;
-      case 'account': return <Building2 className="w-4 h-4" />;
-      case 'authorization': return <Users className="w-4 h-4" />;
-      case 'document': return <FileText className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+      default: return <CheckCircle2 className="w-4 h-4" />;
     }
   };
 
@@ -222,86 +170,35 @@ const Tasks = () => {
     const matchesFilter = filterBy === 'all' || task.category === filterBy;
     
     const matchesTab = activeTab === 'all' || 
-                      (activeTab === 'my_tasks' && task.assigneeId === 'current.user') ||
-                      (activeTab === 'created_by_me' && task.creator === 'Current User') ||
-                      task.status === activeTab;
+                       (activeTab === 'my-tasks' && task.assigneeId === 'current-user') ||
+                       (activeTab === 'pending' && task.status === 'pending') ||
+                       (activeTab === 'completed' && task.status === 'completed');
     
     return matchesSearch && matchesFilter && matchesTab;
-  }).sort((a, b) => {
-    switch (sortBy) {
-      case 'dueDate':
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-      case 'priority':
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
-      case 'status':
-        return a.status.localeCompare(b.status);
-      default:
-        return 0;
-    }
   });
 
   const handleCreateTask = () => {
-    if (!taskForm.title || !taskForm.assignee || !taskForm.dueDate) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
+    if (!newTask.title.trim()) {
+      toast.error("Please enter a task title");
       return;
     }
-
-    setShowCreateModal(false);
-    setTaskForm({
+    
+    toast.success("Task created successfully");
+    setNewTask({
       title: '',
       description: '',
       assignee: '',
       priority: 'medium',
-      category: 'general',
       dueDate: '',
       relatedAccount: '',
-      entityType: 'account'
+      category: 'general'
     });
-    toast({
-      title: "Task Created",
-      description: "New task has been created and assigned successfully",
-    });
+    setShowCreateModal(false);
   };
 
-  const handleStatusChange = (taskId: string, newStatus: string) => {
-    toast({
-      title: "Status Updated",
-      description: `Task status changed to ${newStatus}`,
-    });
+  const isOverdue = (dueDate: string) => {
+    return new Date(dueDate) < new Date() && !tasksData.find(t => t.dueDate === dueDate)?.status.includes('completed');
   };
-
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    
-    setNewComment('');
-    toast({
-      title: "Comment Added",
-      description: "Your comment has been added to the task",
-    });
-  };
-
-  const openTaskDetails = (task: Task) => {
-    setSelectedTask(task);
-    setShowTaskModal(true);
-  };
-
-  const getTabCounts = () => {
-    return {
-      all: tasksData.length,
-      pending: tasksData.filter(t => t.status === 'pending').length,
-      in_progress: tasksData.filter(t => t.status === 'in_progress').length,
-      completed: tasksData.filter(t => t.status === 'completed').length,
-      overdue: tasksData.filter(t => t.status === 'overdue').length,
-      my_tasks: tasksData.filter(t => t.assigneeId === 'current.user').length
-    };
-  };
-
-  const counts = getTabCounts();
 
   return (
     <div className="space-y-6">
@@ -309,7 +206,7 @@ const Tasks = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-          <p className="text-gray-600">Manage tasks, assignments, and deadlines</p>
+          <p className="text-gray-600">Manage to-do items and track progress</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="w-4 h-4 mr-2" />
@@ -341,18 +238,7 @@ const Tasks = () => {
                 <SelectItem value="authorization">Authorization</SelectItem>
                 <SelectItem value="reporting">Reporting</SelectItem>
                 <SelectItem value="documentation">Documentation</SelectItem>
-                <SelectItem value="compliance">Compliance</SelectItem>
-                <SelectItem value="general">General</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dueDate">Due Date</SelectItem>
-                <SelectItem value="priority">Priority</SelectItem>
-                <SelectItem value="status">Status</SelectItem>
+                <SelectItem value="client">Client Tasks</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -361,13 +247,11 @@ const Tasks = () => {
 
       {/* Tasks Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
-          <TabsTrigger value="pending">Pending ({counts.pending})</TabsTrigger>
-          <TabsTrigger value="in_progress">In Progress ({counts.in_progress})</TabsTrigger>
-          <TabsTrigger value="completed">Completed ({counts.completed})</TabsTrigger>
-          <TabsTrigger value="overdue">Overdue ({counts.overdue})</TabsTrigger>
-          <TabsTrigger value="my_tasks">My Tasks ({counts.my_tasks})</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="all">All Tasks ({tasksData.length})</TabsTrigger>
+          <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
+          <TabsTrigger value="pending">Pending ({tasksData.filter(t => t.status === 'pending').length})</TabsTrigger>
+          <TabsTrigger value="completed">Completed ({tasksData.filter(t => t.status === 'completed').length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="space-y-4">
@@ -381,34 +265,36 @@ const Tasks = () => {
             </Card>
           ) : (
             filteredTasks.map((task) => (
-              <Card 
-                key={task.id} 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => openTaskDetails(task)}
-              >
+              <Card key={task.id} className={`hover:shadow-md transition-shadow ${isOverdue(task.dueDate) ? 'border-red-200 bg-red-50/30' : ''}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-4">
-                    <div className="mt-1">
-                      {getStatusIcon(task.status)}
+                    <div className="flex-shrink-0 mt-1">
+                      {getCategoryIcon(task.category)}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
                           <h3 className="font-semibold text-gray-900">{task.title}</h3>
-                          <Badge className={getStatusColor(task.status)}>
-                            {task.status.replace('_', ' ')}
-                          </Badge>
                           <Badge className={getPriorityColor(task.priority)}>
                             {task.priority}
                           </Badge>
+                          <Badge variant="outline" className={getStatusColor(task.status)}>
+                            <div className="flex items-center space-x-1">
+                              {getStatusIcon(task.status)}
+                              <span>{task.status.replace('_', ' ')}</span>
+                            </div>
+                          </Badge>
+                          {isOverdue(task.dueDate) && task.status !== 'completed' && (
+                            <Badge className="bg-red-100 text-red-800">Overdue</Badge>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2 text-sm text-gray-500">
-                          <Calendar className="w-4 h-4" />
-                          Due: {format(new Date(task.dueDate), 'MMM d, HH:mm')}
+                          <CalendarIcon className="w-4 h-4" />
+                          <span>Due: {format(new Date(task.dueDate), 'MMM d, yyyy')}</span>
                         </div>
                       </div>
                       
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{task.description}</p>
+                      <p className="text-gray-600 text-sm mb-3">{task.description}</p>
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -421,23 +307,31 @@ const Tasks = () => {
                             <span className="text-sm text-gray-600">{task.assignee}</span>
                           </div>
                           
-                          {task.relatedEntity && (
+                          {task.relatedAccount && (
                             <div className="flex items-center space-x-1 text-xs text-gray-500">
-                              {getEntityIcon(task.entityType)}
-                              <span>{task.relatedEntity}</span>
+                              <Building2 className="w-3 h-3" />
+                              <Badge variant="outline" className="text-xs">{task.relatedAccount}</Badge>
+                            </div>
+                          )}
+                          
+                          {task.comments.length > 0 && (
+                            <div className="flex items-center space-x-1 text-xs text-gray-500">
+                              <MessageSquare className="w-3 h-3" />
+                              <span>{task.comments.length} comment{task.comments.length !== 1 ? 's' : ''}</span>
                             </div>
                           )}
                         </div>
                         
                         <div className="flex items-center space-x-2">
-                          {task.comments.length > 0 && (
-                            <span className="text-xs text-gray-500">
-                              {task.comments.length} comments
-                            </span>
+                          <Button size="sm" variant="ghost">
+                            Edit
+                          </Button>
+                          {task.status !== 'completed' && (
+                            <Button size="sm" variant="outline">
+                              <CheckCircle2 className="w-4 h-4 mr-1" />
+                              Mark Complete
+                            </Button>
                           )}
-                          <Badge variant="outline" className="text-xs">
-                            {task.category}
-                          </Badge>
                         </div>
                       </div>
                     </div>
@@ -449,135 +343,42 @@ const Tasks = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Task Details Modal */}
-      <Dialog open={showTaskModal} onOpenChange={setShowTaskModal}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              {selectedTask && getStatusIcon(selectedTask.status)}
-              <span>{selectedTask?.title}</span>
-            </DialogTitle>
-            <DialogDescription>
-              Created by {selectedTask?.creator} • Assigned to {selectedTask?.assignee}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedTask && (
-            <div className="space-y-6">
-              {/* Task Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Status</label>
-                  <Select 
-                    value={selectedTask.status} 
-                    onValueChange={(value) => handleStatusChange(selectedTask.id, value)}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Due Date</label>
-                  <div className="mt-1 text-sm">
-                    {format(new Date(selectedTask.dueDate), 'MMM d, yyyy HH:mm')}
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-500">Description</label>
-                <p className="mt-1 text-sm">{selectedTask.description}</p>
-              </div>
-              
-              {selectedTask.relatedAccount && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Related Account</label>
-                  <div className="mt-1">
-                    <Badge variant="outline">{selectedTask.relatedAccount}</Badge>
-                  </div>
-                </div>
-              )}
-              
-              {/* Comments */}
-              <div className="space-y-4">
-                <h4 className="font-medium">Comments</h4>
-                <div className="space-y-3">
-                  {selectedTask.comments.map((comment) => (
-                    <div key={comment.id} className="border rounded-lg p-3">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Avatar className="w-6 h-6">
-                          <AvatarFallback className="text-xs">
-                            {getInitials(comment.author)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm font-medium">{comment.author}</span>
-                        <span className="text-xs text-gray-500">
-                          {format(new Date(comment.timestamp), 'MMM d, HH:mm')}
-                        </span>
-                      </div>
-                      <p className="text-sm">{comment.content}</p>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Add Comment */}
-                <div className="border-t pt-4">
-                  <Textarea
-                    placeholder="Add a comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    rows={3}
-                  />
-                  <div className="flex justify-end mt-2">
-                    <Button onClick={handleAddComment} size="sm">
-                      Add Comment
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
       {/* Create Task Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Create New Task</DialogTitle>
             <DialogDescription>
-              Create and assign a new task to team members
+              Create a new task and assign it to team members
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">Title *</label>
-              <Input 
-                placeholder="Enter task title" 
-                value={taskForm.title}
-                onChange={(e) => setTaskForm(prev => ({ ...prev, title: e.target.value }))}
+              <Input
+                placeholder="Enter task title"
+                value={newTask.title}
+                onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
               />
             </div>
             
             <div>
               <label className="text-sm font-medium">Description</label>
-              <Textarea 
-                placeholder="Enter task description..." 
-                rows={4}
-                value={taskForm.description}
-                onChange={(e) => setTaskForm(prev => ({ ...prev, description: e.target.value }))}
+              <Textarea
+                placeholder="Describe the task..."
+                value={newTask.description}
+                onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
               />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Assignee *</label>
-                <Select value={taskForm.assignee} onValueChange={(value) => setTaskForm(prev => ({ ...prev, assignee: value }))}>
+                <label className="text-sm font-medium">Assignee</label>
+                <Select
+                  value={newTask.assignee}
+                  onValueChange={(value) => setNewTask(prev => ({ ...prev, assignee: value }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select assignee" />
                   </SelectTrigger>
@@ -591,57 +392,83 @@ const Tasks = () => {
               </div>
               
               <div>
-                <label className="text-sm font-medium">Due Date *</label>
-                <Input 
-                  type="datetime-local" 
-                  value={taskForm.dueDate}
-                  onChange={(e) => setTaskForm(prev => ({ ...prev, dueDate: e.target.value }))}
-                />
+                <label className="text-sm font-medium">Priority</label>
+                <Select
+                  value={newTask.priority}
+                  onValueChange={(value) => setNewTask(prev => ({ ...prev, priority: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Priority</label>
-                <Select value={taskForm.priority} onValueChange={(value) => setTaskForm(prev => ({ ...prev, priority: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="text-sm font-medium">Due Date</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               
               <div>
                 <label className="text-sm font-medium">Category</label>
-                <Select value={taskForm.category} onValueChange={(value) => setTaskForm(prev => ({ ...prev, category: value }))}>
+                <Select
+                  value={newTask.category}
+                  onValueChange={(value) => setNewTask(prev => ({ ...prev, category: value }))}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="general">General</SelectItem>
                     <SelectItem value="authorization">Authorization</SelectItem>
                     <SelectItem value="reporting">Reporting</SelectItem>
                     <SelectItem value="documentation">Documentation</SelectItem>
-                    <SelectItem value="compliance">Compliance</SelectItem>
+                    <SelectItem value="client">Client Task</SelectItem>
+                    <SelectItem value="general">General</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             
             <div>
-              <label className="text-sm font-medium">Related Account (Optional)</label>
-              <Select value={taskForm.relatedAccount} onValueChange={(value) => setTaskForm(prev => ({ ...prev, relatedAccount: value }))}>
+              <label className="text-sm font-medium">Related Account</label>
+              <Select
+                value={newTask.relatedAccount}
+                onValueChange={(value) => setNewTask(prev => ({ ...prev, relatedAccount: value }))}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select related account" />
+                  <SelectValue placeholder="Select related account (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACC-2024-001">ACC-2024-001 - John Matthews</SelectItem>
-                  <SelectItem value="ACC-2024-002">ACC-2024-002 - Tech Solutions</SelectItem>
-                  <SelectItem value="ACC-2024-003">ACC-2024-003 - Retirement Portfolio</SelectItem>
+                  <SelectItem value="ACC-2024-001">ACC-2024-001 (John Matthews)</SelectItem>
+                  <SelectItem value="ACC-2024-002">ACC-2024-002 (Tech Solutions)</SelectItem>
+                  <SelectItem value="ACC-2024-003">ACC-2024-003 (Maria Rodriguez)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -651,6 +478,7 @@ const Tasks = () => {
               Cancel
             </Button>
             <Button onClick={handleCreateTask}>
+              <Plus className="w-4 h-4 mr-2" />
               Create Task
             </Button>
           </DialogFooter>
