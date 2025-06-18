@@ -10,24 +10,24 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { isAuthenticated, user, isLoading, checkSession } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      // Check session validity on route change
-      if (!checkSession()) {
-        toast.error('Your session has expired. Please log in again.');
-        return;
-      }
+    // Check role-based access if required
+    if (isAuthenticated && requiredRole && user?.role !== requiredRole) {
+      toast.error('You do not have permission to access this page.');
     }
-  }, [location, isAuthenticated, isLoading, checkSession]);
+  }, [isAuthenticated, requiredRole, user, location]);
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+          <p className="text-gray-600 text-sm">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -39,7 +39,6 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
   // Check role-based access if required
   if (requiredRole && user?.role !== requiredRole) {
-    toast.error('You do not have permission to access this page.');
     return <Navigate to="/dashboard" replace />;
   }
 
