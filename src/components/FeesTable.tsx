@@ -28,9 +28,13 @@ interface Fee {
   retrocessions?: Array<{
     id: string;
     recipient_name: string;
+    recipient_type: string;
+    retrocession_rate: number;
     amount: number;
     currency: string;
     is_paid: boolean;
+    payment_date?: string;
+    notes?: string;
   }>;
 }
 
