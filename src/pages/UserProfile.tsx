@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,7 @@ import {
   Save,
   Upload
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SimpleAuthContext';
 import PasswordChangeModal from '@/components/PasswordChangeModal';
 import TwoFactorSetup from '@/components/TwoFactorSetup';
 import AuditLogTable from '@/components/AuditLogTable';

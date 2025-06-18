@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -138,7 +137,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {!sidebarCollapsed && (
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
-                <p className="text-xs text-gray-500">{profile?.position || 'Team Member'}</p>
+                <p className="text-xs text-gray-500">{profile?.department || 'Team Member'}</p>
               </div>
             )}
           </Link>
