@@ -1,171 +1,137 @@
 
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { SimpleAuthProvider } from '@/contexts/SimpleAuthContext';
+import { SettingsProvider } from '@/contexts/SettingsContext';
 import SimpleProtectedRoute from '@/components/SimpleProtectedRoute';
+import MainLayout from '@/components/MainLayout';
 import SimpleAuthPage from '@/pages/SimpleAuthPage';
 import Dashboard from '@/pages/Dashboard';
-import Settings from '@/pages/Settings';
-import UserProfile from '@/pages/UserProfile';
-import UserManagement from '@/components/UserManagement';
 import ClientManagement from '@/pages/ClientManagement';
 import Accounts from '@/pages/Accounts';
 import Trades from '@/pages/Trades';
 import Messages from '@/pages/Messages';
-import Tasks from '@/pages/Tasks';
-import News from '@/pages/News';
-import DocumentVault from '@/pages/DocumentVault';
 import FeeReports from '@/pages/FeeReports';
-import FeeRetrocession from '@/pages/FeeRetrocession';
+import DocumentVault from '@/pages/DocumentVault';
+import News from '@/pages/News';
 import ComplianceDashboard from '@/pages/ComplianceDashboard';
+import Settings from '@/pages/Settings';
+import UserProfile from '@/pages/UserProfile';
 import NotFound from '@/pages/NotFound';
-import './App.css';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+import Index from '@/pages/Index';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SimpleAuthProvider>
+    <SimpleAuthProvider>
+      <SettingsProvider>
         <Router>
           <div className="min-h-screen bg-background">
             <Routes>
-              {/* Auth routes */}
-              <Route path="/auth/*" element={<SimpleAuthPage />} />
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<SimpleAuthPage />} />
               
               {/* Protected routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <SimpleProtectedRoute>
+              <Route path="/dashboard" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
                     <Dashboard />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <SimpleProtectedRoute>
-                    <Settings />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <SimpleProtectedRoute>
-                    <UserProfile />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/user-management"
-                element={
-                  <SimpleProtectedRoute requiredRole="admin">
-                    <UserManagement />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/clients"
-                element={
-                  <SimpleProtectedRoute>
-                    <ClientManagement />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/accounts"
-                element={
-                  <SimpleProtectedRoute>
-                    <Accounts />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/trades"
-                element={
-                  <SimpleProtectedRoute>
-                    <Trades />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/messages"
-                element={
-                  <SimpleProtectedRoute>
-                    <Messages />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/tasks"
-                element={
-                  <SimpleProtectedRoute>
-                    <Tasks />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/news"
-                element={
-                  <SimpleProtectedRoute>
-                    <News />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/documents"
-                element={
-                  <SimpleProtectedRoute>
-                    <DocumentVault />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/fee-reports"
-                element={
-                  <SimpleProtectedRoute>
-                    <FeeReports />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/fee-retrocession"
-                element={
-                  <SimpleProtectedRoute>
-                    <FeeRetrocession />
-                  </SimpleProtectedRoute>
-                }
-              />
-              <Route
-                path="/compliance"
-                element={
-                  <SimpleProtectedRoute requiredRole="admin">
-                    <ComplianceDashboard />
-                  </SimpleProtectedRoute>
-                }
-              />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
               
-              {/* Redirect root to dashboard */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/clients" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
+                    <ClientManagement />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/accounts" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
+                    <Accounts />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/trades" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
+                    <Trades />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/messages" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
+                    <Messages />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              {/* Redirect /tasks to /messages since tasks are now integrated */}
+              <Route path="/tasks" element={<Navigate to="/messages" replace />} />
+              
+              <Route path="/fees" element={
+                <SimpleProtectedRoute requireRole="admin">
+                  <MainLayout>
+                    <FeeReports />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/documents" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
+                    <DocumentVault />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/news" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
+                    <News />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/compliance" element={
+                <SimpleProtectedRoute requireRole="admin">
+                  <MainLayout>
+                    <ComplianceDashboard />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/settings" element={
+                <SimpleProtectedRoute requireRole="admin">
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
+              
+              <Route path="/profile" element={
+                <SimpleProtectedRoute>
+                  <MainLayout>
+                    <UserProfile />
+                  </MainLayout>
+                </SimpleProtectedRoute>
+              } />
               
               {/* Catch all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <Toaster />
           </div>
         </Router>
-        <Toaster />
-      </SimpleAuthProvider>
-    </QueryClientProvider>
+      </SettingsProvider>
+    </SimpleAuthProvider>
   );
 }
 
