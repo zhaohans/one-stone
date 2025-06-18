@@ -984,6 +984,32 @@ export type Database = {
         Args: { user_id_to_approve: string }
         Returns: boolean
       }
+      calculate_management_fee: {
+        Args: {
+          account_id_param: string
+          start_date: string
+          end_date: string
+          fee_rate: number
+        }
+        Returns: number
+      }
+      check_compliance_requirements: {
+        Args: { client_id_param: string }
+        Returns: {
+          requirement: string
+          status: string
+          due_date: string
+          description: string
+        }[]
+      }
+      generate_account_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_client_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
