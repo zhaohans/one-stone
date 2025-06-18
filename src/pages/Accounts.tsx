@@ -116,21 +116,6 @@ const Accounts = () => {
     }
   };
 
-  const filteredAccounts = accounts.filter((account) => {
-    if (filters.client_search) {
-      const searchTerm = filters.client_search.toLowerCase();
-      const clientName = `${account.client?.first_name} ${account.client?.last_name}`.toLowerCase();
-      if (!clientName.includes(searchTerm) &&
-          !(account.client?.email?.toLowerCase().includes(searchTerm) ||
-            account.account_name?.toLowerCase().includes(searchTerm) ||
-            account.account_number?.toLowerCase().includes(searchTerm))
-      ) {
-        return false;
-      }
-    }
-    return true;
-  });
-
   const formatCurrency = (amount?: number, currency = 'USD') => {
     if (amount === undefined || amount === null) return '-';
     return new Intl.NumberFormat('en-US', {
@@ -310,7 +295,7 @@ const Accounts = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAccounts.map((account) => (
+                {accounts.map((account) => (
                   <TableRow 
                     key={account.id} 
                     className="cursor-pointer hover:bg-gray-50"

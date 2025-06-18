@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useClients } from '@/hooks/useClients';
-import { Account } from '@/hooks/useAccounts';
+import { CreateAccountData } from '@/types/account';
 
 interface CreateAccountModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateAccount: (accountData: Partial<Account>) => Promise<{ success: boolean; data?: any; error?: any }>;
+  onCreateAccount: (accountData: CreateAccountData) => Promise<{ success: boolean; data?: any; error?: any }>;
 }
 
 const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccountModalProps) => {
@@ -20,7 +20,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
   const [formData, setFormData] = useState({
     account_name: '',
     client_id: '',
-    account_type: 'individual' as Account['account_type'],
+    account_type: 'individual' as const,
     base_currency: 'USD',
     risk_tolerance: 'moderate',
     investment_objective: '',
@@ -28,7 +28,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const accountTypes: Account['account_type'][] = ['individual', 'joint', 'corporate', 'trust', 'retirement'];
+  const accountTypes = ['individual', 'joint', 'corporate', 'trust', 'retirement'] as const;
   const currencies = ['USD', 'SGD', 'EUR', 'HKD', 'GBP'];
   const riskTolerances = ['conservative', 'moderate', 'aggressive'];
 
@@ -40,7 +40,6 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
       const result = await onCreateAccount({
         ...formData,
         opening_date: new Date().toISOString().split('T')[0],
-        account_status: 'active' as const
       });
 
       if (result.success) {
@@ -99,7 +98,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
 
             <div>
               <Label htmlFor="account_type">Account Type</Label>
-              <Select value={formData.account_type} onValueChange={(value: Account['account_type']) => setFormData({ ...formData, account_type: value })}>
+              <Select value={formData.account_type} onValueChange={(value: typeof accountTypes[number]) => setFormData({ ...formData, account_type: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select account type" />
                 </SelectTrigger>

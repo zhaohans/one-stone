@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAccountOperations } from './useAccountOperations';
-import { useAccountFilters } from './useAccountFilters';
 import { Account, AccountFilters } from '@/types/account';
 
 export const useAccounts = (filters: AccountFilters = {}) => {
@@ -11,7 +10,6 @@ export const useAccounts = (filters: AccountFilters = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { createAccount, updateAccount, deleteAccount, bulkUpdateAccounts } = useAccountOperations();
-  const { applyFilters } = useAccountFilters();
 
   const fetchAccounts = async () => {
     setIsLoading(true);
@@ -26,10 +24,16 @@ export const useAccounts = (filters: AccountFilters = {}) => {
 
       // Apply filters with proper type casting
       if (filters.account_type) {
-        query = query.eq('account_type', filters.account_type as Account['account_type']);
+        const validAccountTypes = ['individual', 'joint', 'corporate', 'trust', 'retirement'] as const;
+        if (validAccountTypes.includes(filters.account_type as any)) {
+          query = query.eq('account_type', filters.account_type as typeof validAccountTypes[number]);
+        }
       }
       if (filters.account_status) {
-        query = query.eq('account_status', filters.account_status as Account['account_status']);
+        const validAccountStatuses = ['active', 'inactive', 'suspended', 'closed'] as const;
+        if (validAccountStatuses.includes(filters.account_status as any)) {
+          query = query.eq('account_status', filters.account_status as typeof validAccountStatuses[number]);
+        }
       }
       if (filters.base_currency) {
         query = query.eq('base_currency', filters.base_currency);
@@ -47,7 +51,18 @@ export const useAccounts = (filters: AccountFilters = {}) => {
       })) || [];
 
       // Apply client search filter
-      const filteredAccounts = applyFilters(processedAccounts, filters);
+      let filteredAccounts = processedAccounts;
+      if (filters.client_search) {
+        const searchTerm = filters.client_search.toLowerCase();
+        filteredAccounts = processedAccounts.filter((account) => {
+          const clientName = `${account.client?.first_name} ${account.client?.last_name}`.toLowerCase();
+          const emailMatch = account.client?.email?.toLowerCase().includes(searchTerm);
+          const accountNameMatch = account.account_name?.toLowerCase().includes(searchTerm);
+          const accountNumberMatch = account.account_number?.toLowerCase().includes(searchTerm);
+          
+          return clientName.includes(searchTerm) || emailMatch || accountNameMatch || accountNumberMatch;
+        });
+      }
 
       setAccounts(filteredAccounts);
     } catch (error) {

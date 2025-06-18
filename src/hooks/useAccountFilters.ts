@@ -1,3 +1,5 @@
+// This file is no longer needed as filtering logic has been moved to useAccounts hook
+// Keeping for backward compatibility but can be removed in future cleanup
 
 import { Account, AccountFilters } from '@/types/account';
 
