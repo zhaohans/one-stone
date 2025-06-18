@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +19,7 @@ export interface Client {
   postal_code?: string;
   country?: string;
   risk_profile?: string;
-  kyc_status?: 'pending' | 'approved' | 'rejected';
+  kyc_status?: 'pending' | 'approved' | 'rejected' | 'expired';
   created_at: string;
   updated_at: string;
   created_by?: string;
@@ -74,7 +73,7 @@ export const useClients = () => {
         postal_code: clientData.postal_code,
         country: clientData.country,
         risk_profile: clientData.risk_profile || 'moderate',
-        kyc_status: clientData.kyc_status || 'pending' as const,
+        kyc_status: (clientData.kyc_status || 'pending') as 'pending' | 'approved' | 'rejected' | 'expired',
         created_by: (await supabase.auth.getUser()).data.user?.id,
         user_id: clientData.user_id
       };
