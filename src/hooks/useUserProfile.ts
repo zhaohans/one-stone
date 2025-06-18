@@ -2,18 +2,10 @@
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 
-export interface UserProfile {
-  id: string;
-  email: string;
-  first_name: string | null;
-  last_name: string | null;
-  role: 'admin' | 'user';
-  status: 'active' | 'inactive' | 'suspended' | 'pending_approval';
-  email_confirmed_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// Use the actual database type for profiles
+export type UserProfile = Database['public']['Tables']['profiles']['Row'];
 
 export interface UserStatus {
   isEmailVerified: boolean;
