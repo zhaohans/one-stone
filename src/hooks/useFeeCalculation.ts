@@ -62,15 +62,18 @@ export const useFeeCalculation = () => {
 
   const getFees = async (accountId?: string, startDate?: string, endDate?: string) => {
     try {
-      let query = supabase
+      // Create a fresh query builder each time to avoid subscription conflicts
+      const queryBuilder = supabase
         .from('fees')
         .select(`
           *,
           accounts!inner(account_name, account_number, client_id),
           retrocessions(*)
-        `)
-        .order('created_at', { ascending: false });
+        `);
 
+      // Apply filters conditionally
+      let query = queryBuilder;
+      
       if (accountId) {
         query = query.eq('account_id', accountId);
       }
@@ -83,7 +86,8 @@ export const useFeeCalculation = () => {
         query = query.lte('calculation_period_end', endDate);
       }
 
-      const { data, error } = await query;
+      // Add ordering and execute the query without creating subscriptions
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         throw error;
