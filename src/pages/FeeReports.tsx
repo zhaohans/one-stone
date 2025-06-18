@@ -31,6 +31,7 @@ const FeeReports = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      console.log('Loading fees with filters:', { selectedAccount, dateRange });
       const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
       const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
       
@@ -41,7 +42,7 @@ const FeeReports = () => {
     };
 
     loadData();
-  }, [selectedAccount, dateRange, getFees]);
+  }, [selectedAccount, dateRange]);
 
   const totalFees = fees.reduce((sum, fee) => sum + fee.calculated_amount, 0);
   const paidFees = fees.filter(fee => fee.is_paid).reduce((sum, fee) => sum + fee.calculated_amount, 0);
