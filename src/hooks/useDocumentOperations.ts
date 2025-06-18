@@ -65,22 +65,22 @@ export const useDocumentOperations = () => {
     }
   };
 
-  const downloadDocument = async (document: Document) => {
+  const downloadDocument = async (documentRecord: Document) => {
     try {
       const { data, error } = await supabase.storage
         .from('documents')
-        .download(document.storage_path);
+        .download(documentRecord.storage_path);
 
       if (error) throw error;
 
       // Create download link
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = document.file_name;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const linkElement = window.document.createElement('a');
+      linkElement.href = url;
+      linkElement.download = documentRecord.file_name;
+      window.document.body.appendChild(linkElement);
+      linkElement.click();
+      linkElement.remove();
       URL.revokeObjectURL(url);
 
       toast({
@@ -132,12 +132,12 @@ export const useDocumentOperations = () => {
     }
   };
 
-  const deleteDocument = async (document: Document) => {
+  const deleteDocument = async (documentRecord: Document) => {
     try {
       // Delete file from storage
       const { error: storageError } = await supabase.storage
         .from('documents')
-        .remove([document.storage_path]);
+        .remove([documentRecord.storage_path]);
 
       if (storageError) throw storageError;
 
@@ -145,7 +145,7 @@ export const useDocumentOperations = () => {
       const { error: dbError } = await supabase
         .from('documents')
         .delete()
-        .eq('id', document.id);
+        .eq('id', documentRecord.id);
 
       if (dbError) throw dbError;
 
