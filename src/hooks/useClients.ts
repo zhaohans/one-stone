@@ -50,8 +50,8 @@ export const useClients = (filters: ClientFilters = {}) => {
         .select('*');
 
       // Apply filters
-      if (filters.kyc_status && filters.kyc_status !== 'all') {
-        query = query.eq('kyc_status', filters.kyc_status);
+      if (filters.kyc_status && filters.kyc_status !== 'all' && filters.kyc_status !== '') {
+        query = query.eq('kyc_status', filters.kyc_status as 'pending' | 'approved' | 'rejected' | 'expired');
       }
       if (filters.country) {
         query = query.eq('country', filters.country);
