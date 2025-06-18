@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/SimpleAuthContext';
 import {
   Home, Users, Building2, TrendingUp, MessageSquare, Receipt, 
-  FolderOpen, Newspaper, Shield, Settings, ChevronLeft, ChevronRight
+  FolderOpen, Newspaper, Shield, Settings, ChevronLeft, ChevronRight,
+  LogOut, User
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -16,7 +17,7 @@ interface SidebarProps {
 
 const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
   const location = useLocation();
-  const { userStatus } = useAuth();
+  const { userStatus, profile, logout } = useAuth();
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -38,9 +39,29 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
     return true;
   });
 
+  const getUserDisplayName = () => {
+    if (!profile) return 'User';
+    if (profile.first_name || profile.last_name) {
+      return `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+    }
+    return profile.email?.split('@')[0] || 'User';
+  };
+
+  const getUserInitials = () => {
+    if (!profile) return 'U';
+    if (profile.first_name || profile.last_name) {
+      return `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase();
+    }
+    return profile.email?.[0]?.toUpperCase() || 'U';
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <div className={cn(
-      "bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm",
+      "bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm h-full",
       collapsed ? "w-16" : "w-64"
     )}>
       {/* Header */}
@@ -51,8 +72,7 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
               <span className="text-white font-bold text-sm">OSC</span>
             </div>
             <div>
-              <span className="font-bold text-gray-900 text-lg">One Stone</span>
-              <div className="text-xs text-gray-500 font-medium">Capital</div>
+              <span className="font-bold text-gray-900 text-lg whitespace-nowrap">One Stone Capital</span>
             </div>
           </div>
         )}
@@ -60,14 +80,14 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
           variant="ghost"
           size="sm"
           onClick={onToggleCollapse}
-          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 shrink-0"
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </Button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3">
+      <nav className="flex-1 p-3 overflow-y-auto">
         <ul className="space-y-1">
           {filteredMenuItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -83,7 +103,7 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
                   )}
                 >
                   <item.icon className={cn(
-                    "w-5 h-5 transition-colors",
+                    "w-5 h-5 transition-colors shrink-0",
                     isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
                   )} />
                   {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
@@ -93,6 +113,62 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
           })}
         </ul>
       </nav>
+
+      {/* Footer with Profile and Logout */}
+      <div className="p-3 border-t border-gray-200">
+        {!collapsed ? (
+          <div className="space-y-2">
+            <Link 
+              to="/profile"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shrink-0">
+                <span className="text-white text-xs font-medium">
+                  {getUserInitials()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {getUserDisplayName()}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {profile?.email}
+                </p>
+              </div>
+            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="w-full justify-start text-gray-600 hover:text-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4 mr-3" />
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Link 
+              to="/profile"
+              className="flex items-center justify-center p-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs font-medium">
+                  {getUserInitials()}
+                </span>
+              </div>
+            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="w-full justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 p-2"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -38,12 +38,15 @@ const UserProfileDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-50 transition-colors">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">
+        <button className="flex items-center space-x-2 sm:space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs sm:text-sm font-medium">
               {getUserInitials()}
             </span>
           </div>
+          <span className="hidden lg:block text-sm font-medium text-gray-900 max-w-24 truncate">
+            {getUserDisplayName()}
+          </span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -52,20 +55,20 @@ const UserProfileDropdown = () => {
             <p className="text-sm font-medium leading-none">
               {getUserDisplayName()}
             </p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <p className="text-xs leading-none text-muted-foreground truncate">
               {profile?.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/profile">
+          <Link to="/profile" className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           Logout
         </DropdownMenuItem>
