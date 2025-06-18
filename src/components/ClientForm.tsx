@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Client } from '@/hooks/useClients';
+import { z } from 'zod';
 
 interface ClientFormProps {
   client?: Client;
@@ -15,6 +15,24 @@ interface ClientFormProps {
   onSubmit: (clientData: Partial<Client>) => Promise<{ success: boolean }>;
   isLoading?: boolean;
 }
+
+const clientSchema = z.object({
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+  date_of_birth: z.string().optional(),
+  nationality: z.string().optional(),
+  tax_residence: z.string().optional(),
+  address_line1: z.string().optional(),
+  address_line2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  postal_code: z.string().optional(),
+  country: z.string().optional(),
+  risk_profile: z.string().optional(),
+  kyc_status: z.string().optional(),
+});
 
 export const ClientForm: React.FC<ClientFormProps> = ({
   client,
@@ -41,8 +59,20 @@ export const ClientForm: React.FC<ClientFormProps> = ({
     kyc_status: client?.kyc_status || 'pending'
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    const parseResult = clientSchema.safeParse(formData);
+    if (!parseResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      parseResult.error.errors.forEach(err => {
+        if (err.path[0]) fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
     const result = await onSubmit(formData);
     if (result.success) {
       onClose();
@@ -71,8 +101,9 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 id="first_name"
                 value={formData.first_name}
                 onChange={(e) => handleChange('first_name', e.target.value)}
-                required
+                aria-invalid={!!errors.first_name}
               />
+              {errors.first_name && <p className="text-red-600 text-xs mt-1">{errors.first_name}</p>}
             </div>
             <div>
               <Label htmlFor="last_name">Last Name *</Label>
@@ -80,8 +111,9 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 id="last_name"
                 value={formData.last_name}
                 onChange={(e) => handleChange('last_name', e.target.value)}
-                required
+                aria-invalid={!!errors.last_name}
               />
+              {errors.last_name && <p className="text-red-600 text-xs mt-1">{errors.last_name}</p>}
             </div>
           </div>
 
@@ -93,8 +125,9 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                required
+                aria-invalid={!!errors.email}
               />
+              {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
             </div>
             <div>
               <Label htmlFor="phone">Phone</Label>

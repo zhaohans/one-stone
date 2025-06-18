@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -232,10 +231,10 @@ const Dashboard = () => {
             <CardDescription>Current portfolio distribution across asset classes</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-6">
-              <div className="w-48 h-48">
-                <ChartContainer config={pieChartConfig}>
-                  <RechartsPieChart>
+            <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-6">
+              <div className="w-full md:w-64 aspect-square h-auto" style={{ minWidth: 0, minHeight: 0 }}>
+                <ChartContainer config={pieChartConfig} className="w-full h-full">
+                  <RechartsPieChart width={undefined} height={undefined}>
                     <Pie
                       data={assetAllocationData}
                       cx="50%"
@@ -252,7 +251,7 @@ const Dashboard = () => {
                   </RechartsPieChart>
                 </ChartContainer>
               </div>
-              <div className="space-y-3 flex-1">
+              <div className="space-y-3 flex-1 w-full">
                 {assetAllocationData.map((item, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -277,9 +276,9 @@ const Dashboard = () => {
             <CardDescription>7-month performance overview</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
+            <div className="h-64 w-full">
               <ChartContainer config={lineChartConfig}>
-                <LineChart data={aumTrendData}>
+                <LineChart data={aumTrendData} width={undefined} height={undefined}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />

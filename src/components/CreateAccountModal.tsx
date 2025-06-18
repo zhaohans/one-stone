@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useClients } from '@/hooks/useClients';
+import { useClientsContext } from '@/contexts/ClientsContext';
 import { CreateAccountData } from '@/types/account';
+import { z } from 'zod';
 
 interface CreateAccountModalProps {
   open: boolean;
@@ -14,8 +15,18 @@ interface CreateAccountModalProps {
   onCreateAccount: (accountData: CreateAccountData) => Promise<{ success: boolean; data?: any; error?: any }>;
 }
 
+const accountSchema = z.object({
+  account_name: z.string().min(1, 'Account name is required'),
+  client_id: z.string().min(1, 'Client is required'),
+  account_type: z.enum(['individual', 'joint', 'corporate', 'trust', 'retirement']),
+  base_currency: z.string().min(1, 'Base currency is required'),
+  risk_tolerance: z.string().min(1, 'Risk tolerance is required'),
+  investment_objective: z.string().optional(),
+  benchmark: z.string().optional(),
+});
+
 const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccountModalProps) => {
-  const { clients, isLoading: clientsLoading } = useClients();
+  const { clients, isLoading: clientsLoading } = useClientsContext();
   const [formData, setFormData] = useState<{
     account_name: string;
     client_id: string;
@@ -34,6 +45,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
     benchmark: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const accountTypes = ['individual', 'joint', 'corporate', 'trust', 'retirement'] as const;
   const currencies = ['USD', 'SGD', 'EUR', 'HKD', 'GBP'];
@@ -41,14 +53,23 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setIsSubmitting(true);
-
+    const parseResult = accountSchema.safeParse(formData);
+    if (!parseResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      parseResult.error.errors.forEach(err => {
+        if (err.path[0]) fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
+      setIsSubmitting(false);
+      return;
+    }
     try {
       const result = await onCreateAccount({
         ...formData,
         opening_date: new Date().toISOString().split('T')[0],
       });
-
       if (result.success) {
         onOpenChange(false);
         setFormData({
@@ -83,8 +104,9 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
                 id="account_name"
                 value={formData.account_name}
                 onChange={(e) => setFormData({ ...formData, account_name: e.target.value })}
-                required
+                aria-invalid={!!errors.account_name}
               />
+              {errors.account_name && <p className="text-red-600 text-xs mt-1">{errors.account_name}</p>}
             </div>
 
             <div>
@@ -101,6 +123,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
                   ))}
                 </SelectContent>
               </Select>
+              {errors.client_id && <p className="text-red-600 text-xs mt-1">{errors.client_id}</p>}
             </div>
 
             <div>
@@ -117,6 +140,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
                   ))}
                 </SelectContent>
               </Select>
+              {errors.account_type && <p className="text-red-600 text-xs mt-1">{errors.account_type}</p>}
             </div>
 
             <div>
@@ -133,6 +157,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
                   ))}
                 </SelectContent>
               </Select>
+              {errors.base_currency && <p className="text-red-600 text-xs mt-1">{errors.base_currency}</p>}
             </div>
 
             <div>
@@ -149,6 +174,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
                   ))}
                 </SelectContent>
               </Select>
+              {errors.risk_tolerance && <p className="text-red-600 text-xs mt-1">{errors.risk_tolerance}</p>}
             </div>
 
             <div>
@@ -177,7 +203,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.account_name || !formData.client_id || !formData.account_type}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create Account'}
             </Button>
           </DialogFooter>

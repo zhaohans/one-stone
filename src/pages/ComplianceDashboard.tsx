@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -531,118 +530,120 @@ const ComplianceDashboard = () => {
 
           {/* Tasks Table */}
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={selectedTasks.length === filteredTasks.length && filteredTasks.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead>Task Name/Type</TableHead>
-                  <TableHead>Client/Account</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Assigned To</TableHead>
-                  <TableHead>Last Action</TableHead>
-                  <TableHead>Docs</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTasks.map((task) => (
-                  <TableRow key={task.id} className="hover:bg-gray-50">
-                    <TableCell>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[600px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
                       <Checkbox
-                        checked={selectedTasks.includes(task.id)}
-                        onCheckedChange={(checked) => handleTaskSelection(task.id, checked as boolean)}
+                        checked={selectedTasks.length === filteredTasks.length && filteredTasks.length > 0}
+                        onCheckedChange={handleSelectAll}
                       />
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-gray-900">{task.taskName}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {task.type}
-                          </Badge>
-                          <Badge variant="outline" className={cn("text-xs", getUrgencyColor(task.urgency))}>
-                            {task.urgency}
-                          </Badge>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-gray-900">{task.client}</p>
-                        <p className="text-sm text-gray-500">{task.account}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className={getDueDateColor(task.dueDate, task.overdue)}>
-                        {format(new Date(task.dueDate), 'MMM dd, yyyy')}
-                        {task.overdue && <span className="ml-1 text-red-600">OVERDUE</span>}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={cn("text-xs", getStatusColor(task.status))}>
-                        {task.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-blue-700">
-                            {task.assignedTo.split(' ').map(n => n[0]).join('')}
-                          </span>
-                        </div>
-                        <span className="text-sm text-gray-900">{task.assignedTo}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-gray-600">{task.lastAction}</p>
-                    </TableCell>
-                    <TableCell>
-                      {task.hasDocs && (
-                        <Paperclip className="w-4 h-4 text-gray-400" />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-1">
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => handleTaskAction('view', task)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        {task.status === 'Pending' && (
-                          <>
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => handleTaskAction('approve', task)}
-                            >
-                              <CheckCircle className="w-4 h-4 text-green-600" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => handleTaskAction('reject', task)}
-                            >
-                              <XCircle className="w-4 h-4 text-red-600" />
-                            </Button>
-                          </>
-                        )}
-                        <Button size="sm" variant="ghost">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    </TableHead>
+                    <TableHead>Task Name/Type</TableHead>
+                    <TableHead>Client/Account</TableHead>
+                    <TableHead>Due Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Assigned To</TableHead>
+                    <TableHead>Last Action</TableHead>
+                    <TableHead>Docs</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredTasks.map((task) => (
+                    <TableRow key={task.id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedTasks.includes(task.id)}
+                          onCheckedChange={(checked) => handleTaskSelection(task.id, checked as boolean)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-gray-900">{task.taskName}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {task.type}
+                            </Badge>
+                            <Badge variant="outline" className={cn("text-xs", getUrgencyColor(task.urgency))}>
+                              {task.urgency}
+                            </Badge>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-gray-900">{task.client}</p>
+                          <p className="text-sm text-gray-500">{task.account}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className={getDueDateColor(task.dueDate, task.overdue)}>
+                          {format(new Date(task.dueDate), 'MMM dd, yyyy')}
+                          {task.overdue && <span className="ml-1 text-red-600">OVERDUE</span>}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={cn("text-xs", getStatusColor(task.status))}>
+                          {task.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-medium text-blue-700">
+                              {task.assignedTo.split(' ').map(n => n[0]).join('')}
+                            </span>
+                          </div>
+                          <span className="text-sm text-gray-900">{task.assignedTo}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm text-gray-600">{task.lastAction}</p>
+                      </TableCell>
+                      <TableCell>
+                        {task.hasDocs && (
+                          <Paperclip className="w-4 h-4 text-gray-400" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => handleTaskAction('view', task)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          {task.status === 'Pending' && (
+                            <>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleTaskAction('approve', task)}
+                              >
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleTaskAction('reject', task)}
+                              >
+                                <XCircle className="w-4 h-4 text-red-600" />
+                              </Button>
+                            </>
+                          )}
+                          <Button size="sm" variant="ghost">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

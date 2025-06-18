@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,13 +9,15 @@ import UserService, { UserProfile } from '@/services/UserService';
 import { toast } from 'sonner';
 import { CheckCircle, XCircle, Clock, User, Mail, Calendar, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const UserManagement = () => {
-  const { role } = useAuth();
+  const { role, profile } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [pendingUsers, setPendingUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingUsers, setProcessingUsers] = useState<Set<string>>(new Set());
+  const [roleLoading, setRoleLoading] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -82,6 +83,24 @@ const UserManagement = () => {
         newSet.delete(userId);
         return newSet;
       });
+    }
+  };
+
+  const handleRoleChange = async (userId: string, newRole: 'admin' | 'user') => {
+    setRoleLoading(userId);
+    try {
+      const success = await UserService.updateUserRole(userId, newRole);
+      if (success) {
+        toast.success('User role updated');
+        await fetchUsers();
+      } else {
+        toast.error('Failed to update user role');
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast.error('Failed to update user role');
+    } finally {
+      setRoleLoading(null);
     }
   };
 
@@ -235,9 +254,26 @@ const UserManagement = () => {
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                      {user.role}
-                    </Badge>
+                    {/* Only allow changing role for users other than yourself */}
+                    {user.id !== profile?.id ? (
+                      <Select
+                        value={user.role}
+                        onValueChange={(value) => handleRoleChange(user.id, value as 'admin' | 'user')}
+                        disabled={roleLoading === user.id}
+                      >
+                        <SelectTrigger className="w-28">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                        {user.role}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>{getStatusBadge(user.status)}</TableCell>
                   <TableCell>{format(new Date(user.created_at), 'MMM dd, yyyy')}</TableCell>

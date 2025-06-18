@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
 
 const Trades = () => {
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
@@ -53,6 +53,22 @@ const Trades = () => {
   const [selectedTrade, setSelectedTrade] = useState<any>(null);
   const [showTradeDetail, setShowTradeDetail] = useState(false);
   const { toast } = useToast();
+
+  const tradeSchema = z.object({
+    date: z.string().min(1, 'Trade date is required'),
+    client: z.string().min(1, 'Client is required'),
+    account: z.string().min(1, 'Account is required'),
+    security: z.string().min(1, 'Security is required'),
+    action: z.string().min(1, 'Action is required'),
+    quantity: z.string().min(1, 'Quantity is required').refine(val => !isNaN(Number(val)) && Number(val) > 0, 'Quantity must be a positive number'),
+    price: z.string().min(1, 'Price is required').refine(val => !isNaN(Number(val)) && Number(val) > 0, 'Price must be a positive number'),
+    currency: z.string().min(1, 'Currency is required'),
+    custodian: z.string().optional(),
+    trader: z.string().optional(),
+    notes: z.string().optional(),
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Mock data
   const trades = [
@@ -162,6 +178,22 @@ const Trades = () => {
     setSelectedTrades([]);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    const parseResult = tradeSchema.safeParse(formData);
+    if (!parseResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      parseResult.error.errors.forEach(err => {
+        if (err.path[0]) fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    // Submit logic here (e.g., call onCreateTrade)
+    setShowAddTrade(false);
+  };
+
   const AddTradeModal = () => {
     const [formData, setFormData] = useState({
       date: new Date().toISOString().split('T')[0],
@@ -189,158 +221,173 @@ const Trades = () => {
           <DialogHeader>
             <DialogTitle>Add New Trade</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Trade Date *</label>
-                <Input 
-                  type="date" 
-                  value={formData.date}
-                  onChange={(e) => setFormData({...formData, date: e.target.value})}
-                />
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Trade Date *</label>
+                  <Input 
+                    type="date" 
+                    value={formData.date}
+                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    aria-invalid={!!errors.date}
+                  />
+                  {errors.date && <p className="text-red-600 text-xs mt-1">{errors.date}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Client *</label>
+                  <Select value={formData.client} onValueChange={(value) => setFormData({...formData, client: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select client" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client1">John Smith</SelectItem>
+                      <SelectItem value="client2">Sarah Johnson</SelectItem>
+                      <SelectItem value="client3">Robert Chen</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.client && <p className="text-red-600 text-xs mt-1">{errors.client}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Account *</label>
+                  <Select value={formData.account} onValueChange={(value) => setFormData({...formData, account: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="acc1">ACC-001</SelectItem>
+                      <SelectItem value="acc2">ACC-002</SelectItem>
+                      <SelectItem value="acc3">ACC-003</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.account && <p className="text-red-600 text-xs mt-1">{errors.account}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Security *</label>
+                  <Input 
+                    placeholder="Search by ISIN, ticker, or name"
+                    value={formData.security}
+                    onChange={(e) => setFormData({...formData, security: e.target.value})}
+                    aria-invalid={!!errors.security}
+                  />
+                  {errors.security && <p className="text-red-600 text-xs mt-1">{errors.security}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Action *</label>
+                  <Select value={formData.action} onValueChange={(value) => setFormData({...formData, action: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Buy">Buy</SelectItem>
+                      <SelectItem value="Sell">Sell</SelectItem>
+                      <SelectItem value="Subscription">Subscription</SelectItem>
+                      <SelectItem value="Redemption">Redemption</SelectItem>
+                      <SelectItem value="Transfer">Transfer</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.action && <p className="text-red-600 text-xs mt-1">{errors.action}</p>}
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Client *</label>
-                <Select value={formData.client} onValueChange={(value) => setFormData({...formData, client: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select client" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="client1">John Smith</SelectItem>
-                    <SelectItem value="client2">Sarah Johnson</SelectItem>
-                    <SelectItem value="client3">Robert Chen</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Account *</label>
-                <Select value={formData.account} onValueChange={(value) => setFormData({...formData, account: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select account" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="acc1">ACC-001</SelectItem>
-                    <SelectItem value="acc2">ACC-002</SelectItem>
-                    <SelectItem value="acc3">ACC-003</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Security *</label>
-                <Input 
-                  placeholder="Search by ISIN, ticker, or name"
-                  value={formData.security}
-                  onChange={(e) => setFormData({...formData, security: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Action *</label>
-                <Select value={formData.action} onValueChange={(value) => setFormData({...formData, action: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Buy">Buy</SelectItem>
-                    <SelectItem value="Sell">Sell</SelectItem>
-                    <SelectItem value="Subscription">Subscription</SelectItem>
-                    <SelectItem value="Redemption">Redemption</SelectItem>
-                    <SelectItem value="Transfer">Transfer</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Quantity *</label>
+                  <Input 
+                    type="number" 
+                    placeholder="0.00"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                    aria-invalid={!!errors.quantity}
+                  />
+                  {errors.quantity && <p className="text-red-600 text-xs mt-1">{errors.quantity}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Price *</label>
+                  <Input 
+                    type="number" 
+                    placeholder="0.00"
+                    value={formData.price}
+                    onChange={(e) => setFormData({...formData, price: e.target.value})}
+                    aria-invalid={!!errors.price}
+                  />
+                  {errors.price && <p className="text-red-600 text-xs mt-1">{errors.price}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Currency</label>
+                  <Select value={formData.currency} onValueChange={(value) => setFormData({...formData, currency: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="SGD">SGD</SelectItem>
+                      <SelectItem value="HKD">HKD</SelectItem>
+                      <SelectItem value="EUR">EUR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.currency && <p className="text-red-600 text-xs mt-1">{errors.currency}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Total Amount</label>
+                  <Input 
+                    value={`${formData.currency} ${calculateTotal()}`}
+                    disabled
+                    className="bg-gray-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Custodian/Bank *</label>
+                  <Select value={formData.custodian} onValueChange={(value) => setFormData({...formData, custodian: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select custodian" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dbs">DBS Bank</SelectItem>
+                      <SelectItem value="ubs">UBS</SelectItem>
+                      <SelectItem value="citi">CITI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.custodian && <p className="text-red-600 text-xs mt-1">{errors.custodian}</p>}
+                </div>
               </div>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Quantity *</label>
-                <Input 
-                  type="number" 
-                  placeholder="0.00"
-                  value={formData.quantity}
-                  onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Price *</label>
-                <Input 
-                  type="number" 
-                  placeholder="0.00"
-                  value={formData.price}
-                  onChange={(e) => setFormData({...formData, price: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Currency</label>
-                <Select value={formData.currency} onValueChange={(value) => setFormData({...formData, currency: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USD">USD</SelectItem>
-                    <SelectItem value="SGD">SGD</SelectItem>
-                    <SelectItem value="HKD">HKD</SelectItem>
-                    <SelectItem value="EUR">EUR</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Total Amount</label>
-                <Input 
-                  value={`${formData.currency} ${calculateTotal()}`}
-                  disabled
-                  className="bg-gray-50"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Custodian/Bank *</label>
-                <Select value={formData.custodian} onValueChange={(value) => setFormData({...formData, custodian: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select custodian" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dbs">DBS Bank</SelectItem>
-                    <SelectItem value="ubs">UBS</SelectItem>
-                    <SelectItem value="citi">CITI</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="mt-6">
+              <label className="block text-sm font-medium mb-1">Notes</label>
+              <Textarea 
+                placeholder="Add any additional notes (max 500 characters)"
+                maxLength={500}
+                value={formData.notes}
+                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              />
+              <div className="text-sm text-gray-500 mt-1">{formData.notes.length}/500 characters</div>
+            </div>
+            <div className="mt-6">
+              <label className="block text-sm font-medium mb-2">Attachments</label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-600">Drag & drop or click to upload docs</p>
+                <p className="text-xs text-gray-500 mt-1">Supports PDF, Excel, images</p>
               </div>
             </div>
-          </div>
-          <div className="mt-6">
-            <label className="block text-sm font-medium mb-1">Notes</label>
-            <Textarea 
-              placeholder="Add any additional notes (max 500 characters)"
-              maxLength={500}
-              value={formData.notes}
-              onChange={(e) => setFormData({...formData, notes: e.target.value})}
-            />
-            <div className="text-sm text-gray-500 mt-1">{formData.notes.length}/500 characters</div>
-          </div>
-          <div className="mt-6">
-            <label className="block text-sm font-medium mb-2">Attachments</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">Drag & drop or click to upload docs</p>
-              <p className="text-xs text-gray-500 mt-1">Supports PDF, Excel, images</p>
+            <div className="flex justify-end space-x-3 mt-6">
+              <Button variant="outline" onClick={() => setShowAddTrade(false)}>
+                Cancel
+              </Button>
+              <Button variant="outline" onClick={() => {
+                toast({ title: "Success", description: "Trade created and saved as draft." });
+                setShowAddTrade(false);
+              }}>
+                Save as Draft
+              </Button>
+              <Button onClick={() => {
+                toast({ title: "Success", description: "Trade submitted for approval." });
+                setShowAddTrade(false);
+              }}>
+                Submit for Approval
+              </Button>
             </div>
-          </div>
-          <div className="flex justify-end space-x-3 mt-6">
-            <Button variant="outline" onClick={() => setShowAddTrade(false)}>
-              Cancel
-            </Button>
-            <Button variant="outline" onClick={() => {
-              toast({ title: "Success", description: "Trade created and saved as draft." });
-              setShowAddTrade(false);
-            }}>
-              Save as Draft
-            </Button>
-            <Button onClick={() => {
-              toast({ title: "Success", description: "Trade submitted for approval." });
-              setShowAddTrade(false);
-            }}>
-              Submit for Approval
-            </Button>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     );
@@ -570,141 +617,133 @@ const Trades = () => {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={selectedTrades.length === trades.length}
-                  onCheckedChange={handleSelectAll}
-                />
-              </TableHead>
-              <TableHead>Trade ID</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Account</TableHead>
-              <TableHead>Security</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Trader</TableHead>
-              <TableHead>Custodian</TableHead>
-              <TableHead>Files</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {trades.map((trade) => (
-              <TableRow 
-                key={trade.id}
-                className="hover:bg-gray-50 cursor-pointer"
-                onClick={() => {
-                  setSelectedTrade(trade);
-                  setShowTradeDetail(true);
-                }}
-              >
-                <TableCell onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table className="min-w-[600px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
                   <Checkbox
-                    checked={selectedTrades.includes(trade.id)}
-                    onCheckedChange={() => handleSelectTrade(trade.id)}
+                    checked={selectedTrades.length === trades.length}
+                    onCheckedChange={handleSelectAll}
                   />
-                </TableCell>
-                <TableCell className="font-mono text-sm">{trade.id}</TableCell>
-                <TableCell>{trade.date}</TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                      {trade.client.avatar}
-                    </div>
-                    <span>{trade.client.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="font-mono text-sm">{trade.account}</TableCell>
-                <TableCell>
-                  <div>
-                    <div className="font-medium">{trade.security.ticker} - {trade.security.name}</div>
-                    <div className="text-sm text-gray-500">{trade.security.isin}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getActionColor(trade.action)}>{trade.action}</Badge>
-                </TableCell>
-                <TableCell className="text-right">{trade.quantity.toLocaleString()}</TableCell>
-                <TableCell className="text-right">{trade.currency} {trade.price.toFixed(2)}</TableCell>
-                <TableCell className="text-right font-bold">{trade.currency} {trade.total.toLocaleString()}</TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(trade.status)}>{trade.status}</Badge>
-                </TableCell>
-                <TableCell>{trade.trader}</TableCell>
-                <TableCell>{trade.custodian}</TableCell>
-                <TableCell>
-                  {trade.attachments > 0 && (
-                    <div className="flex items-center space-x-1">
-                      <Paperclip className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm">{trade.attachments}</span>
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => {
-                        setSelectedTrade(trade);
-                        setShowTradeDetail(true);
-                      }}>
-                        <Eye className="w-4 h-4 mr-2" />
-                        View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      {trade.status === 'Pending Review' && (
-                        <>
-                          <DropdownMenuItem onClick={() => handleTradeAction('Approved', trade.id)}>
-                            <Check className="w-4 h-4 mr-2" />
-                            Approve
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleTradeAction('Rejected', trade.id)}>
-                            <X className="w-4 h-4 mr-2" />
-                            Reject
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      {trade.status === 'Approved' && (
-                        <DropdownMenuItem onClick={() => handleTradeAction('Executed', trade.id)}>
-                          <Play className="w-4 h-4 mr-2" />
-                          Execute
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={() => handleTradeAction('Cancelled', trade.id)}>
-                        <Ban className="w-4 h-4 mr-2" />
-                        Cancel
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+                </TableHead>
+                <TableHead>Trade ID</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Account</TableHead>
+                <TableHead>Security</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead className="text-right">Quantity</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Trader</TableHead>
+                <TableHead>Custodian</TableHead>
+                <TableHead>Files</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        
-        {trades.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No trades found—add your first trade to get started.</p>
-          </div>
-        )}
-        
-        <div className="px-6 py-4 border-t bg-gray-50">
-          <p className="text-sm text-gray-600">Showing {trades.length} of {trades.length} trades</p>
+            </TableHeader>
+            <TableBody>
+              {trades.map((trade) => (
+                <TableRow 
+                  key={trade.id}
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => {
+                    setSelectedTrade(trade);
+                    setShowTradeDetail(true);
+                  }}
+                >
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedTrades.includes(trade.id)}
+                      onCheckedChange={() => handleSelectTrade(trade.id)}
+                    />
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">{trade.id}</TableCell>
+                  <TableCell>{trade.date}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                        {trade.client.avatar}
+                      </div>
+                      <span>{trade.client.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">{trade.account}</TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{trade.security.ticker} - {trade.security.name}</div>
+                      <div className="text-sm text-gray-500">{trade.security.isin}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getActionColor(trade.action)}>{trade.action}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">{trade.quantity.toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{trade.currency} {trade.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-bold">{trade.currency} {trade.total.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(trade.status)}>{trade.status}</Badge>
+                  </TableCell>
+                  <TableCell>{trade.trader}</TableCell>
+                  <TableCell>{trade.custodian}</TableCell>
+                  <TableCell>
+                    {trade.attachments > 0 && (
+                      <div className="flex items-center space-x-1">
+                        <Paperclip className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm">{trade.attachments}</span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => {
+                          setSelectedTrade(trade);
+                          setShowTradeDetail(true);
+                        }}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        {trade.status === 'Pending Review' && (
+                          <>
+                            <DropdownMenuItem onClick={() => handleTradeAction('Approved', trade.id)}>
+                              <Check className="w-4 h-4 mr-2" />
+                              Approve
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleTradeAction('Rejected', trade.id)}>
+                              <X className="w-4 h-4 mr-2" />
+                              Reject
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {trade.status === 'Approved' && (
+                          <DropdownMenuItem onClick={() => handleTradeAction('Executed', trade.id)}>
+                            <Play className="w-4 h-4 mr-2" />
+                            Execute
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => handleTradeAction('Cancelled', trade.id)}>
+                          <Ban className="w-4 h-4 mr-2" />
+                          Cancel
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,8 @@ import { useAuth } from '@/contexts/SimpleAuthContext';
 import {
   Home, Users, Building2, TrendingUp, MessageSquare, Receipt, 
   FolderOpen, Newspaper, Shield, Settings,
-  LogOut, User
+  LogOut, User,
+  GraduationCap, FileText
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,8 +27,14 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
     { icon: MessageSquare, label: 'Messages & Tasks', path: '/messages' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees', requireRole: 'admin' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
+    { icon: Receipt, label: 'Invoice System', path: '/invoice-system' },
     { icon: Newspaper, label: 'News', path: '/news' },
-    { icon: Shield, label: 'Compliance', path: '/compliance', requireRole: 'admin' },
+    { icon: Shield, label: 'Compliance', path: '/compliance', requireRole: 'admin',
+      children: [
+        { icon: GraduationCap, label: 'Training', path: '/compliance-training' },
+        { icon: FileText, label: 'Policy Management', path: '/policy-management' }
+      ]
+    },
     { icon: Settings, label: 'Settings', path: '/settings', requireRole: 'admin' }
   ];
 
@@ -88,6 +94,54 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
         <ul className="space-y-1">
           {filteredMenuItems.map((item) => {
             const isActive = location.pathname === item.path;
+            // Render sub-menu for Compliance
+            if (item.label === 'Compliance' && item.children) {
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={cn(
+                      "flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group",
+                      isActive
+                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <item.icon className={cn(
+                      "w-5 h-5 transition-colors shrink-0",
+                      isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                    )} />
+                    {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
+                  </Link>
+                  {/* Sub-menu for Compliance */}
+                  <ul className="ml-8 mt-1 space-y-1">
+                    {item.children.map((sub) => {
+                      const isSubActive = location.pathname === sub.path;
+                      return (
+                        <li key={sub.path}>
+                          <Link
+                            to={sub.path}
+                            className={cn(
+                              "flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 group",
+                              isSubActive
+                                ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            )}
+                          >
+                            <sub.icon className={cn(
+                              "w-4 h-4 transition-colors shrink-0",
+                              isSubActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                            )} />
+                            {!collapsed && <span className="font-medium text-sm">{sub.label}</span>}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              );
+            }
+            // Render normal menu item
             return (
               <li key={item.path}>
                 <Link

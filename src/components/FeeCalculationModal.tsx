@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useFeeCalculation } from '@/hooks/useFeeCalculation';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useAccountsContext } from '@/contexts/AccountsContext';
 
 interface FeeCalculationModalProps {
   isOpen: boolean;
@@ -31,7 +30,7 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
   const [periodEnd, setPeriodEnd] = useState<Date>();
 
   const { calculateFee, isCalculating } = useFeeCalculation();
-  const { accounts } = useAccounts();
+  const { accounts } = useAccountsContext();
 
   const handleCalculate = async () => {
     if (!accountId || !periodStart || !periodEnd) return;

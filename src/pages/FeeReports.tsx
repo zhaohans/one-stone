@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { useFeeCalculation } from '@/hooks/useFeeCalculation';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useAccountsContext } from '@/contexts/AccountsContext';
 import { FeeCalculationModal } from '@/components/FeeCalculationModal';
 import { FeesTable } from '@/components/FeesTable';
 import { Calculator, TrendingUp, DollarSign, Users } from 'lucide-react';
@@ -12,18 +12,18 @@ import { DateRange } from 'react-day-picker';
 
 const FeeReports = () => {
   const [showCalculationModal, setShowCalculationModal] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<string>('');
+  const [selectedAccount, setSelectedAccount] = useState<string>('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [fees, setFees] = useState<any[]>([]);
   
   const { getFees } = useFeeCalculation();
-  const { accounts } = useAccounts();
+  const { accounts } = useAccountsContext();
 
   const loadFees = async () => {
     const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
     const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
     
-    const result = await getFees(selectedAccount || undefined, startDate, endDate);
+    const result = await getFees(selectedAccount === 'all' ? undefined : selectedAccount, startDate, endDate);
     if (result.success) {
       setFees(result.fees);
     }
@@ -35,7 +35,7 @@ const FeeReports = () => {
       const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
       const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
       
-      const result = await getFees(selectedAccount || undefined, startDate, endDate);
+      const result = await getFees(selectedAccount === 'all' ? undefined : selectedAccount, startDate, endDate);
       if (result.success) {
         setFees(result.fees);
       }
@@ -143,7 +143,7 @@ const FeeReports = () => {
                   <SelectValue placeholder="All accounts" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All accounts</SelectItem>
+                  <SelectItem value="all">All accounts</SelectItem>
                   {accounts?.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
                       {account.account_name} ({account.account_number})
@@ -162,7 +162,7 @@ const FeeReports = () => {
               <Button 
                 variant="outline" 
                 onClick={() => {
-                  setSelectedAccount('');
+                  setSelectedAccount('all');
                   setDateRange(undefined);
                 }}
                 className="w-full"

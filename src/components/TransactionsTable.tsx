@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -95,53 +94,55 @@ const TransactionsTable = ({ accountId }: TransactionsTableProps) => {
             No transactions found for this account
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Security</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Quantity</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {trades.map((trade) => (
-                <TableRow key={trade.id}>
-                  <TableCell>
-                    {new Date(trade.trade_date).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{trade.security?.symbol}</div>
-                      <div className="text-sm text-gray-500">{trade.security?.name}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getTradeTypeColor(trade.trade_type)}>
-                      {trade.trade_type.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatNumber(trade.quantity)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatCurrency(trade.price, trade.currency)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatCurrency(trade.net_amount, trade.currency)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(trade.trade_status)}>
-                      {trade.trade_status}
-                    </Badge>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[600px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Security</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Quantity</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {trades.map((trade) => (
+                  <TableRow key={trade.id}>
+                    <TableCell>
+                      {new Date(trade.trade_date).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{trade.security?.symbol}</div>
+                        <div className="text-sm text-gray-500">{trade.security?.name}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getTradeTypeColor(trade.trade_type)}>
+                        {trade.trade_type.replace('_', ' ')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatNumber(trade.quantity)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(trade.price, trade.currency)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(trade.net_amount, trade.currency)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(trade.trade_status)}>
+                        {trade.trade_status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>

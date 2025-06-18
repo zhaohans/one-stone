@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Edit, MoreHorizontal } from 'lucide-react';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useAccountsContext } from '@/contexts/AccountsContext';
 import HoldingsTable from './HoldingsTable';
 import TransactionsTable from './TransactionsTable';
 import DocumentsTable from './DocumentsTable';
@@ -15,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const AccountDetails = () => {
   const { accountId } = useParams();
   const navigate = useNavigate();
-  const { accounts, isLoading } = useAccounts();
+  const { accounts, isLoading } = useAccountsContext();
 
   const account = accounts.find(acc => acc.id === accountId);
 

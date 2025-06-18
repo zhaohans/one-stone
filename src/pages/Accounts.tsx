@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -20,7 +19,7 @@ import {
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useAccountsContext } from '@/contexts/AccountsContext';
 import {
   Select,
   SelectContent,
@@ -44,12 +43,7 @@ const Accounts = () => {
   });
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [bulkAction, setBulkAction] = useState('');
-  const { accounts, isLoading, createAccount, bulkUpdateAccounts } = useAccounts({
-    ...filters,
-    account_type: filters.account_type === 'all' ? '' : filters.account_type,
-    account_status: filters.account_status === 'all' ? '' : filters.account_status,
-    base_currency: filters.base_currency === 'all' ? '' : filters.base_currency,
-  });
+  const { accounts, isLoading, createAccount, bulkUpdateAccounts } = useAccountsContext();
   const { toast } = useToast();
 
   const handleAccountClick = (accountId: string) => {
@@ -265,15 +259,9 @@ const Accounts = () => {
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-2">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : (
-            <Table>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">
@@ -356,7 +344,7 @@ const Accounts = () => {
                 ))}
               </TableBody>
             </Table>
-          )}
+          </div>
         </CardContent>
       </Card>
 

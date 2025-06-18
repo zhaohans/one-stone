@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,47 +68,49 @@ const HoldingsTable = ({ accountId }: HoldingsTableProps) => {
             No holdings found for this account
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Security</TableHead>
-                <TableHead className="text-right">Quantity</TableHead>
-                <TableHead className="text-right">Avg Cost</TableHead>
-                <TableHead className="text-right">Market Value</TableHead>
-                <TableHead className="text-right">P&L</TableHead>
-                <TableHead>Type</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {positions.map((position) => (
-                <TableRow key={position.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{position.security?.symbol}</div>
-                      <div className="text-sm text-gray-500">{position.security?.name}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatNumber(position.quantity)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatCurrency(position.average_cost, position.security?.currency)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatCurrency(position.market_value, position.security?.currency)}
-                  </TableCell>
-                  <TableCell className={`text-right ${getPnlColor(position.unrealized_pnl)}`}>
-                    {formatCurrency(position.unrealized_pnl, position.security?.currency)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">
-                      {position.security?.security_type}
-                    </Badge>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[600px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Security</TableHead>
+                  <TableHead className="text-right">Quantity</TableHead>
+                  <TableHead className="text-right">Avg Cost</TableHead>
+                  <TableHead className="text-right">Market Value</TableHead>
+                  <TableHead className="text-right">P&L</TableHead>
+                  <TableHead>Type</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {positions.map((position) => (
+                  <TableRow key={position.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{position.security?.symbol}</div>
+                        <div className="text-sm text-gray-500">{position.security?.name}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatNumber(position.quantity)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(position.average_cost, position.security?.currency)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(position.market_value, position.security?.currency)}
+                    </TableCell>
+                    <TableCell className={`text-right ${getPnlColor(position.unrealized_pnl)}`}>
+                      {formatCurrency(position.unrealized_pnl, position.security?.currency)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {position.security?.security_type}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>

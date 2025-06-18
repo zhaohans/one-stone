@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, FileText, Search, Filter, Tag, Eye, Download, FolderOpen } from 'lucide-react';
+import DocumentUpload from '../components/DocumentUpload';
+import DocumentsTable from '../components/DocumentsTable';
 
 const DocumentVault = () => {
   const [documents, setDocuments] = useState([
@@ -64,10 +65,10 @@ const DocumentVault = () => {
           <h1 className="text-2xl font-bold text-gray-900">Document Vault</h1>
           <p className="text-gray-600">Secure document storage with search, tagging, and version control</p>
         </div>
-        <Button className="flex items-center space-x-2">
-          <Upload className="w-4 h-4" />
-          <span>Upload Documents</span>
-        </Button>
+        <DocumentUpload />
+      </div>
+      <div className="mt-8">
+        <DocumentsTable />
       </div>
 
       {/* Stats Cards */}

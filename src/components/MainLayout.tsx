@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
@@ -60,21 +59,19 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </button>
         </div>
 
-        <TopBar 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSearchSubmit={handleSearch}
-          sidebarCollapsed={sidebarCollapsed}
-          onToggleSidebar={handleToggleSidebar}
-        />
+        <TopBar onSearch={query => {
+          setSearchQuery(query);
+          if (query.trim()) {
+            toast.info(`Searching for: ${query}`);
+          }
+        }} />
 
         <main className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-50">
           {children}
         </main>
-      </div>
 
-      {/* AI Chat Widget */}
-      <AIChatWidget />
+        <AIChatWidget />
+      </div>
     </div>
   );
 };

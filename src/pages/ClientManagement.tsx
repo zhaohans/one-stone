@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,7 +40,7 @@ import {
   Loader2,
   CheckCircle
 } from 'lucide-react';
-import { useClients, Client } from '@/hooks/useClients';
+import { useClientsContext, Client } from '@/contexts/ClientsContext';
 import { ClientForm } from '@/components/ClientForm';
 
 const ClientManagement = () => {
@@ -58,11 +57,7 @@ const ClientManagement = () => {
     search: ''
   });
 
-  const { clients, isLoading, createClient, updateClient, deleteClient, bulkUpdateClients } = useClients({
-    ...filters,
-    kyc_status: filters.kyc_status === 'all' ? '' : filters.kyc_status,
-    search: searchTerm
-  });
+  const { clients, isLoading, createClient, updateClient, deleteClient, bulkUpdateClients } = useClientsContext();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -486,14 +481,9 @@ const ClientManagement = () => {
             </span>
           </div>
         </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-              <span className="ml-2 text-gray-500">Loading clients...</span>
-            </div>
-          ) : (
-            <Table>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-8">
@@ -589,7 +579,7 @@ const ClientManagement = () => {
                 ))}
               </TableBody>
             </Table>
-          )}
+          </div>
 
           {!isLoading && clients.length === 0 && (
             <div className="text-center py-12">

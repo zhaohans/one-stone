@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface EmailNotification {
@@ -143,5 +142,39 @@ export class NotificationService {
       subject,
       htmlContent
     });
+  }
+
+  // Fetch notifications for the current user (mock or from supabase)
+  static async getNotifications(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      // Optionally format time, etc.
+      return (data || []).map((n: any) => ({
+        ...n,
+        time: n.created_at ? new Date(n.created_at).toLocaleString() : '',
+      }));
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
+  }
+
+  // Mark a notification as read
+  static async markAsRead(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      return false;
+    }
   }
 }

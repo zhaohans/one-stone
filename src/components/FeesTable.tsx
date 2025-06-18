@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFeeCalculation } from '@/hooks/useFeeCalculation';
 import { CheckCircle, DollarSign, Eye, FileText } from 'lucide-react';
-import { FeeDetailsModal } from './FeeDetailsModal';
+import FeeDetailsModal from './FeeDetailsModal';
 
 interface Fee {
   id: string;
@@ -81,103 +80,116 @@ export const FeesTable: React.FC<FeesTableProps> = ({ fees, onFeesUpdate }) => {
   return (
     <>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Account</TableHead>
-              <TableHead>Fee Type</TableHead>
-              <TableHead>Period</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Retrocessions</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {fees.map((fee) => (
-              <TableRow key={fee.id}>
-                <TableCell className="font-medium">
-                  <div>
-                    <div className="font-semibold">{fee.accounts?.account_name}</div>
-                    <div className="text-sm text-gray-500">{fee.accounts?.account_number}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {getFeeTypeBadge(fee.fee_type)}
-                </TableCell>
-                <TableCell>
-                  <div className="text-sm">
-                    <div>{new Date(fee.calculation_period_start).toLocaleDateString()}</div>
-                    <div className="text-gray-500">to {new Date(fee.calculation_period_end).toLocaleDateString()}</div>
-                  </div>
-                </TableCell>
-                <TableCell className="font-semibold">
-                  {formatCurrency(fee.calculated_amount, fee.currency)}
-                </TableCell>
-                <TableCell>
-                  {fee.is_paid ? (
-                    <Badge className="bg-green-100 text-green-800">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Paid
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline">Pending</Badge>
-                  )}
-                  {fee.payment_date && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      {new Date(fee.payment_date).toLocaleDateString()}
+        <div className="overflow-x-auto">
+          <Table className="min-w-[600px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Account</TableHead>
+                <TableHead>Fee Type</TableHead>
+                <TableHead>Period</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Retrocessions</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {fees.map((fee) => (
+                <TableRow key={fee.id}>
+                  <TableCell className="font-medium">
+                    <div>
+                      <div className="font-semibold">{fee.accounts?.account_name}</div>
+                      <div className="text-sm text-gray-500">{fee.accounts?.account_number}</div>
                     </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {fee.retrocessions && fee.retrocessions.length > 0 ? (
-                    <div className="space-y-1">
-                      {fee.retrocessions.map((retro) => (
-                        <div key={retro.id} className="text-xs">
-                          <div className="font-medium">{retro.recipient_name}</div>
-                          <div className="text-gray-500">
-                            {formatCurrency(retro.amount, retro.currency)}
-                            {retro.is_paid && <span className="text-green-600 ml-1">✓</span>}
+                  </TableCell>
+                  <TableCell>
+                    {getFeeTypeBadge(fee.fee_type)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">
+                      <div>{new Date(fee.calculation_period_start).toLocaleDateString()}</div>
+                      <div className="text-gray-500">to {new Date(fee.calculation_period_end).toLocaleDateString()}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-semibold">
+                    {formatCurrency(fee.calculated_amount, fee.currency)}
+                  </TableCell>
+                  <TableCell>
+                    {fee.is_paid ? (
+                      <Badge className="bg-green-100 text-green-800">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Paid
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Pending</Badge>
+                    )}
+                    {fee.payment_date && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {new Date(fee.payment_date).toLocaleDateString()}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {fee.retrocessions && fee.retrocessions.length > 0 ? (
+                      <div className="space-y-1">
+                        {fee.retrocessions.map((retro) => (
+                          <div key={retro.id} className="text-xs">
+                            <div className="font-medium">{retro.recipient_name}</div>
+                            <div className="text-gray-500">
+                              {formatCurrency(retro.amount, retro.currency)}
+                              {retro.is_paid && <span className="text-green-600 ml-1">✓</span>}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">None</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedFee(fee)}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    {!fee.is_paid && (
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">None</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleMarkPaid(fee.id)}
+                        onClick={() => setSelectedFee(fee)}
                       >
-                        <DollarSign className="w-4 h-4" />
+                        <Eye className="w-4 h-4" />
                       </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                      {!fee.is_paid && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMarkPaid(fee.id)}
+                        >
+                          <DollarSign className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {selectedFee && (
         <FeeDetailsModal
-          fee={selectedFee}
-          isOpen={!!selectedFee}
+          fee={{
+            id: selectedFee.id,
+            type: selectedFee.fee_type,
+            amount: selectedFee.calculated_amount,
+            period_start: selectedFee.calculation_period_start,
+            period_end: selectedFee.calculation_period_end,
+            is_paid: selectedFee.is_paid,
+            retrocessions: selectedFee.retrocessions?.map(r => ({
+              id: r.id,
+              amount: r.amount,
+              recipient: r.recipient_name
+            })) || []
+          }}
+          open={!!selectedFee}
           onClose={() => setSelectedFee(null)}
-          onUpdate={onFeesUpdate}
         />
       )}
     </>

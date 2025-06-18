@@ -308,6 +308,20 @@ class UserService {
     if (requiredRole === 'admin') return userRole === 'admin';
     return false;
   }
+
+  async updateUserRole(userId: string, newRole: 'admin' | 'user'): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole, updated_at: new Date().toISOString() })
+        .eq('id', userId);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      return false;
+    }
+  }
 }
 
 export default UserService.getInstance();
