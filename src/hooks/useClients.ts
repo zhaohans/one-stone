@@ -31,7 +31,7 @@ export interface Client {
 
 export interface ClientFilters {
   status?: string;
-  kyc_status?: 'pending' | 'approved' | 'rejected' | 'expired';
+  kyc_status?: '' | 'pending' | 'approved' | 'rejected' | 'expired';
   country?: string;
   search?: string;
 }
@@ -50,7 +50,7 @@ export const useClients = (filters: ClientFilters = {}) => {
         .select('*');
 
       // Apply filters
-      if (filters.kyc_status) {
+      if (filters.kyc_status && filters.kyc_status !== '') {
         query = query.eq('kyc_status', filters.kyc_status);
       }
       if (filters.country) {
