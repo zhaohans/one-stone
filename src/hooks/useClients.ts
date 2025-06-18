@@ -31,7 +31,7 @@ export interface Client {
 
 export interface ClientFilters {
   status?: string;
-  kyc_status?: string;
+  kyc_status?: 'pending' | 'approved' | 'rejected' | 'expired';
   country?: string;
   search?: string;
 }

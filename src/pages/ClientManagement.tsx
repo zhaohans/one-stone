@@ -37,7 +37,8 @@ import {
   Tag,
   Grid3X3,
   List,
-  Loader2
+  Loader2,
+  CheckCircle
 } from 'lucide-react';
 import { useClients, Client } from '@/hooks/useClients';
 import { ClientForm } from '@/components/ClientForm';
@@ -51,7 +52,7 @@ const ClientManagement = () => {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    kyc_status: '',
+    kyc_status: '' as '' | 'pending' | 'approved' | 'rejected' | 'expired',
     country: '',
     search: ''
   });
@@ -420,7 +421,7 @@ const ClientManagement = () => {
                   <select 
                     className="w-full mt-1 p-2 border rounded-md text-sm"
                     value={filters.kyc_status}
-                    onChange={(e) => setFilters(prev => ({ ...prev, kyc_status: e.target.value }))}
+                    onChange={(e) => setFilters(prev => ({ ...prev, kyc_status: e.target.value as '' | 'pending' | 'approved' | 'rejected' | 'expired' }))}
                   >
                     <option value="">All KYC</option>
                     <option value="approved">Approved</option>
