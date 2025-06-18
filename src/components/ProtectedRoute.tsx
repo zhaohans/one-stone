@@ -1,29 +1,20 @@
 
-import React from 'react';
-import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+import React, { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'user';
-  requireEmailVerified?: boolean;
-  requireOnboarded?: boolean;
+  requiredRole?: string;
 }
 
-const ProtectedRoute = ({ 
-  children, 
-  requiredRole,
-  requireEmailVerified = false,
-  requireOnboarded = false
-}: ProtectedRouteProps) => {
-  const { isRedirecting, canAccess } = useAuthRedirect({
-    requireAuth: true,
-    requireRole: requiredRole,
-    requireEmailVerified,
-    requireOnboarded,
-  });
+const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const location = useLocation();
 
-  // Show loading state while redirecting
-  if (isRedirecting) {
+  // Show loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -31,20 +22,18 @@ const ProtectedRoute = ({
     );
   }
 
-  // Show children if user has access
-  if (canAccess) {
-    return <>{children}</>;
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // This should not be reached due to redirects, but just in case
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-        <p className="text-gray-600">You don't have permission to access this page.</p>
-      </div>
-    </div>
-  );
+  // Check role-based access if required
+  if (requiredRole && user?.role !== requiredRole) {
+    toast.error('You do not have permission to access this page.');
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
