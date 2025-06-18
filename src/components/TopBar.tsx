@@ -13,10 +13,10 @@ interface TopBarProps {
 
 const TopBar = ({ searchQuery, onSearchChange, onSearchSubmit }: TopBarProps) => {
   return (
-    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 shadow-sm">
-      <div className="flex items-center justify-between">
-        {/* Left side - Branding */}
-        <div className="flex items-center space-x-6">
+    <header className="bg-white border-b border-gray-200 px-4 py-4 shadow-sm h-16">
+      <div className="flex items-center justify-between h-full">
+        {/* Left side - Branding - Match sidebar header exactly */}
+        <div className="flex items-center">
           <div className="hidden sm:block">
             <h1 className="font-bold text-gray-900 text-xl whitespace-nowrap">One Stone Capital</h1>
           </div>

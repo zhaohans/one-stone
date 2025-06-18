@@ -64,23 +64,28 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
       "bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm h-full",
       collapsed ? "w-16" : "w-64"
     )}>
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+      {/* Header - Match top bar padding exactly */}
+      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between h-16">
         {!collapsed && (
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-sm">OSC</span>
             </div>
             <div>
-              <span className="font-bold text-gray-900 text-lg whitespace-nowrap">One Stone Capital</span>
+              <span className="font-bold text-gray-900 text-xl whitespace-nowrap">One Stone Capital</span>
             </div>
+          </div>
+        )}
+        {collapsed && (
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md mx-auto">
+            <span className="text-white font-bold text-sm">OSC</span>
           </div>
         )}
         <Button
           variant="ghost"
           size="sm"
           onClick={onToggleCollapse}
-          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 shrink-0"
+          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 shrink-0 ml-auto"
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </Button>
