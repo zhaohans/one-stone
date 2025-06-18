@@ -2,7 +2,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/SimpleAuthContext';
-import { Loader2, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, Clock } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface SimpleProtectedRouteProps {
@@ -28,12 +28,12 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
 
   // Redirect to auth if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
   // Redirect to auth if email not verified
   if (!isEmailVerified) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
   // Show pending approval message if not approved
@@ -49,7 +49,7 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
           </Alert>
           <div className="mt-4 text-center">
             <button
-              onClick={() => window.location.href = '/auth'}
+              onClick={() => window.location.href = '/auth/login'}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
               Back to Login
