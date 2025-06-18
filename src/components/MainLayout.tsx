@@ -14,12 +14,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
+      {/* Sidebar */}
       <Sidebar 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
         userRole={user?.role}
       />
 
+      {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0">
         <Header setSidebarOpen={setSidebarOpen} />
         
