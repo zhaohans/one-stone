@@ -1,30 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Search, 
-  Bell, 
-  Settings, 
-  User, 
-  ChevronLeft, 
-  ChevronRight,
-  Users,
-  FileText,
-  Shield,
-  FolderOpen,
-  DollarSign,
-  Home,
-  Building2,
-  TrendingUp,
-  Receipt,
-  Newspaper,
-  LogOut,
-  MessageSquare
-} from 'lucide-react';
+import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Users, FileText, Shield, FolderOpen, DollarSign, Home, Building2, TrendingUp, Receipt, Newspaper, LogOut } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
-import { searchSchema } from '@/lib/validation';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 interface MainLayoutProps {
@@ -34,9 +15,8 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchError, setSearchError] = useState('');
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { profile, logout, role } = useAuth();
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -45,57 +25,47 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: TrendingUp, label: 'Trades', path: '/trades' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
-    { icon: FileText, label: 'Tasks', path: '/tasks' },
-    { icon: MessageSquare, label: 'Messages', path: '/messages' },
     { icon: Newspaper, label: 'News', path: '/news' },
-    { icon: Shield, label: 'Compliance', path: '/compliance' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: Shield, label: 'Compliance', path: '/compliance', requireRole: 'admin' },
+    { icon: Settings, label: 'Settings', path: '/settings', requireRole: 'admin' }
   ];
-
-  // Security headers effect
-  useEffect(() => {
-    // Set security headers via meta tags (in a real app, these would be set server-side)
-    const setSecurityHeaders = () => {
-      // Content Security Policy
-      const cspMeta = document.createElement('meta');
-      cspMeta.httpEquiv = 'Content-Security-Policy';
-      cspMeta.content = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:";
-      document.head.appendChild(cspMeta);
-
-      // X-Frame-Options
-      const frameMeta = document.createElement('meta');
-      frameMeta.httpEquiv = 'X-Frame-Options';
-      frameMeta.content = 'DENY';
-      document.head.appendChild(frameMeta);
-
-      // X-Content-Type-Options
-      const typeMeta = document.createElement('meta');
-      typeMeta.httpEquiv = 'X-Content-Type-Options';
-      typeMeta.content = 'nosniff';
-      document.head.appendChild(typeMeta);
-    };
-
-    setSecurityHeaders();
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
-    try {
-      const validated = searchSchema.parse({ query: searchQuery });
-      setSearchError('');
-      
-      // Implement search functionality here
-      console.log('Searching for:', validated.query);
-      toast.info(`Searching for: ${validated.query}`);
-    } catch (error: any) {
-      setSearchError(error.errors[0]?.message || 'Invalid search query');
-    }
+    if (!searchQuery.trim()) return;
+    
+    console.log('Search performed:', searchQuery);
+    toast.info(`Searching for: ${searchQuery}`);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
   };
+
+  const getUserDisplayName = () => {
+    if (!profile) return 'User';
+    if (profile.first_name || profile.last_name) {
+      return `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+    }
+    return profile.email?.split('@')[0] || 'User';
+  };
+
+  const getUserInitials = () => {
+    if (!profile) return 'U';
+    if (profile.first_name || profile.last_name) {
+      return `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase();
+    }
+    return profile.email?.[0]?.toUpperCase() || 'U';
+  };
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.requireRole) {
+      return role === item.requireRole;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -130,7 +100,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Navigation */}
         <nav className="flex-1 p-3">
           <ul className="space-y-1">
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <li key={item.path}>
@@ -138,8 +108,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     to={item.path}
                     className={cn(
                       "flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group",
-                      isActive 
-                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm" 
+                      isActive
+                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
@@ -147,9 +117,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                       "w-5 h-5 transition-colors",
                       isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
                     )} />
-                    {!sidebarCollapsed && (
-                      <span className="font-medium text-sm">{item.label}</span>
-                    )}
+                    {!sidebarCollapsed && <span className="font-medium text-sm">{item.label}</span>}
                   </Link>
                 </li>
               );
@@ -159,19 +127,19 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3 mb-3">
+          <Link to="/profile" className="flex items-center space-x-3 mb-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
-                {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                {getUserInitials()}
               </span>
             </div>
             {!sidebarCollapsed && (
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
-                <p className="text-xs text-gray-500">Relationship Manager</p>
+                <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
+                <p className="text-xs text-gray-500">{profile?.position || 'Team Member'}</p>
               </div>
             )}
-          </div>
+          </Link>
           {!sidebarCollapsed && (
             <Button
               variant="ghost"
@@ -192,15 +160,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <h1 className="text-xl font-bold text-gray-900">One Stone Capital</h1>
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <span>Product</span>
-                  <span className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
-                    Express
-                  </span>
-                </div>
-              </div>
+              
             </div>
             
             <div className="flex items-center space-x-4">
@@ -211,20 +171,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   type="text"
                   placeholder="Search clients, accounts, ISIN, trades..."
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    if (searchError) setSearchError('');
-                  }}
-                  className={`pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200 ${
-                    searchError ? 'border-red-500' : ''
-                  }`}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 w-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-200"
                   maxLength={200}
+                  autoComplete="off"
                 />
-                {searchError && (
-                  <div className="absolute top-full left-0 mt-1 text-xs text-red-600 bg-white px-2 py-1 rounded shadow">
-                    {searchError}
-                  </div>
-                )}
               </form>
               
               {/* Notifications */}
@@ -241,9 +192,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               </Button>
               
               {/* Profile */}
-              <Button variant="ghost" size="sm" className="hover:bg-gray-100">
-                <User className="w-5 h-5 text-gray-600" />
-              </Button>
+              <Link to="/profile">
+                <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                  <User className="w-5 h-5 text-gray-600" />
+                </Button>
+              </Link>
             </div>
           </div>
         </header>

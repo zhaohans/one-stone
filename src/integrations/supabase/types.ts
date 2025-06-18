@@ -605,7 +605,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       handle_failed_login: {
-        Args: Record<PropertyKey, never> | { user_email: string }
+        Args: { user_email: string }
         Returns: Json
       }
       has_role: {
@@ -616,7 +616,7 @@ export type Database = {
         Returns: boolean
       }
       is_account_locked: {
-        Args: Record<PropertyKey, never> | { user_email: string }
+        Args: { user_email: string }
         Returns: boolean
       }
       reset_failed_login_attempts: {
