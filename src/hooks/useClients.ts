@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -51,7 +50,10 @@ export const useClients = (filters: ClientFilters = {}) => {
 
       // Apply filters
       if (filters.kyc_status && filters.kyc_status !== 'all' && filters.kyc_status !== '') {
-        query = query.eq('kyc_status', filters.kyc_status as 'pending' | 'approved' | 'rejected' | 'expired');
+        const validStatuses = ['pending', 'approved', 'rejected', 'expired'];
+        if (validStatuses.includes(filters.kyc_status)) {
+          query = query.eq('kyc_status', filters.kyc_status);
+        }
       }
       if (filters.country) {
         query = query.eq('country', filters.country);
