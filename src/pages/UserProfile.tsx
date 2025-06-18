@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,24 +29,24 @@ import TwoFactorSetup from '@/components/TwoFactorSetup';
 import AuditLogTable from '@/components/AuditLogTable';
 
 const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   
   // Form states
   const [profileData, setProfileData] = useState({
     avatar: '',
     gender: 'prefer-not-to-say',
-    memberName: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User' : 'User',
-    officeNo: 'OSC-001',
+    memberName: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'User' : 'User',
+    officeNo: profile?.office_number || 'OSC-001',
     officeAddress: '1 Raffles Place, #40-61, Singapore 048616',
     workEmail: user?.email || '',
-    personalPhone: '+65 9123 4567',
-    department: 'management',
-    position: 'director',
+    personalPhone: profile?.phone || '+65 9123 4567',
+    department: profile?.department || 'management',
+    position: profile?.position || 'director',
     supervisor: '',
     team: ['investment-team'],
     loginEmail: user?.email || '',
-    linkedPhone: '+65 9123 4567',
-    accountStatus: 'active',
+    linkedPhone: profile?.phone || '+65 9123 4567',
+    accountStatus: profile?.status || 'active',
     loginDuration: '24',
     language: 'en',
     timezone: 'Asia/Singapore',
@@ -107,9 +106,9 @@ const UserProfile = () => {
 
   // Get user initials for avatar fallback
   const getUserInitials = () => {
-    if (!user) return 'U';
-    const firstName = user.first_name || '';
-    const lastName = user.last_name || '';
+    if (!profile) return 'U';
+    const firstName = profile.first_name || '';
+    const lastName = profile.last_name || '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U';
   };
 
