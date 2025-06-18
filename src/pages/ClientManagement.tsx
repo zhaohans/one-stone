@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,13 +53,14 @@ const ClientManagement = () => {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    kyc_status: '' as '' | 'pending' | 'approved' | 'rejected' | 'expired',
+    kyc_status: 'all',
     country: '',
     search: ''
   });
 
   const { clients, isLoading, createClient, updateClient, deleteClient, bulkUpdateClients } = useClients({
     ...filters,
+    kyc_status: filters.kyc_status === 'all' ? '' : filters.kyc_status,
     search: searchTerm
   });
 
@@ -421,9 +423,9 @@ const ClientManagement = () => {
                   <select 
                     className="w-full mt-1 p-2 border rounded-md text-sm"
                     value={filters.kyc_status}
-                    onChange={(e) => setFilters(prev => ({ ...prev, kyc_status: e.target.value as '' | 'pending' | 'approved' | 'rejected' | 'expired' }))}
+                    onChange={(e) => setFilters(prev => ({ ...prev, kyc_status: e.target.value }))}
                   >
-                    <option value="">All KYC</option>
+                    <option value="all">All KYC</option>
                     <option value="approved">Approved</option>
                     <option value="pending">Pending</option>
                     <option value="rejected">Rejected</option>

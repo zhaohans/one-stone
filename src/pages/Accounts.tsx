@@ -37,14 +37,19 @@ const Accounts = () => {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [filters, setFilters] = useState({
-    account_type: '',
-    account_status: '',
-    base_currency: '',
+    account_type: 'all',
+    account_status: 'all',
+    base_currency: 'all',
     client_search: '',
   });
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [bulkAction, setBulkAction] = useState('');
-  const { accounts, isLoading, createAccount, bulkUpdateAccounts } = useAccounts(filters);
+  const { accounts, isLoading, createAccount, bulkUpdateAccounts } = useAccounts({
+    ...filters,
+    account_type: filters.account_type === 'all' ? '' : filters.account_type,
+    account_status: filters.account_status === 'all' ? '' : filters.account_status,
+    base_currency: filters.base_currency === 'all' ? '' : filters.base_currency,
+  });
   const { toast } = useToast();
 
   const handleAccountClick = (accountId: string) => {
@@ -182,17 +187,16 @@ const Accounts = () => {
             <div>
               <Label htmlFor="account_type">Account Type</Label>
               <Select
-                name="account_type"
+                value={filters.account_type}
                 onValueChange={(value) =>
                   setFilters((prev) => ({ ...prev, account_type: value }))
                 }
-                defaultValue={filters.account_type}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   <SelectItem value="individual">Individual</SelectItem>
                   <SelectItem value="joint">Joint</SelectItem>
                   <SelectItem value="corporate">Corporate</SelectItem>
@@ -204,17 +208,16 @@ const Accounts = () => {
             <div>
               <Label htmlFor="account_status">Account Status</Label>
               <Select
-                name="account_status"
+                value={filters.account_status}
                 onValueChange={(value) =>
                   setFilters((prev) => ({ ...prev, account_status: value }))
                 }
-                defaultValue={filters.account_status}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
                   <SelectItem value="suspended">Suspended</SelectItem>
@@ -225,17 +228,16 @@ const Accounts = () => {
             <div>
               <Label htmlFor="base_currency">Base Currency</Label>
               <Select
-                name="base_currency"
+                value={filters.base_currency}
                 onValueChange={(value) =>
                   setFilters((prev) => ({ ...prev, base_currency: value }))
                 }
-                defaultValue={filters.base_currency}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   <SelectItem value="USD">USD</SelectItem>
                   <SelectItem value="EUR">EUR</SelectItem>
                   <SelectItem value="GBP">GBP</SelectItem>
