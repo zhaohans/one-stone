@@ -31,19 +31,25 @@ const LoginForm = () => {
     }
 
     try {
+      console.log('📝 Attempting login for:', email);
       const success = await login(email, password);
       console.log('📝 Login result:', success);
       
       if (!success) {
         console.log('❌ Login failed');
         setError('Login failed. Please check your credentials and try again.');
+      } else {
+        console.log('✅ Login successful');
+        // Don't set isSubmitting to false here - let the auth state change handle it
+        return;
       }
     } catch (error: any) {
       console.error('💥 Login error:', error);
       setError('Login failed. Please try again.');
-    } finally {
-      setIsSubmitting(false);
     }
+    
+    // Only set to false if login failed
+    setIsSubmitting(false);
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {

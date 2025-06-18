@@ -215,7 +215,7 @@ export function useAuth(): AuthState & AuthActions {
   }, [updateAuthState]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    console.log('🔑 Login function called');
+    console.log('🔑 Login function called for email:', email);
     
     try {
       const { user, session, error } = await AuthService.login({ email, password });
@@ -237,12 +237,13 @@ export function useAuth(): AuthState & AuthActions {
       }
 
       if (user && session) {
-        console.log('✅ Login successful');
+        console.log('✅ Login successful for user:', user.id);
         toast.success('Login successful! Welcome back.');
         return true;
       }
 
       console.log('⚠️ No user or session returned from login');
+      toast.error('Login failed. Please try again.');
       return false;
     } catch (error: any) {
       console.error('💥 Login error occurred:', error);
