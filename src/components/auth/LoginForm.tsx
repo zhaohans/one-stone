@@ -13,36 +13,59 @@ const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const { login, resetPassword, isLoading, isAuthenticated, isEmailVerified } = useAuth();
+  const { login, resetPassword, isAuthenticated, isEmailVerified } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
+
+    console.log('🚀 Starting login process...');
 
     if (!email || !password) {
       setError('Please fill in all fields');
+      setIsSubmitting(false);
       return;
     }
 
-    const success = await login(email, password);
-    if (!success) {
-      setError('Login failed. Please check your credentials and try again.');
+    try {
+      const success = await login(email, password);
+      console.log('📝 Login result:', success);
+      
+      if (!success) {
+        console.log('❌ Login failed');
+        setError('Login failed. Please check your credentials and try again.');
+      }
+    } catch (error: any) {
+      console.error('💥 Login error:', error);
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
     if (!email) {
       setError('Please enter your email address');
+      setIsSubmitting(false);
       return;
     }
 
-    const success = await resetPassword(email);
-    if (success) {
-      setShowForgotPassword(false);
+    try {
+      const success = await resetPassword(email);
+      if (success) {
+        setShowForgotPassword(false);
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -107,13 +130,14 @@ const LoginForm = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
 
             <div className="space-y-3">
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Sending Reset Link...
@@ -128,6 +152,7 @@ const LoginForm = () => {
                 variant="ghost"
                 className="w-full"
                 onClick={() => setShowForgotPassword(false)}
+                disabled={isSubmitting}
               >
                 Back to Login
               </Button>
@@ -167,6 +192,7 @@ const LoginForm = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10"
                 required
+                disabled={isSubmitting}
               />
             </div>
           </div>
@@ -183,6 +209,7 @@ const LoginForm = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10"
                 required
+                disabled={isSubmitting}
               />
             </div>
           </div>
@@ -192,13 +219,14 @@ const LoginForm = () => {
               type="button"
               onClick={() => setShowForgotPassword(true)}
               className="text-sm text-blue-600 hover:underline"
+              disabled={isSubmitting}
             >
               Forgot password?
             </button>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing In...

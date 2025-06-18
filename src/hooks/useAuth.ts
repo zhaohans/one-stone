@@ -215,13 +215,13 @@ export function useAuth(): AuthState & AuthActions {
   }, [updateAuthState]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    setState(prev => ({ ...prev, isLoading: true }));
+    console.log('🔑 Login function called');
     
     try {
       const { user, session, error } = await AuthService.login({ email, password });
 
       if (error) {
-        console.error('Login error:', error.message);
+        console.error('❌ Login error:', error.message);
         
         if (error.name === 'AccountLocked') {
           toast.error(error.message);
@@ -233,21 +233,20 @@ export function useAuth(): AuthState & AuthActions {
           toast.error('Invalid email or password. Please try again.');
         }
         
-        setState(prev => ({ ...prev, isLoading: false }));
         return false;
       }
 
       if (user && session) {
+        console.log('✅ Login successful');
         toast.success('Login successful! Welcome back.');
         return true;
       }
 
-      setState(prev => ({ ...prev, isLoading: false }));
+      console.log('⚠️ No user or session returned from login');
       return false;
     } catch (error: any) {
-      console.error('Login error occurred:', error);
+      console.error('💥 Login error occurred:', error);
       toast.error('Login failed. Please try again.');
-      setState(prev => ({ ...prev, isLoading: false }));
       return false;
     }
   }, []);
