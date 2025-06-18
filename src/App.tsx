@@ -17,6 +17,8 @@ import ComplianceDashboard from "./pages/ComplianceDashboard";
 import NotFound from "./pages/NotFound";
 import AccountsPage from "./pages/AccountsPage";
 import TradesPage from "./pages/TradesPage";
+import Messages from "./pages/Messages";
+import Tasks from "./pages/Tasks";
 import News from "./pages/News";
 import Settings from "./pages/Settings";
 import UserProfile from "./pages/UserProfile";
