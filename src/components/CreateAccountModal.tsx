@@ -20,7 +20,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
   const [formData, setFormData] = useState({
     account_name: '',
     client_id: '',
-    account_type: '',
+    account_type: 'individual' as Account['account_type'],
     base_currency: 'USD',
     risk_tolerance: 'moderate',
     investment_objective: '',
@@ -28,7 +28,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const accountTypes = ['brokerage', 'corporate', 'retirement', 'margin', 'fund', 'bank'];
+  const accountTypes: Account['account_type'][] = ['individual', 'joint', 'corporate', 'trust', 'retirement'];
   const currencies = ['USD', 'SGD', 'EUR', 'HKD', 'GBP'];
   const riskTolerances = ['conservative', 'moderate', 'aggressive'];
 
@@ -40,7 +40,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
       const result = await onCreateAccount({
         ...formData,
         opening_date: new Date().toISOString().split('T')[0],
-        account_status: 'active'
+        account_status: 'active' as const
       });
 
       if (result.success) {
@@ -48,7 +48,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
         setFormData({
           account_name: '',
           client_id: '',
-          account_type: '',
+          account_type: 'individual',
           base_currency: 'USD',
           risk_tolerance: 'moderate',
           investment_objective: '',
@@ -99,7 +99,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
 
             <div>
               <Label htmlFor="account_type">Account Type</Label>
-              <Select value={formData.account_type} onValueChange={(value) => setFormData({ ...formData, account_type: value })}>
+              <Select value={formData.account_type} onValueChange={(value: Account['account_type']) => setFormData({ ...formData, account_type: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select account type" />
                 </SelectTrigger>

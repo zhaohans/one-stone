@@ -8,8 +8,8 @@ export interface Account {
   account_name: string;
   account_number: string;
   client_id: string;
-  account_type: string;
-  account_status: string;
+  account_type: 'individual' | 'joint' | 'corporate' | 'trust' | 'retirement';
+  account_status: 'active' | 'inactive' | 'suspended' | 'closed';
   base_currency: string;
   opening_date: string;
   closing_date?: string;
@@ -56,12 +56,12 @@ export const useAccounts = (filters: AccountFilters = {}) => {
           positions(id, market_value)
         `);
 
-      // Apply filters
+      // Apply filters with proper type casting
       if (filters.account_type) {
-        query = query.eq('account_type', filters.account_type);
+        query = query.eq('account_type', filters.account_type as Account['account_type']);
       }
       if (filters.account_status) {
-        query = query.eq('account_status', filters.account_status);
+        query = query.eq('account_status', filters.account_status as Account['account_status']);
       }
       if (filters.base_currency) {
         query = query.eq('base_currency', filters.base_currency);
@@ -104,13 +104,24 @@ export const useAccounts = (filters: AccountFilters = {}) => {
 
   const createAccount = async (accountData: Partial<Account>) => {
     try {
+      // Ensure required fields are present
+      const requiredData = {
+        account_name: accountData.account_name || '',
+        client_id: accountData.client_id || '',
+        account_type: accountData.account_type || 'individual' as const,
+        base_currency: accountData.base_currency || 'USD',
+        opening_date: accountData.opening_date || new Date().toISOString().split('T')[0],
+        account_status: 'active' as const,
+        account_number: `ACC-${Date.now()}`,
+        created_by: (await supabase.auth.getUser()).data.user?.id,
+        risk_tolerance: accountData.risk_tolerance,
+        investment_objective: accountData.investment_objective,
+        benchmark: accountData.benchmark
+      };
+
       const { data, error } = await supabase
         .from('accounts')
-        .insert([{
-          ...accountData,
-          account_number: `ACC-${Date.now()}`, // Generate account number
-          created_by: (await supabase.auth.getUser()).data.user?.id
-        }])
+        .insert([requiredData])
         .select()
         .single();
 
@@ -136,13 +147,30 @@ export const useAccounts = (filters: AccountFilters = {}) => {
 
   const updateAccount = async (id: string, updates: Partial<Account>) => {
     try {
+      // Filter out computed fields and ensure proper types
+      const updateData: any = {
+        account_name: updates.account_name,
+        account_type: updates.account_type,
+        account_status: updates.account_status,
+        base_currency: updates.base_currency,
+        risk_tolerance: updates.risk_tolerance,
+        investment_objective: updates.investment_objective,
+        benchmark: updates.benchmark,
+        closing_date: updates.closing_date,
+        updated_by: (await supabase.auth.getUser()).data.user?.id,
+        updated_at: new Date().toISOString()
+      };
+
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
+
       const { data, error } = await supabase
         .from('accounts')
-        .update({
-          ...updates,
-          updated_by: (await supabase.auth.getUser()).data.user?.id,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
@@ -196,13 +224,23 @@ export const useAccounts = (filters: AccountFilters = {}) => {
 
   const bulkUpdateAccounts = async (accountIds: string[], updates: Partial<Account>) => {
     try {
+      // Filter out computed fields and ensure proper types
+      const updateData: any = {
+        account_status: updates.account_status,
+        updated_by: (await supabase.auth.getUser()).data.user?.id,
+        updated_at: new Date().toISOString()
+      };
+
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
+
       const { error } = await supabase
         .from('accounts')
-        .update({
-          ...updates,
-          updated_by: (await supabase.auth.getUser()).data.user?.id,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .in('id', accountIds);
 
       if (error) throw error;

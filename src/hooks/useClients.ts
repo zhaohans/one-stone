@@ -20,11 +20,12 @@ export interface Client {
   postal_code?: string;
   country?: string;
   risk_profile?: string;
-  kyc_status?: string;
+  kyc_status?: 'pending' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
   created_by?: string;
   updated_by?: string;
+  user_id?: string;
 }
 
 export const useClients = () => {
@@ -56,12 +57,31 @@ export const useClients = () => {
 
   const createClient = async (clientData: Partial<Client>) => {
     try {
+      // Ensure required fields are present
+      const requiredData = {
+        client_code: clientData.client_code || `CL${Date.now()}`,
+        first_name: clientData.first_name || '',
+        last_name: clientData.last_name || '',
+        email: clientData.email || '',
+        phone: clientData.phone,
+        date_of_birth: clientData.date_of_birth,
+        nationality: clientData.nationality,
+        tax_residence: clientData.tax_residence,
+        address_line1: clientData.address_line1,
+        address_line2: clientData.address_line2,
+        city: clientData.city,
+        state: clientData.state,
+        postal_code: clientData.postal_code,
+        country: clientData.country,
+        risk_profile: clientData.risk_profile || 'moderate',
+        kyc_status: clientData.kyc_status || 'pending' as const,
+        created_by: (await supabase.auth.getUser()).data.user?.id,
+        user_id: clientData.user_id
+      };
+
       const { data, error } = await supabase
         .from('clients')
-        .insert([{
-          ...clientData,
-          created_by: (await supabase.auth.getUser()).data.user?.id
-        }])
+        .insert([requiredData])
         .select()
         .single();
 
