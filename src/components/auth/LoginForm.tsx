@@ -15,12 +15,14 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const { login, resetPassword, isAuthenticated, isEmailVerified } = useAuth();
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const { login, resetPassword, resendVerification, isAuthenticated, isEmailVerified } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
+    setNeedsVerification(false);
 
     console.log('🚀 Starting login process...');
 
@@ -37,19 +39,47 @@ const LoginForm = () => {
       
       if (!success) {
         console.log('❌ Login failed');
-        setError('Login failed. Please check your credentials and try again.');
+        // Check if it's an email verification issue
+        if (error.toLowerCase().includes('email') || error.toLowerCase().includes('confirm')) {
+          setNeedsVerification(true);
+          setError('Please verify your email before signing in. Check your inbox for a verification link.');
+        } else {
+          setError('Invalid email or password. Please try again.');
+        }
       } else {
         console.log('✅ Login successful');
-        // Don't set isSubmitting to false here - let the auth state change handle it
+        // Success - don't set isSubmitting to false, let redirect handle it
         return;
       }
     } catch (error: any) {
       console.error('💥 Login error:', error);
-      setError('Login failed. Please try again.');
+      if (error.message?.toLowerCase().includes('email')) {
+        setNeedsVerification(true);
+        setError('Please verify your email before signing in. Check your inbox for a verification link.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     }
     
     // Only set to false if login failed
     setIsSubmitting(false);
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    try {
+      const success = await resendVerification(email);
+      if (success) {
+        setError('Verification email sent! Please check your inbox.');
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      setError('Failed to resend verification email. Please try again.');
+    }
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -180,9 +210,22 @@ const LoginForm = () => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <Alert variant="destructive">
+            <Alert variant={needsVerification ? "default" : "destructive"}>
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {error}
+                {needsVerification && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      className="text-blue-600 hover:underline font-medium"
+                    >
+                      Resend verification email
+                    </button>
+                  </div>
+                )}
+              </AlertDescription>
             </Alert>
           )}
           

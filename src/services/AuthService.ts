@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 
@@ -55,6 +54,21 @@ class AuthService {
       });
 
       if (error) {
+        console.error('🔥 Auth service login error:', error);
+        
+        // Handle specific auth errors
+        if (error.message.includes('Email not confirmed')) {
+          return {
+            user: null,
+            session: null,
+            error: {
+              message: 'Please verify your email before signing in. Check your inbox for a verification link.',
+              name: 'EmailNotConfirmed',
+              status: 400
+            } as AuthError
+          };
+        }
+
         // Handle failed login attempt
         await supabase.rpc('handle_failed_login', {
           user_email: credentials.email
@@ -76,6 +90,7 @@ class AuthService {
           .single();
 
         if (profileError) {
+          console.error('🔥 Profile fetch error:', profileError);
           return {
             user: null,
             session: null,
@@ -128,6 +143,7 @@ class AuthService {
         error: null
       };
     } catch (error) {
+      console.error('🔥 Auth service login exception:', error);
       return {
         user: null,
         session: null,
