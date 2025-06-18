@@ -91,6 +91,22 @@ const App = () => {
                     </MainLayout>
                   </ProtectedRoute>
                 } />
+
+                <Route path="/messages" element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <Messages />
+                    </MainLayout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/tasks" element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <Tasks />
+                    </MainLayout>
+                  </ProtectedRoute>
+                } />
                 
                 <Route path="/fees" element={
                   <ProtectedRoute>

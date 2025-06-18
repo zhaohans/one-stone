@@ -23,6 +23,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Users, label: 'Clients', path: '/clients' },
     { icon: Building2, label: 'Accounts', path: '/accounts' },
     { icon: TrendingUp, label: 'Trades', path: '/trades' },
+    { icon: MessageSquare, label: 'Messages', path: '/messages' },
+    { icon: CheckCircle2, label: 'Tasks', path: '/tasks' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
     { icon: Newspaper, label: 'News', path: '/news' },
