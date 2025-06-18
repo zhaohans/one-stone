@@ -221,6 +221,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_user: {
+        Args: { user_id_to_approve: string }
+        Returns: boolean
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
@@ -237,6 +241,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      reject_user: {
+        Args: { user_id_to_reject: string }
+        Returns: boolean
+      }
       reset_failed_login_attempts: {
         Args: { user_email: string }
         Returns: undefined
@@ -248,7 +256,7 @@ export type Database = {
         | "profile_completion"
         | "preferences_setup"
         | "tutorial_completion"
-      user_status: "active" | "inactive" | "suspended"
+      user_status: "active" | "inactive" | "suspended" | "pending_approval"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -370,7 +378,7 @@ export const Constants = {
         "preferences_setup",
         "tutorial_completion",
       ],
-      user_status: ["active", "inactive", "suspended"],
+      user_status: ["active", "inactive", "suspended", "pending_approval"],
     },
   },
 } as const

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface UserProfile {
@@ -12,7 +11,7 @@ export interface UserProfile {
   phone: string | null;
   office_number: string | null;
   avatar_url: string | null;
-  status: 'active' | 'inactive' | 'suspended';
+  status: 'active' | 'inactive' | 'suspended' | 'pending_approval';
   email_confirmed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -238,6 +237,65 @@ class UserService {
     } catch (error) {
       console.error('Error getting onboarding progress:', error);
       return { completed: 0, total: 3, steps: [] };
+    }
+  }
+
+  async getPendingUsers(): Promise<UserProfile[]> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('status', 'pending_approval')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching pending users:', error);
+      return [];
+    }
+  }
+
+  async getAllUsers(): Promise<UserProfile[]> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching all users:', error);
+      return [];
+    }
+  }
+
+  async approveUser(userId: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase.rpc('approve_user', {
+        user_id_to_approve: userId
+      });
+
+      if (error) throw error;
+      return data || false;
+    } catch (error) {
+      console.error('Error approving user:', error);
+      return false;
+    }
+  }
+
+  async rejectUser(userId: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase.rpc('reject_user', {
+        user_id_to_reject: userId
+      });
+
+      if (error) throw error;
+      return data || false;
+    } catch (error) {
+      console.error('Error rejecting user:', error);
+      return false;
     }
   }
 

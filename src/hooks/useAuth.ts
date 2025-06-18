@@ -15,6 +15,7 @@ export interface AuthState {
   isLoading: boolean;
   isEmailVerified: boolean;
   isOnboarded: boolean;
+  isApproved: boolean;
 }
 
 export interface AuthActions {
@@ -38,6 +39,7 @@ export function useAuth(): AuthState & AuthActions {
     isLoading: true,
     isEmailVerified: false,
     isOnboarded: false,
+    isApproved: false,
   });
 
   const updateAuthState = useCallback(async (session: Session | null) => {
@@ -51,6 +53,7 @@ export function useAuth(): AuthState & AuthActions {
         isAuthenticated: false,
         isEmailVerified: false,
         isOnboarded: false,
+        isApproved: false,
         isLoading: false,
       }));
       return;
@@ -66,6 +69,7 @@ export function useAuth(): AuthState & AuthActions {
       if (profile) {
         // Check onboarding status
         const isOnboarded = await UserService.isOnboardingComplete(session.user.id);
+        const isApproved = profile.status === 'active';
         
         setState(prev => ({
           ...prev,
@@ -76,11 +80,14 @@ export function useAuth(): AuthState & AuthActions {
           isAuthenticated: true,
           isEmailVerified: UserService.isEmailVerified(session.user),
           isOnboarded,
+          isApproved,
           isLoading: false,
         }));
 
-        // Update session activity
-        await SessionService.updateSessionActivity(session.access_token);
+        // Update session activity only if user is approved
+        if (isApproved) {
+          await SessionService.updateSessionActivity(session.access_token);
+        }
       }
     } catch (error) {
       console.error('Error updating auth state:', error);
@@ -133,6 +140,10 @@ export function useAuth(): AuthState & AuthActions {
         
         if (error.name === 'AccountLocked') {
           toast.error(error.message);
+        } else if (error.name === 'PendingApproval') {
+          toast.warning(error.message);
+        } else if (error.name === 'AccountDeactivated') {
+          toast.error(error.message);
         } else {
           toast.error('Invalid email or password. Please try again.');
         }
@@ -180,7 +191,7 @@ export function useAuth(): AuthState & AuthActions {
       }
 
       if (user) {
-        toast.success('Account created successfully! Please check your email to verify your account.');
+        toast.success('Account created successfully! Please check your email to verify your account. Your account will need to be approved by an administrator before you can log in.');
         setState(prev => ({ ...prev, isLoading: false }));
         return true;
       }

@@ -68,6 +68,54 @@ class AuthService {
       }
 
       if (data.user && data.session) {
+        // Check user approval status
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          return {
+            user: null,
+            session: null,
+            error: {
+              message: 'Error checking user status. Please contact support.',
+              name: 'ProfileError',
+              status: 500
+            } as AuthError
+          };
+        }
+
+        // Check if user is approved
+        if (profile.status === 'pending_approval') {
+          // Sign out the user since they're not approved
+          await supabase.auth.signOut();
+          return {
+            user: null,
+            session: null,
+            error: {
+              message: 'Your account is pending approval. Please wait for an administrator to approve your account.',
+              name: 'PendingApproval',
+              status: 403
+            } as AuthError
+          };
+        }
+
+        if (profile.status === 'inactive' || profile.status === 'suspended') {
+          // Sign out the user since their account is inactive
+          await supabase.auth.signOut();
+          return {
+            user: null,
+            session: null,
+            error: {
+              message: 'Your account has been deactivated. Please contact support.',
+              name: 'AccountDeactivated',
+              status: 403
+            } as AuthError
+          };
+        }
+
         // Reset failed login attempts on successful login
         await supabase.rpc('reset_failed_login_attempts', {
           user_email: credentials.email
