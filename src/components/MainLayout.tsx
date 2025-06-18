@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+import AIChatWidget from './AIChatWidget';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -71,6 +72,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           {children}
         </main>
       </div>
+
+      {/* AI Chat Widget */}
+      <AIChatWidget />
     </div>
   );
 };

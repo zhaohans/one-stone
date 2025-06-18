@@ -34,7 +34,7 @@ export const useMarketData = (symbols: string[] = []) => {
     }
   };
 
-  const updatePortfolioValues = async (accountI?: string) => {
+  const updatePortfolioValues = async (accountId?: string) => {
     try {
       const result = await MarketDataService.updatePortfolioValues(accountId);
       
