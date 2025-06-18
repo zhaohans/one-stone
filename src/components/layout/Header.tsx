@@ -80,7 +80,7 @@ const Header = ({ setSidebarOpen }: HeaderProps) => {
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback>
-                    {profile?.firstName?.[0]}{profile?.lastName?.[0]}
+                    {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -89,7 +89,7 @@ const Header = ({ setSidebarOpen }: HeaderProps) => {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {profile?.firstName} {profile?.lastName}
+                    {profile?.first_name} {profile?.last_name}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user?.email}
