@@ -16,7 +16,7 @@ interface SidebarProps {
 
 const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
   const location = useLocation();
-  const { role } = useAuth();
+  const { userStatus } = useAuth();
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -33,7 +33,7 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
 
   const filteredMenuItems = menuItems.filter(item => {
     if (item.requireRole) {
-      return role === item.requireRole;
+      return userStatus?.role === item.requireRole;
     }
     return true;
   });

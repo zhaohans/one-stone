@@ -26,14 +26,14 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
     );
   }
 
-  // Redirect to login if not authenticated
+  // Redirect to auth if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Redirect to login if email not verified
+  // Redirect to auth if email not verified
   if (!isEmailVerified) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   // Show pending approval message if not approved
@@ -49,7 +49,7 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
           </Alert>
           <div className="mt-4 text-center">
             <button
-              onClick={() => window.location.href = '/auth/login'}
+              onClick={() => window.location.href = '/auth'}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
               Back to Login
