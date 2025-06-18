@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,10 +16,18 @@ interface CreateAccountModalProps {
 
 const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccountModalProps) => {
   const { clients, isLoading: clientsLoading } = useClients();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    account_name: string;
+    client_id: string;
+    account_type: 'individual' | 'joint' | 'corporate' | 'trust' | 'retirement';
+    base_currency: string;
+    risk_tolerance: string;
+    investment_objective: string;
+    benchmark: string;
+  }>({
     account_name: '',
     client_id: '',
-    account_type: 'individual' as const,
+    account_type: 'individual',
     base_currency: 'USD',
     risk_tolerance: 'moderate',
     investment_objective: '',
@@ -98,7 +105,7 @@ const CreateAccountModal = ({ open, onOpenChange, onCreateAccount }: CreateAccou
 
             <div>
               <Label htmlFor="account_type">Account Type</Label>
-              <Select value={formData.account_type} onValueChange={(value: typeof accountTypes[number]) => setFormData({ ...formData, account_type: value })}>
+              <Select value={formData.account_type} onValueChange={(value) => setFormData({ ...formData, account_type: value as typeof accountTypes[number] })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select account type" />
                 </SelectTrigger>
