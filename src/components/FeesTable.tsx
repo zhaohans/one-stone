@@ -18,6 +18,8 @@ interface Fee {
   currency: string;
   is_paid: boolean;
   payment_date?: string;
+  created_at: string;
+  updated_at: string;
   accounts?: {
     account_name: string;
     account_number: string;

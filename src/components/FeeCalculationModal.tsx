@@ -31,7 +31,7 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
   const [periodEnd, setPeriodEnd] = useState<Date>();
 
   const { calculateFee, isCalculating } = useFeeCalculation();
-  const { data: accountsData } = useAccounts();
+  const { accounts } = useAccounts();
 
   const handleCalculate = async () => {
     if (!accountId || !periodStart || !periodEnd) return;
@@ -65,7 +65,7 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
                 <SelectValue placeholder="Select account" />
               </SelectTrigger>
               <SelectContent>
-                {accountsData?.accounts?.map((account) => (
+                {accounts?.map((account) => (
                   <SelectItem key={account.id} value={account.id}>
                     {account.account_name} ({account.account_number})
                   </SelectItem>

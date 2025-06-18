@@ -19,7 +19,7 @@ const FeeReports = () => {
   const [fees, setFees] = useState<any[]>([]);
   
   const { getFees } = useFeeCalculation();
-  const { data: accountsData } = useAccounts();
+  const { accounts } = useAccounts();
 
   const loadFees = async () => {
     const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
@@ -135,7 +135,7 @@ const FeeReports = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">All accounts</SelectItem>
-                  {accountsData?.accounts?.map((account) => (
+                  {accounts?.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
                       {account.account_name} ({account.account_number})
                     </SelectItem>
