@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,7 +65,7 @@ import {
   UserCheck,
   Pen,
   FileUp,
-  Bank
+  Landmark
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -466,7 +465,7 @@ const Accounts = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Bank className="w-6 h-6 text-blue-600" />
+                <Landmark className="w-6 h-6 text-blue-600" />
                 <div>
                   <CardTitle className="text-lg">{bankName}</CardTitle>
                   <CardDescription>{accounts.length} accounts</CardDescription>
@@ -798,7 +797,7 @@ const Accounts = () => {
                   <Checkbox
                     id="pending-only"
                     checked={showPendingOnly}
-                    onCheckedChange={setShowPendingOnly}
+                    onCheckedChange={(checked) => setShowPendingOnly(checked === true)}
                   />
                   <label htmlFor="pending-only" className="text-sm">Show pending changes only</label>
                 </div>
