@@ -1,11 +1,20 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Users, FileText, Shield, FolderOpen, DollarSign, Home, Building2, TrendingUp, Receipt, Newspaper, LogOut, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Users, FileText, Shield, FolderOpen, Home, Building2, TrendingUp, Receipt, Newspaper, LogOut, MessageSquare } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/SimpleAuthContext';
 import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -22,8 +31,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Users, label: 'Clients', path: '/clients' },
     { icon: Building2, label: 'Accounts', path: '/accounts' },
     { icon: TrendingUp, label: 'Trades', path: '/trades' },
-    { icon: MessageSquare, label: 'Messages', path: '/messages' },
-    { icon: CheckCircle2, label: 'Tasks', path: '/tasks' },
+    { icon: MessageSquare, label: 'Messages & Tasks', path: '/messages' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
     { icon: Newspaper, label: 'News', path: '/news' },
@@ -128,30 +136,47 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
-          <Link to="/profile" className="flex items-center space-x-3 mb-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
-                {getUserInitials()}
-              </span>
-            </div>
-            {!sidebarCollapsed && (
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
-                <p className="text-xs text-gray-500">{profile?.department || 'Team Member'}</p>
-              </div>
-            )}
-          </Link>
-          {!sidebarCollapsed && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {getUserInitials()}
+                  </span>
+                </div>
+                {!sidebarCollapsed && (
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
+                    <p className="text-xs text-gray-500">{profile?.department || 'Team Member'}</p>
+                  </div>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {getUserDisplayName()}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {profile?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
