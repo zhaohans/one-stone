@@ -32,7 +32,6 @@ import {
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from '@/hooks/use-toast';
-import { useSettings } from '@/contexts/SettingsContext';
 
 // Mock data
 const users = [
@@ -70,7 +69,7 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('company');
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showAddRoleModal, setShowAddRoleModal] = useState(false);
-  const { disableLandingPage, setDisableLandingPage } = useSettings();
+  const [disableLandingPage, setDisableLandingPage] = useState(false);
 
   const companyForm = useForm({
     defaultValues: {

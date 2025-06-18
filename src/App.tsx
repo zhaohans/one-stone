@@ -1,10 +1,10 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { SettingsProvider, useSettings } from "./contexts/SettingsContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import LoginForm from "./components/LoginForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/MainLayout";
@@ -18,7 +18,6 @@ import AccountsPage from "./pages/AccountsPage";
 import TradesPage from "./pages/TradesPage";
 import News from "./pages/News";
 import Settings from "./pages/Settings";
-import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,143 +34,84 @@ const queryClient = new QueryClient({
   },
 });
 
-// Component to handle login page redirect logic
-const LoginWrapper = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-  
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  return <LoginForm />;
-};
-
-// Component to handle root redirect based on settings
-const RootRedirect = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const { disableLandingPage } = useSettings();
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-  
-  // If landing page is disabled, redirect based on authentication
-  if (disableLandingPage) {
-    if (isAuthenticated) {
-      return <Navigate to="/dashboard" replace />;
-    } else {
-      return <Navigate to="/login" replace />;
-    }
-  }
-  
-  // If landing page is enabled, we would show a landing page here
-  // For now, still redirect to login/dashboard since no landing page exists
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  } else {
-    return <Navigate to="/login" replace />;
-  }
-};
-
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <SettingsProvider>
-          <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/login" element={<LoginWrapper />} />
-                <Route path="/" element={<RootRedirect />} />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <Dashboard />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <UserProfile />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/clients" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <ClientManagement />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/accounts" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AccountsPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/trades" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <TradesPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/fees" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <FeeRetrocession />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/documents" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <DocumentVault />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/news" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <News />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/compliance" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <MainLayout>
-                      <ComplianceDashboard />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/settings" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <MainLayout>
-                      <Settings />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </AuthProvider>
-        </SettingsProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/clients" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <ClientManagement />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/accounts" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AccountsPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/trades" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <TradesPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/fees" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <FeeRetrocession />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/documents" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <DocumentVault />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/news" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <News />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/compliance" element={
+                <ProtectedRoute requiredRole="admin">
+                  <MainLayout>
+                    <ComplianceDashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute requiredRole="admin">
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
