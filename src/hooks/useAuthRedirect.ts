@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/contexts/SimpleAuthContext';
 
 export const useAuthRedirect = () => {
   const navigate = useNavigate();

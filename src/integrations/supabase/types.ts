@@ -221,6 +221,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_verify_user_email: {
+        Args: { user_id_to_verify: string }
+        Returns: boolean
+      }
       approve_user: {
         Args: { user_id_to_approve: string }
         Returns: boolean
@@ -228,6 +232,16 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_user_auth_status: {
+        Args: { user_id_param: string }
+        Returns: {
+          is_email_verified: boolean
+          is_approved: boolean
+          is_onboarded: boolean
+          user_role: Database["public"]["Enums"]["app_role"]
+          user_status: Database["public"]["Enums"]["user_status"]
+        }[]
       }
       handle_failed_login: {
         Args: { user_email: string }
@@ -247,6 +261,10 @@ export type Database = {
       }
       reset_failed_login_attempts: {
         Args: { user_email: string }
+        Returns: undefined
+      }
+      sync_email_verification: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }

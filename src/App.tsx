@@ -4,10 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { SimpleAuthProvider } from "./contexts/SimpleAuthContext";
 import { SettingsProvider } from "./contexts/SettingsContext";
-import AuthPage from "./pages/AuthPage";
-import ProtectedRoute from "./components/ProtectedRoute";
+import SimpleAuthPage from "./pages/SimpleAuthPage";
+import SimpleProtectedRoute from "./components/SimpleProtectedRoute";
 import MainLayout from "./components/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import ClientManagement from "./pages/ClientManagement";
@@ -42,120 +42,120 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <SettingsProvider>
-          <AuthProvider>
+          <SimpleAuthProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
               <Routes>
                 {/* Authentication routes */}
-                <Route path="/auth/*" element={<AuthPage />} />
+                <Route path="/auth/*" element={<SimpleAuthPage />} />
                 
                 {/* Root redirect */}
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 
                 {/* Protected application routes */}
                 <Route path="/dashboard" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <Dashboard />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/profile" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <UserProfile />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/clients" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <ClientManagement />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/accounts" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <AccountsPage />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/trades" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <TradesPage />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
 
                 <Route path="/messages" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <Messages />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
 
                 <Route path="/tasks" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <Tasks />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/fees" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <FeeRetrocession />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/documents" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <DocumentVault />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/news" element={
-                  <ProtectedRoute>
+                  <SimpleProtectedRoute>
                     <MainLayout>
                       <News />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 {/* Admin-only routes */}
                 <Route path="/compliance" element={
-                  <ProtectedRoute requiredRole="admin">
+                  <SimpleProtectedRoute requiredRole="admin">
                     <MainLayout>
                       <ComplianceDashboard />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 <Route path="/settings" element={
-                  <ProtectedRoute requiredRole="admin">
+                  <SimpleProtectedRoute requiredRole="admin">
                     <MainLayout>
                       <Settings />
                     </MainLayout>
-                  </ProtectedRoute>
+                  </SimpleProtectedRoute>
                 } />
                 
                 {/* 404 page */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
-          </AuthProvider>
+          </SimpleAuthProvider>
         </SettingsProvider>
       </TooltipProvider>
     </QueryClientProvider>
