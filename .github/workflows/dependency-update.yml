@@ -1,0 +1,45 @@
+name: Dependency Update
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Update frontend dependencies
+      run: |
+        npm update
+        npm audit fix
+        if [ -f package-lock.json ]; then
+          git add package.json package-lock.json
+          git commit -m "chore: update frontend dependencies" || echo "No changes to commit"
+        fi
+    
+    - name: Update backend dependencies
+      run: |
+        cd backend
+        npm update
+        npm audit fix
+        if [ -f package-lock.json ]; then
+          git add package.json package-lock.json
+          git commit -m "chore: update backend dependencies" || echo "No changes to commit"
+        fi
+    
+    - name: Push changes
+      run: |
+        git push origin HEAD:main || echo "No changes to push" 
