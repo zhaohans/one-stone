@@ -1,7 +1,7 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
-import { Receipt } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
+import { Receipt } from "lucide-react";
 
 // Invoices page placeholder - matches Document Vault style
 const Invoices = () => (
@@ -24,10 +24,12 @@ const Invoices = () => (
       </CardHeader>
       <CardContent>
         {/* Placeholder for future invoice table/filter/search */}
-        <div className="text-gray-500">Invoice management features coming soon.</div>
+        <div className="text-gray-500">
+          Invoice management features coming soon.
+        </div>
       </CardContent>
     </Card>
   </div>
 );
 
-export default Invoices; 
+export default Invoices;

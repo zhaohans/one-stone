@@ -1,7 +1,6 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Client } from '@/hooks/useClients';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Client } from "@/hooks/useClients";
 
 export const useClientOperations = () => {
   const { toast } = useToast();
@@ -9,15 +8,17 @@ export const useClientOperations = () => {
   const createClient = async (clientData: Partial<Client>) => {
     try {
       // Generate client code using the database function
-      const { data: clientCode, error: codeError } = await supabase.rpc('generate_client_code');
-      
+      const { data: clientCode, error: codeError } = await supabase.rpc(
+        "generate_client_code",
+      );
+
       if (codeError) throw codeError;
 
       const requiredData = {
         client_code: clientCode,
-        first_name: clientData.first_name || '',
-        last_name: clientData.last_name || '',
-        email: clientData.email || '',
+        first_name: clientData.first_name || "",
+        last_name: clientData.last_name || "",
+        email: clientData.email || "",
         phone: clientData.phone,
         date_of_birth: clientData.date_of_birth,
         nationality: clientData.nationality,
@@ -28,14 +29,18 @@ export const useClientOperations = () => {
         state: clientData.state,
         postal_code: clientData.postal_code,
         country: clientData.country,
-        risk_profile: clientData.risk_profile || 'moderate',
-        kyc_status: (clientData.kyc_status || 'pending') as 'pending' | 'approved' | 'rejected' | 'expired',
+        risk_profile: clientData.risk_profile || "moderate",
+        kyc_status: (clientData.kyc_status || "pending") as
+          | "pending"
+          | "approved"
+          | "rejected"
+          | "expired",
         created_by: (await supabase.auth.getUser()).data.user?.id,
-        user_id: clientData.user_id
+        user_id: clientData.user_id,
       };
 
       const { data, error } = await supabase
-        .from('clients')
+        .from("clients")
         .insert([requiredData])
         .select()
         .single();
@@ -49,7 +54,7 @@ export const useClientOperations = () => {
 
       return { success: true, data };
     } catch (error) {
-      console.error('Error creating client:', error);
+      console.error("Error creating client:", error);
       toast({
         title: "Error",
         description: "Failed to create client",
@@ -78,20 +83,20 @@ export const useClientOperations = () => {
         risk_profile: updates.risk_profile,
         kyc_status: updates.kyc_status,
         updated_by: (await supabase.auth.getUser()).data.user?.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       // Remove undefined values
-      Object.keys(updateData).forEach(key => {
+      Object.keys(updateData).forEach((key) => {
         if (updateData[key] === undefined) {
           delete updateData[key];
         }
       });
 
       const { data, error } = await supabase
-        .from('clients')
+        .from("clients")
         .update(updateData)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -104,7 +109,7 @@ export const useClientOperations = () => {
 
       return { success: true, data };
     } catch (error) {
-      console.error('Error updating client:', error);
+      console.error("Error updating client:", error);
       toast({
         title: "Error",
         description: "Failed to update client",
@@ -116,10 +121,7 @@ export const useClientOperations = () => {
 
   const deleteClient = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('clients')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from("clients").delete().eq("id", id);
 
       if (error) throw error;
 
@@ -130,7 +132,7 @@ export const useClientOperations = () => {
 
       return { success: true };
     } catch (error) {
-      console.error('Error deleting client:', error);
+      console.error("Error deleting client:", error);
       toast({
         title: "Error",
         description: "Failed to delete client",
@@ -140,18 +142,21 @@ export const useClientOperations = () => {
     }
   };
 
-  const bulkUpdateClients = async (clientIds: string[], updates: Pick<Client, 'kyc_status'>) => {
+  const bulkUpdateClients = async (
+    clientIds: string[],
+    updates: Pick<Client, "kyc_status">,
+  ) => {
     try {
       const updateData: any = {
         kyc_status: updates.kyc_status,
         updated_by: (await supabase.auth.getUser()).data.user?.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase
-        .from('clients')
+        .from("clients")
         .update(updateData)
-        .in('id', clientIds);
+        .in("id", clientIds);
 
       if (error) throw error;
 
@@ -162,7 +167,7 @@ export const useClientOperations = () => {
 
       return { success: true };
     } catch (error) {
-      console.error('Error bulk updating clients:', error);
+      console.error("Error bulk updating clients:", error);
       toast({
         title: "Error",
         description: "Failed to update clients",
@@ -176,6 +181,6 @@ export const useClientOperations = () => {
     createClient,
     updateClient,
     deleteClient,
-    bulkUpdateClients
+    bulkUpdateClients,
   };
 };

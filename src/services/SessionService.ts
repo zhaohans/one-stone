@@ -1,6 +1,5 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
 
 export interface SessionInfo {
   id: string;
@@ -32,69 +31,69 @@ class SessionService {
         session_token: session.access_token,
         expires_at: new Date(Date.now() + this.SESSION_DURATION).toISOString(),
         ip_address: await this.getClientIP(),
-        user_agent: navigator.userAgent
+        user_agent: navigator.userAgent,
       };
 
-      await supabase
-        .from('user_sessions')
-        .insert(sessionData);
+      await supabase.from("user_sessions").insert(sessionData);
 
       this.startSessionTimer();
     } catch (error) {
-      console.error('Error creating session:', error);
+      console.error("Error creating session:", error);
     }
   }
 
   async updateSessionActivity(sessionToken: string): Promise<void> {
     try {
       await supabase
-        .from('user_sessions')
-        .update({ 
+        .from("user_sessions")
+        .update({
           last_activity: new Date().toISOString(),
-          expires_at: new Date(Date.now() + this.SESSION_DURATION).toISOString()
+          expires_at: new Date(
+            Date.now() + this.SESSION_DURATION,
+          ).toISOString(),
         })
-        .eq('session_token', sessionToken);
+        .eq("session_token", sessionToken);
 
       this.resetSessionTimer();
     } catch (error) {
-      console.error('Error updating session activity:', error);
+      console.error("Error updating session activity:", error);
     }
   }
 
   async invalidateSession(sessionToken: string): Promise<void> {
     try {
       await supabase
-        .from('user_sessions')
+        .from("user_sessions")
         .delete()
-        .eq('session_token', sessionToken);
+        .eq("session_token", sessionToken);
 
       this.clearSessionTimer();
     } catch (error) {
-      console.error('Error invalidating session:', error);
+      console.error("Error invalidating session:", error);
     }
   }
 
   async getUserSessions(userId: string): Promise<SessionInfo[]> {
     try {
       const { data, error } = await supabase
-        .from('user_sessions')
-        .select('*')
-        .eq('user_id', userId)
-        .gt('expires_at', new Date().toISOString());
+        .from("user_sessions")
+        .select("*")
+        .eq("user_id", userId)
+        .gt("expires_at", new Date().toISOString());
 
       if (error) throw error;
-      
-      return (data || []).map(session => ({
+
+      return (data || []).map((session) => ({
         id: session.id,
         user_id: session.user_id,
         session_token: session.session_token,
         expires_at: session.expires_at,
         last_activity: session.last_activity,
         ip_address: session.ip_address ? String(session.ip_address) : null,
-        user_agent: session.user_agent
+        user_agent: session.user_agent,
       }));
     } catch (error) {
-      console.error('Error fetching user sessions:', error);
+      console.error("Error fetching user sessions:", error);
       return [];
     }
   }
@@ -102,17 +101,17 @@ class SessionService {
   async cleanupExpiredSessions(): Promise<void> {
     try {
       await supabase
-        .from('user_sessions')
+        .from("user_sessions")
         .delete()
-        .lt('expires_at', new Date().toISOString());
+        .lt("expires_at", new Date().toISOString());
     } catch (error) {
-      console.error('Error cleaning up expired sessions:', error);
+      console.error("Error cleaning up expired sessions:", error);
     }
   }
 
   private startSessionTimer(): void {
     this.clearSessionTimer();
-    
+
     // Set timer for session warning
     this.sessionTimeout = setTimeout(() => {
       this.showSessionWarning();
@@ -132,14 +131,16 @@ class SessionService {
 
   private showSessionWarning(): void {
     // This will be handled by the SessionProvider
-    window.dispatchEvent(new CustomEvent('session-warning', {
-      detail: { timeRemaining: this.WARNING_TIME }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("session-warning", {
+        detail: { timeRemaining: this.WARNING_TIME },
+      }),
+    );
   }
 
   private async getClientIP(): Promise<string | null> {
     try {
-      const response = await fetch('https://api.ipify.org?format=json');
+      const response = await fetch("https://api.ipify.org?format=json");
       const data = await response.json();
       return data.ip;
     } catch {

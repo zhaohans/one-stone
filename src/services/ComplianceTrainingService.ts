@@ -59,7 +59,7 @@ export async function searchTrainingRecords(query) {
 export async function exportTrainingRecords(filters = {}) {
   // TODO: Replace with real API call
   // return fetch('/api/compliance-training/export?...');
-  return { url: '/download/training.csv' };
+  return { url: "/download/training.csv" };
 }
 
 /**
@@ -69,4 +69,4 @@ export async function triggerTrainingReminders() {
   // TODO: Replace with real API call
   // return fetch('/api/compliance-training/reminders', { method: 'POST' });
   return { success: true };
-} 
+}

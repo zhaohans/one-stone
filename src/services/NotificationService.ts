@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface EmailNotification {
   to: string[];
@@ -20,49 +20,56 @@ export interface SMSNotification {
 }
 
 export class NotificationService {
-  
   // Send email notification
-  static async sendEmail(notification: EmailNotification): Promise<{ success: boolean; error?: string }> {
+  static async sendEmail(
+    notification: EmailNotification,
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      const { data, error } = await supabase.functions.invoke('send-notification', {
-        body: { 
-          type: 'email',
-          ...notification 
-        }
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "send-notification",
+        {
+          body: {
+            type: "email",
+            ...notification,
+          },
+        },
+      );
 
       if (error) throw error;
-      
-      return { success: true };
 
+      return { success: true };
     } catch (error) {
-      console.error('Error sending email:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      console.error("Error sending email:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
 
   // Send SMS notification
-  static async sendSMS(notification: SMSNotification): Promise<{ success: boolean; error?: string }> {
+  static async sendSMS(
+    notification: SMSNotification,
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      const { data, error } = await supabase.functions.invoke('send-notification', {
-        body: { 
-          type: 'sms',
-          ...notification 
-        }
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "send-notification",
+        {
+          body: {
+            type: "sms",
+            ...notification,
+          },
+        },
+      );
 
       if (error) throw error;
-      
-      return { success: true };
 
+      return { success: true };
     } catch (error) {
-      console.error('Error sending SMS:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      console.error("Error sending SMS:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
@@ -72,7 +79,7 @@ export class NotificationService {
     recipientEmail: string,
     alertType: string,
     clientName: string,
-    description: string
+    description: string,
   ): Promise<{ success: boolean; error?: string }> {
     const subject = `Compliance Alert: ${alertType}`;
     const htmlContent = `
@@ -88,14 +95,14 @@ export class NotificationService {
       to: [recipientEmail],
       subject,
       htmlContent,
-      textContent: `Compliance Alert: ${alertType} for ${clientName}. ${description}`
+      textContent: `Compliance Alert: ${alertType} for ${clientName}. ${description}`,
     });
   }
 
   // Send trade confirmation
   static async sendTradeConfirmation(
     clientEmail: string,
-    tradeDetails: any
+    tradeDetails: any,
   ): Promise<{ success: boolean; error?: string }> {
     const subject = `Trade Confirmation - ${tradeDetails.security_symbol}`;
     const htmlContent = `
@@ -115,14 +122,14 @@ export class NotificationService {
     return this.sendEmail({
       to: [clientEmail],
       subject,
-      htmlContent
+      htmlContent,
     });
   }
 
   // Send fee invoice
   static async sendFeeInvoice(
     clientEmail: string,
-    feeDetails: any
+    feeDetails: any,
   ): Promise<{ success: boolean; error?: string }> {
     const subject = `Fee Invoice - ${feeDetails.fee_type}`;
     const htmlContent = `
@@ -140,7 +147,7 @@ export class NotificationService {
     return this.sendEmail({
       to: [clientEmail],
       subject,
-      htmlContent
+      htmlContent,
     });
   }
 
@@ -148,17 +155,17 @@ export class NotificationService {
   static async getNotifications(): Promise<any[]> {
     try {
       const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       // Optionally format time, etc.
       return (data || []).map((n: any) => ({
         ...n,
-        time: n.created_at ? new Date(n.created_at).toLocaleString() : '',
+        time: n.created_at ? new Date(n.created_at).toLocaleString() : "",
       }));
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
       return [];
     }
   }
@@ -167,13 +174,13 @@ export class NotificationService {
   static async markAsRead(id: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from('notifications')
+        .from("notifications")
         .update({ read: true })
-        .eq('id', id);
+        .eq("id", id);
       if (error) throw error;
       return true;
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error("Error marking notification as read:", error);
       return false;
     }
   }

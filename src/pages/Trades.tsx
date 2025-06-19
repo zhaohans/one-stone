@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from '@/components/ui/dialog';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Filter, 
-  Download, 
-  Upload, 
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import {
+  Plus,
+  Filter,
+  Download,
+  Upload,
   MoreHorizontal,
   Search,
   Paperclip,
@@ -37,32 +37,50 @@ import {
   Check,
   X,
   Play,
-  Ban
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { z } from 'zod';
+  Ban,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 const Trades = () => {
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showAddTrade, setShowAddTrade] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<any>(null);
   const [showTradeDetail, setShowTradeDetail] = useState(false);
   const { toast } = useToast();
 
   const tradeSchema = z.object({
-    date: z.string().min(1, 'Trade date is required'),
-    client: z.string().min(1, 'Client is required'),
-    account: z.string().min(1, 'Account is required'),
-    security: z.string().min(1, 'Security is required'),
-    action: z.string().min(1, 'Action is required'),
-    quantity: z.string().min(1, 'Quantity is required').refine(val => !isNaN(Number(val)) && Number(val) > 0, 'Quantity must be a positive number'),
-    price: z.string().min(1, 'Price is required').refine(val => !isNaN(Number(val)) && Number(val) > 0, 'Price must be a positive number'),
-    currency: z.string().min(1, 'Currency is required'),
+    date: z.string().min(1, "Trade date is required"),
+    client: z.string().min(1, "Client is required"),
+    account: z.string().min(1, "Account is required"),
+    security: z.string().min(1, "Security is required"),
+    action: z.string().min(1, "Action is required"),
+    quantity: z
+      .string()
+      .min(1, "Quantity is required")
+      .refine(
+        (val) => !isNaN(Number(val)) && Number(val) > 0,
+        "Quantity must be a positive number",
+      ),
+    price: z
+      .string()
+      .min(1, "Price is required")
+      .refine(
+        (val) => !isNaN(Number(val)) && Number(val) > 0,
+        "Price must be a positive number",
+      ),
+    currency: z.string().min(1, "Currency is required"),
     custodian: z.string().optional(),
     trader: z.string().optional(),
     notes: z.string().optional(),
@@ -73,85 +91,93 @@ const Trades = () => {
   // Mock data
   const trades = [
     {
-      id: 'TR-2024-001',
-      date: '2024-01-15',
-      client: { name: 'John Smith', avatar: 'JS' },
-      account: 'ACC-001',
-      security: { ticker: 'AAPL', name: 'Apple Inc.', isin: 'US0378331005' },
-      action: 'Buy',
+      id: "TR-2024-001",
+      date: "2024-01-15",
+      client: { name: "John Smith", avatar: "JS" },
+      account: "ACC-001",
+      security: { ticker: "AAPL", name: "Apple Inc.", isin: "US0378331005" },
+      action: "Buy",
       quantity: 100,
       price: 150.25,
-      total: 15025.00,
-      status: 'Executed',
-      trader: 'K. Shen',
-      custodian: 'DBS Bank',
+      total: 15025.0,
+      status: "Executed",
+      trader: "K. Shen",
+      custodian: "DBS Bank",
       attachments: 2,
-      currency: 'USD'
+      currency: "USD",
     },
     {
-      id: 'TR-2024-002',
-      date: '2024-01-16',
-      client: { name: 'Sarah Johnson', avatar: 'SJ' },
-      account: 'ACC-002',
-      security: { ticker: 'MSFT', name: 'Microsoft Corp.', isin: 'US5949181045' },
-      action: 'Sell',
+      id: "TR-2024-002",
+      date: "2024-01-16",
+      client: { name: "Sarah Johnson", avatar: "SJ" },
+      account: "ACC-002",
+      security: {
+        ticker: "MSFT",
+        name: "Microsoft Corp.",
+        isin: "US5949181045",
+      },
+      action: "Sell",
       quantity: 50,
-      price: 420.80,
-      total: 21040.00,
-      status: 'Pending Review',
-      trader: 'M. Tan',
-      custodian: 'UBS',
+      price: 420.8,
+      total: 21040.0,
+      status: "Pending Review",
+      trader: "M. Tan",
+      custodian: "UBS",
       attachments: 1,
-      currency: 'USD'
+      currency: "USD",
     },
     {
-      id: 'TR-2024-003',
-      date: '2024-01-17',
-      client: { name: 'Robert Chen', avatar: 'RC' },
-      account: 'ACC-003',
-      security: { ticker: 'GOOGL', name: 'Alphabet Inc.', isin: 'US02079K3059' },
-      action: 'Buy',
+      id: "TR-2024-003",
+      date: "2024-01-17",
+      client: { name: "Robert Chen", avatar: "RC" },
+      account: "ACC-003",
+      security: {
+        ticker: "GOOGL",
+        name: "Alphabet Inc.",
+        isin: "US02079K3059",
+      },
+      action: "Buy",
       quantity: 25,
-      price: 2750.90,
-      total: 68772.50,
-      status: 'Draft',
-      trader: 'L. Wong',
-      custodian: 'CITI',
+      price: 2750.9,
+      total: 68772.5,
+      status: "Draft",
+      trader: "L. Wong",
+      custodian: "CITI",
       attachments: 0,
-      currency: 'USD'
-    }
+      currency: "USD",
+    },
   ];
 
   const getStatusColor = (status: string) => {
     const colors = {
-      'Draft': 'bg-gray-100 text-gray-800',
-      'Pending Review': 'bg-yellow-100 text-yellow-800',
-      'Approved': 'bg-green-100 text-green-800',
-      'Rejected': 'bg-red-100 text-red-800',
-      'Executed': 'bg-blue-100 text-blue-800',
-      'Settled': 'bg-purple-100 text-purple-800',
-      'Cancelled': 'bg-red-100 text-red-800'
+      Draft: "bg-gray-100 text-gray-800",
+      "Pending Review": "bg-yellow-100 text-yellow-800",
+      Approved: "bg-green-100 text-green-800",
+      Rejected: "bg-red-100 text-red-800",
+      Executed: "bg-blue-100 text-blue-800",
+      Settled: "bg-purple-100 text-purple-800",
+      Cancelled: "bg-red-100 text-red-800",
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
   const getActionColor = (action: string) => {
     const colors = {
-      'Buy': 'bg-green-100 text-green-800',
-      'Sell': 'bg-red-100 text-red-800',
-      'Subscription': 'bg-blue-100 text-blue-800',
-      'Redemption': 'bg-orange-100 text-orange-800',
-      'Transfer': 'bg-purple-100 text-purple-800',
-      'Other': 'bg-gray-100 text-gray-800'
+      Buy: "bg-green-100 text-green-800",
+      Sell: "bg-red-100 text-red-800",
+      Subscription: "bg-blue-100 text-blue-800",
+      Redemption: "bg-orange-100 text-orange-800",
+      Transfer: "bg-purple-100 text-purple-800",
+      Other: "bg-gray-100 text-gray-800",
     };
-    return colors[action as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[action as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
   const handleSelectTrade = (tradeId: string) => {
-    setSelectedTrades(prev => 
-      prev.includes(tradeId) 
-        ? prev.filter(id => id !== tradeId)
-        : [...prev, tradeId]
+    setSelectedTrades((prev) =>
+      prev.includes(tradeId)
+        ? prev.filter((id) => id !== tradeId)
+        : [...prev, tradeId],
     );
   };
 
@@ -159,7 +185,7 @@ const Trades = () => {
     if (selectedTrades.length === trades.length) {
       setSelectedTrades([]);
     } else {
-      setSelectedTrades(trades.map(trade => trade.id));
+      setSelectedTrades(trades.map((trade) => trade.id));
     }
   };
 
@@ -184,7 +210,7 @@ const Trades = () => {
     const parseResult = tradeSchema.safeParse(formData);
     if (!parseResult.success) {
       const fieldErrors: Record<string, string> = {};
-      parseResult.error.errors.forEach(err => {
+      parseResult.error.errors.forEach((err) => {
         if (err.path[0]) fieldErrors[err.path[0]] = err.message;
       });
       setErrors(fieldErrors);
@@ -196,17 +222,17 @@ const Trades = () => {
 
   const AddTradeModal = () => {
     const [formData, setFormData] = useState({
-      date: new Date().toISOString().split('T')[0],
-      client: '',
-      account: '',
-      security: '',
-      action: 'Buy',
-      quantity: '',
-      price: '',
-      currency: 'USD',
-      custodian: '',
-      trader: 'K. Shen',
-      notes: ''
+      date: new Date().toISOString().split("T")[0],
+      client: "",
+      account: "",
+      security: "",
+      action: "Buy",
+      quantity: "",
+      price: "",
+      currency: "USD",
+      custodian: "",
+      trader: "K. Shen",
+      notes: "",
     });
 
     const calculateTotal = () => {
@@ -225,18 +251,31 @@ const Trades = () => {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Trade Date *</label>
-                  <Input 
-                    type="date" 
+                  <label className="block text-sm font-medium mb-1">
+                    Trade Date *
+                  </label>
+                  <Input
+                    type="date"
                     value={formData.date}
-                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, date: e.target.value })
+                    }
                     aria-invalid={!!errors.date}
                   />
-                  {errors.date && <p className="text-red-600 text-xs mt-1">{errors.date}</p>}
+                  {errors.date && (
+                    <p className="text-red-600 text-xs mt-1">{errors.date}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Client *</label>
-                  <Select value={formData.client} onValueChange={(value) => setFormData({...formData, client: value})}>
+                  <label className="block text-sm font-medium mb-1">
+                    Client *
+                  </label>
+                  <Select
+                    value={formData.client}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, client: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select client" />
                     </SelectTrigger>
@@ -246,11 +285,20 @@ const Trades = () => {
                       <SelectItem value="client3">Robert Chen</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.client && <p className="text-red-600 text-xs mt-1">{errors.client}</p>}
+                  {errors.client && (
+                    <p className="text-red-600 text-xs mt-1">{errors.client}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Account *</label>
-                  <Select value={formData.account} onValueChange={(value) => setFormData({...formData, account: value})}>
+                  <label className="block text-sm font-medium mb-1">
+                    Account *
+                  </label>
+                  <Select
+                    value={formData.account}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, account: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select account" />
                     </SelectTrigger>
@@ -260,21 +308,40 @@ const Trades = () => {
                       <SelectItem value="acc3">ACC-003</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.account && <p className="text-red-600 text-xs mt-1">{errors.account}</p>}
+                  {errors.account && (
+                    <p className="text-red-600 text-xs mt-1">
+                      {errors.account}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Security *</label>
-                  <Input 
+                  <label className="block text-sm font-medium mb-1">
+                    Security *
+                  </label>
+                  <Input
                     placeholder="Search by ISIN, ticker, or name"
                     value={formData.security}
-                    onChange={(e) => setFormData({...formData, security: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, security: e.target.value })
+                    }
                     aria-invalid={!!errors.security}
                   />
-                  {errors.security && <p className="text-red-600 text-xs mt-1">{errors.security}</p>}
+                  {errors.security && (
+                    <p className="text-red-600 text-xs mt-1">
+                      {errors.security}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Action *</label>
-                  <Select value={formData.action} onValueChange={(value) => setFormData({...formData, action: value})}>
+                  <label className="block text-sm font-medium mb-1">
+                    Action *
+                  </label>
+                  <Select
+                    value={formData.action}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, action: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -287,35 +354,58 @@ const Trades = () => {
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.action && <p className="text-red-600 text-xs mt-1">{errors.action}</p>}
+                  {errors.action && (
+                    <p className="text-red-600 text-xs mt-1">{errors.action}</p>
+                  )}
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Quantity *</label>
-                  <Input 
-                    type="number" 
+                  <label className="block text-sm font-medium mb-1">
+                    Quantity *
+                  </label>
+                  <Input
+                    type="number"
                     placeholder="0.00"
                     value={formData.quantity}
-                    onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, quantity: e.target.value })
+                    }
                     aria-invalid={!!errors.quantity}
                   />
-                  {errors.quantity && <p className="text-red-600 text-xs mt-1">{errors.quantity}</p>}
+                  {errors.quantity && (
+                    <p className="text-red-600 text-xs mt-1">
+                      {errors.quantity}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Price *</label>
-                  <Input 
-                    type="number" 
+                  <label className="block text-sm font-medium mb-1">
+                    Price *
+                  </label>
+                  <Input
+                    type="number"
                     placeholder="0.00"
                     value={formData.price}
-                    onChange={(e) => setFormData({...formData, price: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
                     aria-invalid={!!errors.price}
                   />
-                  {errors.price && <p className="text-red-600 text-xs mt-1">{errors.price}</p>}
+                  {errors.price && (
+                    <p className="text-red-600 text-xs mt-1">{errors.price}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Currency</label>
-                  <Select value={formData.currency} onValueChange={(value) => setFormData({...formData, currency: value})}>
+                  <label className="block text-sm font-medium mb-1">
+                    Currency
+                  </label>
+                  <Select
+                    value={formData.currency}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, currency: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -326,19 +416,32 @@ const Trades = () => {
                       <SelectItem value="EUR">EUR</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.currency && <p className="text-red-600 text-xs mt-1">{errors.currency}</p>}
+                  {errors.currency && (
+                    <p className="text-red-600 text-xs mt-1">
+                      {errors.currency}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Total Amount</label>
-                  <Input 
+                  <label className="block text-sm font-medium mb-1">
+                    Total Amount
+                  </label>
+                  <Input
                     value={`${formData.currency} ${calculateTotal()}`}
                     disabled
                     className="bg-gray-50"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Custodian/Bank *</label>
-                  <Select value={formData.custodian} onValueChange={(value) => setFormData({...formData, custodian: value})}>
+                  <label className="block text-sm font-medium mb-1">
+                    Custodian/Bank *
+                  </label>
+                  <Select
+                    value={formData.custodian}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, custodian: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select custodian" />
                     </SelectTrigger>
@@ -348,42 +451,67 @@ const Trades = () => {
                       <SelectItem value="citi">CITI</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.custodian && <p className="text-red-600 text-xs mt-1">{errors.custodian}</p>}
+                  {errors.custodian && (
+                    <p className="text-red-600 text-xs mt-1">
+                      {errors.custodian}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
             <div className="mt-6">
               <label className="block text-sm font-medium mb-1">Notes</label>
-              <Textarea 
+              <Textarea
                 placeholder="Add any additional notes (max 500 characters)"
                 maxLength={500}
                 value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
               />
-              <div className="text-sm text-gray-500 mt-1">{formData.notes.length}/500 characters</div>
+              <div className="text-sm text-gray-500 mt-1">
+                {formData.notes.length}/500 characters
+              </div>
             </div>
             <div className="mt-6">
-              <label className="block text-sm font-medium mb-2">Attachments</label>
+              <label className="block text-sm font-medium mb-2">
+                Attachments
+              </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">Drag & drop or click to upload docs</p>
-                <p className="text-xs text-gray-500 mt-1">Supports PDF, Excel, images</p>
+                <p className="text-sm text-gray-600">
+                  Drag & drop or click to upload docs
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Supports PDF, Excel, images
+                </p>
               </div>
             </div>
             <div className="flex justify-end space-x-3 mt-6">
               <Button variant="outline" onClick={() => setShowAddTrade(false)}>
                 Cancel
               </Button>
-              <Button variant="outline" onClick={() => {
-                toast({ title: "Success", description: "Trade created and saved as draft." });
-                setShowAddTrade(false);
-              }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  toast({
+                    title: "Success",
+                    description: "Trade created and saved as draft.",
+                  });
+                  setShowAddTrade(false);
+                }}
+              >
                 Save as Draft
               </Button>
-              <Button onClick={() => {
-                toast({ title: "Success", description: "Trade submitted for approval." });
-                setShowAddTrade(false);
-              }}>
+              <Button
+                onClick={() => {
+                  toast({
+                    title: "Success",
+                    description: "Trade submitted for approval.",
+                  });
+                  setShowAddTrade(false);
+                }}
+              >
                 Submit for Approval
               </Button>
             </div>
@@ -409,85 +537,146 @@ const Trades = () => {
               <TabsTrigger value="activity">Activity Log</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="details" className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Trade ID</label>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Trade ID
+                    </label>
                     <p className="font-mono text-lg">{selectedTrade.id}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Trade Date</label>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Trade Date
+                    </label>
                     <p>{selectedTrade.date}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Client</label>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Client
+                    </label>
                     <p>{selectedTrade.client.name}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Account</label>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Account
+                    </label>
                     <p>{selectedTrade.account}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Security</label>
-                    <p className="font-medium">{selectedTrade.security.ticker} - {selectedTrade.security.name}</p>
-                    <p className="text-sm text-gray-500">{selectedTrade.security.isin}</p>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Security
+                    </label>
+                    <p className="font-medium">
+                      {selectedTrade.security.ticker} -{" "}
+                      {selectedTrade.security.name}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {selectedTrade.security.isin}
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Action</label>
-                    <Badge className={getActionColor(selectedTrade.action)}>{selectedTrade.action}</Badge>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Action
+                    </label>
+                    <Badge className={getActionColor(selectedTrade.action)}>
+                      {selectedTrade.action}
+                    </Badge>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Quantity</label>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Quantity
+                    </label>
                     <p>{selectedTrade.quantity.toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Price</label>
-                    <p>{selectedTrade.currency} {selectedTrade.price.toFixed(2)}</p>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Price
+                    </label>
+                    <p>
+                      {selectedTrade.currency} {selectedTrade.price.toFixed(2)}
+                    </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Total Amount</label>
-                    <p className="font-bold text-lg">{selectedTrade.currency} {selectedTrade.total.toLocaleString()}</p>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Total Amount
+                    </label>
+                    <p className="font-bold text-lg">
+                      {selectedTrade.currency}{" "}
+                      {selectedTrade.total.toLocaleString()}
+                    </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Status</label>
-                    <Badge className={getStatusColor(selectedTrade.status)}>{selectedTrade.status}</Badge>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Status
+                    </label>
+                    <Badge className={getStatusColor(selectedTrade.status)}>
+                      {selectedTrade.status}
+                    </Badge>
                   </div>
                 </div>
               </div>
-              
+
               <div className="border-t pt-6">
                 <h3 className="text-lg font-medium mb-4">Actions</h3>
                 <div className="flex space-x-3">
-                  {selectedTrade.status === 'Pending Review' && (
+                  {selectedTrade.status === "Pending Review" && (
                     <>
-                      <Button size="sm" onClick={() => handleTradeAction('Approved', selectedTrade.id)}>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleTradeAction("Approved", selectedTrade.id)
+                        }
+                      >
                         <Check className="w-4 h-4 mr-2" />
                         Approve
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleTradeAction('Rejected', selectedTrade.id)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleTradeAction("Rejected", selectedTrade.id)
+                        }
+                      >
                         <X className="w-4 h-4 mr-2" />
                         Reject
                       </Button>
                     </>
                   )}
-                  {selectedTrade.status === 'Approved' && (
-                    <Button size="sm" onClick={() => handleTradeAction('Executed', selectedTrade.id)}>
+                  {selectedTrade.status === "Approved" && (
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        handleTradeAction("Executed", selectedTrade.id)
+                      }
+                    >
                       <Play className="w-4 h-4 mr-2" />
                       Execute Trade
                     </Button>
                   )}
-                  {selectedTrade.status === 'Executed' && (
-                    <Button size="sm" onClick={() => handleTradeAction('Settled', selectedTrade.id)}>
+                  {selectedTrade.status === "Executed" && (
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        handleTradeAction("Settled", selectedTrade.id)
+                      }
+                    >
                       <Check className="w-4 h-4 mr-2" />
                       Settle Trade
                     </Button>
                   )}
-                  {!['Executed', 'Settled'].includes(selectedTrade.status) && (
-                    <Button variant="outline" size="sm" onClick={() => handleTradeAction('Cancelled', selectedTrade.id)}>
+                  {!["Executed", "Settled"].includes(selectedTrade.status) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleTradeAction("Cancelled", selectedTrade.id)
+                      }
+                    >
                       <Ban className="w-4 h-4 mr-2" />
                       Cancel
                     </Button>
@@ -495,7 +684,7 @@ const Trades = () => {
                 </div>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="attachments">
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -506,33 +695,42 @@ const Trades = () => {
                   </Button>
                 </div>
                 <div className="border rounded-lg p-4">
-                  <p className="text-gray-500 text-center py-8">No attachments uploaded yet</p>
+                  <p className="text-gray-500 text-center py-8">
+                    No attachments uploaded yet
+                  </p>
                 </div>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="activity">
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Activity Log</h3>
                 <div className="space-y-3">
                   <div className="border-l-2 border-blue-200 pl-4 py-2">
                     <p className="font-medium">Trade created</p>
-                    <p className="text-sm text-gray-500">By K. Shen • {selectedTrade.date} 09:30 AM</p>
+                    <p className="text-sm text-gray-500">
+                      By K. Shen • {selectedTrade.date} 09:30 AM
+                    </p>
                   </div>
                   <div className="border-l-2 border-yellow-200 pl-4 py-2">
                     <p className="font-medium">Submitted for review</p>
-                    <p className="text-sm text-gray-500">By K. Shen • {selectedTrade.date} 09:45 AM</p>
+                    <p className="text-sm text-gray-500">
+                      By K. Shen • {selectedTrade.date} 09:45 AM
+                    </p>
                   </div>
-                  {selectedTrade.status !== 'Draft' && selectedTrade.status !== 'Pending Review' && (
-                    <div className="border-l-2 border-green-200 pl-4 py-2">
-                      <p className="font-medium">Trade approved</p>
-                      <p className="text-sm text-gray-500">By Compliance Team • {selectedTrade.date} 10:15 AM</p>
-                    </div>
-                  )}
+                  {selectedTrade.status !== "Draft" &&
+                    selectedTrade.status !== "Pending Review" && (
+                      <div className="border-l-2 border-green-200 pl-4 py-2">
+                        <p className="font-medium">Trade approved</p>
+                        <p className="text-sm text-gray-500">
+                          By Compliance Team • {selectedTrade.date} 10:15 AM
+                        </p>
+                      </div>
+                    )}
                 </div>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="notes">
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -540,7 +738,9 @@ const Trades = () => {
                   <Button size="sm">Add Note</Button>
                 </div>
                 <div className="border rounded-lg p-4">
-                  <p className="text-gray-500 text-center py-8">No notes added yet</p>
+                  <p className="text-gray-500 text-center py-8">
+                    No notes added yet
+                  </p>
                 </div>
               </div>
             </TabsContent>
@@ -556,7 +756,9 @@ const Trades = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Trades</h1>
-          <p className="text-gray-600 mt-1">Manage and track all trading activities</p>
+          <p className="text-gray-600 mt-1">
+            Manage and track all trading activities
+          </p>
         </div>
         <div className="flex space-x-3">
           <Button variant="outline">
@@ -596,19 +798,36 @@ const Trades = () => {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-blue-900">
-              {selectedTrades.length} trade{selectedTrades.length > 1 ? 's' : ''} selected
+              {selectedTrades.length} trade
+              {selectedTrades.length > 1 ? "s" : ""} selected
             </span>
             <div className="flex space-x-2">
-              <Button size="sm" variant="outline" onClick={() => handleBulkAction('Bulk Approve')}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkAction("Bulk Approve")}
+              >
                 Bulk Approve
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleBulkAction('Bulk Export')}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkAction("Bulk Export")}
+              >
                 Bulk Export
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleBulkAction('Bulk Assign Trader')}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkAction("Bulk Assign Trader")}
+              >
                 Bulk Assign Trader
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleBulkAction('Bulk Cancel')}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkAction("Bulk Cancel")}
+              >
                 Bulk Cancel
               </Button>
             </div>
@@ -646,7 +865,7 @@ const Trades = () => {
             </TableHeader>
             <TableBody>
               {trades.map((trade) => (
-                <TableRow 
+                <TableRow
                   key={trade.id}
                   className="hover:bg-gray-50 cursor-pointer"
                   onClick={() => {
@@ -660,7 +879,9 @@ const Trades = () => {
                       onCheckedChange={() => handleSelectTrade(trade.id)}
                     />
                   </TableCell>
-                  <TableCell className="font-mono text-sm">{trade.id}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {trade.id}
+                  </TableCell>
                   <TableCell>{trade.date}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -670,21 +891,37 @@ const Trades = () => {
                       <span>{trade.client.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-sm">{trade.account}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {trade.account}
+                  </TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{trade.security.ticker} - {trade.security.name}</div>
-                      <div className="text-sm text-gray-500">{trade.security.isin}</div>
+                      <div className="font-medium">
+                        {trade.security.ticker} - {trade.security.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {trade.security.isin}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getActionColor(trade.action)}>{trade.action}</Badge>
+                    <Badge className={getActionColor(trade.action)}>
+                      {trade.action}
+                    </Badge>
                   </TableCell>
-                  <TableCell className="text-right">{trade.quantity.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{trade.currency} {trade.price.toFixed(2)}</TableCell>
-                  <TableCell className="text-right font-bold">{trade.currency} {trade.total.toLocaleString()}</TableCell>
+                  <TableCell className="text-right">
+                    {trade.quantity.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {trade.currency} {trade.price.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">
+                    {trade.currency} {trade.total.toLocaleString()}
+                  </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(trade.status)}>{trade.status}</Badge>
+                    <Badge className={getStatusColor(trade.status)}>
+                      {trade.status}
+                    </Badge>
                   </TableCell>
                   <TableCell>{trade.trader}</TableCell>
                   <TableCell>{trade.custodian}</TableCell>
@@ -704,10 +941,12 @@ const Trades = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => {
-                          setSelectedTrade(trade);
-                          setShowTradeDetail(true);
-                        }}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedTrade(trade);
+                            setShowTradeDetail(true);
+                          }}
+                        >
                           <Eye className="w-4 h-4 mr-2" />
                           View
                         </DropdownMenuItem>
@@ -715,25 +954,41 @@ const Trades = () => {
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        {trade.status === 'Pending Review' && (
+                        {trade.status === "Pending Review" && (
                           <>
-                            <DropdownMenuItem onClick={() => handleTradeAction('Approved', trade.id)}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleTradeAction("Approved", trade.id)
+                              }
+                            >
                               <Check className="w-4 h-4 mr-2" />
                               Approve
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleTradeAction('Rejected', trade.id)}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleTradeAction("Rejected", trade.id)
+                              }
+                            >
                               <X className="w-4 h-4 mr-2" />
                               Reject
                             </DropdownMenuItem>
                           </>
                         )}
-                        {trade.status === 'Approved' && (
-                          <DropdownMenuItem onClick={() => handleTradeAction('Executed', trade.id)}>
+                        {trade.status === "Approved" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleTradeAction("Executed", trade.id)
+                            }
+                          >
                             <Play className="w-4 h-4 mr-2" />
                             Execute
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem onClick={() => handleTradeAction('Cancelled', trade.id)}>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleTradeAction("Cancelled", trade.id)
+                          }
+                        >
                           <Ban className="w-4 h-4 mr-2" />
                           Cancel
                         </DropdownMenuItem>

@@ -1,5 +1,4 @@
-
-import Accounts from './Accounts';
+import Accounts from "./Accounts";
 
 const AccountsPage = () => {
   return <Accounts />;

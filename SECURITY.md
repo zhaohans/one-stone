@@ -26,7 +26,8 @@ Please do not report security vulnerabilities through public GitHub issues.
 ## Responsible Disclosure
 
 We appreciate security researchers who:
+
 - Give us reasonable time to respond to issues before any disclosure
 - Make a good faith effort to avoid privacy violations, destruction of data, and interruption or degradation of our service
 - Do not access or modify other users' data without permission
-- Do not perform actions that may negatively impact other users of the service 
+- Do not perform actions that may negatively impact other users of the service

@@ -1,29 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker';
-import { useFeeCalculation } from '@/hooks/useFeeCalculation';
-import { useAccountsContext } from '@/contexts/AccountsContext';
-import { FeeCalculationModal } from '@/components/FeeCalculationModal';
-import { FeesTable } from '@/components/FeesTable';
-import { Calculator, TrendingUp, DollarSign, Users } from 'lucide-react';
-import { DateRange } from 'react-day-picker';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
+import { useFeeCalculation } from "@/hooks/useFeeCalculation";
+import { useAccountsContext } from "@/contexts/AccountsContext";
+import { FeeCalculationModal } from "@/components/FeeCalculationModal";
+import { FeesTable } from "@/components/FeesTable";
+import { Calculator, TrendingUp, DollarSign, Users } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
 const FeeReports = () => {
   const [showCalculationModal, setShowCalculationModal] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<string>('all');
+  const [selectedAccount, setSelectedAccount] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [fees, setFees] = useState<any[]>([]);
-  
+
   const { getFees } = useFeeCalculation();
   const { accounts } = useAccountsContext();
 
   const loadFees = async () => {
-    const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
-    const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
-    
-    const result = await getFees(selectedAccount === 'all' ? undefined : selectedAccount, startDate, endDate);
+    const startDate = dateRange?.from
+      ? dateRange.from.toISOString().split("T")[0]
+      : undefined;
+    const endDate = dateRange?.to
+      ? dateRange.to.toISOString().split("T")[0]
+      : undefined;
+
+    const result = await getFees(
+      selectedAccount === "all" ? undefined : selectedAccount,
+      startDate,
+      endDate,
+    );
     if (result.success) {
       setFees(result.fees);
     }
@@ -31,11 +45,19 @@ const FeeReports = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      console.log('Loading fees with filters:', { selectedAccount, dateRange });
-      const startDate = dateRange?.from ? dateRange.from.toISOString().split('T')[0] : undefined;
-      const endDate = dateRange?.to ? dateRange.to.toISOString().split('T')[0] : undefined;
-      
-      const result = await getFees(selectedAccount === 'all' ? undefined : selectedAccount, startDate, endDate);
+      console.log("Loading fees with filters:", { selectedAccount, dateRange });
+      const startDate = dateRange?.from
+        ? dateRange.from.toISOString().split("T")[0]
+        : undefined;
+      const endDate = dateRange?.to
+        ? dateRange.to.toISOString().split("T")[0]
+        : undefined;
+
+      const result = await getFees(
+        selectedAccount === "all" ? undefined : selectedAccount,
+        startDate,
+        endDate,
+      );
       if (result.success) {
         setFees(result.fees);
       }
@@ -45,19 +67,27 @@ const FeeReports = () => {
   }, [selectedAccount, dateRange]);
 
   const totalFees = fees.reduce((sum, fee) => sum + fee.calculated_amount, 0);
-  const paidFees = fees.filter(fee => fee.is_paid).reduce((sum, fee) => sum + fee.calculated_amount, 0);
+  const paidFees = fees
+    .filter((fee) => fee.is_paid)
+    .reduce((sum, fee) => sum + fee.calculated_amount, 0);
   const pendingFees = totalFees - paidFees;
   const totalRetrocessions = fees.reduce((sum, fee) => {
     if (fee.retrocessions) {
-      return sum + fee.retrocessions.reduce((retroSum: number, retro: any) => retroSum + retro.amount, 0);
+      return (
+        sum +
+        fee.retrocessions.reduce(
+          (retroSum: number, retro: any) => retroSum + retro.amount,
+          0,
+        )
+      );
     }
     return sum;
   }, 0);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -66,7 +96,9 @@ const FeeReports = () => {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Fee Management</h1>
-          <p className="text-gray-600 mt-2">Calculate, track, and manage fees and retrocessions</p>
+          <p className="text-gray-600 mt-2">
+            Calculate, track, and manage fees and retrocessions
+          </p>
         </div>
         <Button onClick={() => setShowCalculationModal(true)}>
           <Calculator className="w-4 h-4 mr-2" />
@@ -82,10 +114,10 @@ const FeeReports = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalFees)}</div>
-            <p className="text-xs text-muted-foreground">
-              All calculated fees
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalFees)}
+            </div>
+            <p className="text-xs text-muted-foreground">All calculated fees</p>
           </CardContent>
         </Card>
 
@@ -95,9 +127,11 @@ const FeeReports = () => {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(paidFees)}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(paidFees)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {fees.filter(f => f.is_paid).length} payments received
+              {fees.filter((f) => f.is_paid).length} payments received
             </p>
           </CardContent>
         </Card>
@@ -108,9 +142,11 @@ const FeeReports = () => {
             <DollarSign className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{formatCurrency(pendingFees)}</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {formatCurrency(pendingFees)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {fees.filter(f => !f.is_paid).length} pending payments
+              {fees.filter((f) => !f.is_paid).length} pending payments
             </p>
           </CardContent>
         </Card>
@@ -121,10 +157,10 @@ const FeeReports = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalRetrocessions)}</div>
-            <p className="text-xs text-muted-foreground">
-              Partner payments
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalRetrocessions)}
+            </div>
+            <p className="text-xs text-muted-foreground">Partner payments</p>
           </CardContent>
         </Card>
       </div>
@@ -138,7 +174,10 @@ const FeeReports = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Account</label>
-              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+              <Select
+                value={selectedAccount}
+                onValueChange={setSelectedAccount}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All accounts" />
                 </SelectTrigger>
@@ -154,15 +193,17 @@ const FeeReports = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Date Range</label>
+              <label className="block text-sm font-medium mb-2">
+                Date Range
+              </label>
               <DatePickerWithRange date={dateRange} setDate={setDateRange} />
             </div>
 
             <div className="flex items-end">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
-                  setSelectedAccount('all');
+                  setSelectedAccount("all");
                   setDateRange(undefined);
                 }}
                 className="w-full"

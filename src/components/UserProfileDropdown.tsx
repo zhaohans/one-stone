@@ -1,8 +1,7 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/SimpleAuthContext';
-import { User, LogOut } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/SimpleAuthContext";
+import { User, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,25 +9,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 const UserProfileDropdown = () => {
   const { profile, logout } = useAuth();
 
   const getUserDisplayName = () => {
-    if (!profile) return 'User';
+    if (!profile) return "User";
     if (profile.first_name || profile.last_name) {
-      return `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+      return `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
     }
-    return profile.email?.split('@')[0] || 'User';
+    return profile.email?.split("@")[0] || "User";
   };
 
   const getUserInitials = () => {
-    if (!profile) return 'U';
+    if (!profile) return "U";
     if (profile.first_name || profile.last_name) {
-      return `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase();
+      return `${profile.first_name?.[0] || ""}${profile.last_name?.[0] || ""}`.toUpperCase();
     }
-    return profile.email?.[0]?.toUpperCase() || 'U';
+    return profile.email?.[0]?.toUpperCase() || "U";
   };
 
   const handleLogout = async () => {

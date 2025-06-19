@@ -1,7 +1,6 @@
-
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/SimpleAuthContext';
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/SimpleAuthContext";
 
 export const useAuthRedirect = () => {
   const navigate = useNavigate();
@@ -13,10 +12,10 @@ export const useAuthRedirect = () => {
 
     // If user is authenticated and email is verified, redirect to dashboard
     if (isAuthenticated && isEmailVerified) {
-      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      const from = (location.state as any)?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
     }
-    
+
     // If user is authenticated but email not verified, stay on auth pages
     // to show verification message
   }, [isAuthenticated, isEmailVerified, isLoading, navigate, location]);

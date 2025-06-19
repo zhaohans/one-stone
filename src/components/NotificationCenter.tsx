@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Bell } from 'lucide-react';
-import { Button } from './ui/button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from './ui/popover';
-import { ScrollArea } from './ui/scroll-area';
-import { useToast } from './ui/use-toast';
+import React, { useEffect, useState } from "react";
+import { Bell } from "lucide-react";
+import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { ScrollArea } from "./ui/scroll-area";
+import { useToast } from "./ui/use-toast";
 
 interface Notification {
   id: string;
-  type: 'new_file' | 'compliance_issue' | 'expiry_warning';
+  type: "new_file" | "compliance_issue" | "expiry_warning";
   title: string;
   message: string;
   documentId?: string;
@@ -33,46 +29,50 @@ export function NotificationCenter() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch('/notifications');
+      const res = await fetch("/notifications");
       const data = await res.json();
       if (data.success) {
         setNotifications(data.notifications);
-        setUnreadCount(data.notifications.filter((n: Notification) => !n.read).length);
+        setUnreadCount(
+          data.notifications.filter((n: Notification) => !n.read).length,
+        );
       }
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      console.error("Failed to fetch notifications:", error);
     }
   };
 
   const markAsRead = async (notificationId: string) => {
     try {
       const res = await fetch(`/notifications/${notificationId}/read`, {
-        method: 'POST'
+        method: "POST",
       });
       const data = await res.json();
       if (data.success) {
-        setNotifications(notifications.map(n => 
-          n.id === notificationId ? { ...n, read: true } : n
-        ));
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setNotifications(
+          notifications.map((n) =>
+            n.id === notificationId ? { ...n, read: true } : n,
+          ),
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      console.error("Failed to mark notification as read:", error);
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      const res = await fetch('/notifications/read-all', {
-        method: 'POST'
+      const res = await fetch("/notifications/read-all", {
+        method: "POST",
       });
       const data = await res.json();
       if (data.success) {
-        setNotifications(notifications.map(n => ({ ...n, read: true })));
+        setNotifications(notifications.map((n) => ({ ...n, read: true })));
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      console.error("Failed to mark all notifications as read:", error);
     }
   };
 
@@ -80,7 +80,7 @@ export function NotificationCenter() {
     if (!notification.read) {
       await markAsRead(notification.id);
     }
-    
+
     if (notification.documentId) {
       // Navigate to the document
       window.location.href = `/documents/${notification.documentId}`;
@@ -115,11 +115,11 @@ export function NotificationCenter() {
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map(notification => (
+              {notifications.map((notification) => (
                 <div
                   key={notification.id}
                   className={`p-4 cursor-pointer hover:bg-accent ${
-                    !notification.read ? 'bg-accent/50' : ''
+                    !notification.read ? "bg-accent/50" : ""
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -142,4 +142,4 @@ export function NotificationCenter() {
       </PopoverContent>
     </Popover>
   );
-} 
+}

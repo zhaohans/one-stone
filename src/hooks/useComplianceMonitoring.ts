@@ -1,15 +1,15 @@
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/types";
 
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import type { Database } from '@/integrations/supabase/types';
-
-type ComplianceTaskStatus = Database['public']['Enums']['compliance_task_status'];
+type ComplianceTaskStatus =
+  Database["public"]["Enums"]["compliance_task_status"];
 
 interface ComplianceCheckParams {
   client_id?: string;
   account_id?: string;
-  check_type?: 'all' | 'kyc' | 'concentration' | 'documents' | 'tasks';
+  check_type?: "all" | "kyc" | "concentration" | "documents" | "tasks";
 }
 
 export const useComplianceMonitoring = () => {
@@ -18,11 +18,14 @@ export const useComplianceMonitoring = () => {
 
   const runComplianceCheck = async (params: ComplianceCheckParams = {}) => {
     setIsChecking(true);
-    
+
     try {
-      const { data, error } = await supabase.functions.invoke('compliance-monitor', {
-        body: params
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "compliance-monitor",
+        {
+          body: params,
+        },
+      );
 
       if (error) {
         throw error;
@@ -39,7 +42,7 @@ export const useComplianceMonitoring = () => {
       if (issueCount > 0) {
         toast({
           title: "Compliance Issues Found",
-          description: `Found ${issueCount} compliance issues${taskCount > 0 ? ` and created ${taskCount} tasks` : ''}`,
+          description: `Found ${issueCount} compliance issues${taskCount > 0 ? ` and created ${taskCount} tasks` : ""}`,
           variant: summary.high_severity > 0 ? "destructive" : "default",
         });
       } else {
@@ -49,48 +52,55 @@ export const useComplianceMonitoring = () => {
         });
       }
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         issues: data.compliance_issues,
         tasks: data.tasks_created,
-        summary: summary
+        summary: summary,
       };
-
     } catch (error) {
-      console.error('Compliance check error:', error);
-      
+      console.error("Compliance check error:", error);
+
       toast({
         title: "Compliance Check Failed",
-        description: error instanceof Error ? error.message : "Failed to run compliance check",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to run compliance check",
         variant: "destructive",
       });
 
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Unknown error" 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     } finally {
       setIsChecking(false);
     }
   };
 
-  const getComplianceTasks = async (assignedTo?: string, status?: ComplianceTaskStatus) => {
+  const getComplianceTasks = async (
+    assignedTo?: string,
+    status?: ComplianceTaskStatus,
+  ) => {
     try {
       let query = supabase
-        .from('compliance_tasks')
-        .select(`
+        .from("compliance_tasks")
+        .select(
+          `
           *,
           clients(first_name, last_name, client_code),
           accounts(account_name, account_number)
-        `)
-        .order('due_date', { ascending: true });
+        `,
+        )
+        .order("due_date", { ascending: true });
 
       if (assignedTo) {
-        query = query.eq('assigned_to', assignedTo);
+        query = query.eq("assigned_to", assignedTo);
       }
 
       if (status) {
-        query = query.eq('status', status);
+        query = query.eq("status", status);
       }
 
       const { data, error } = await query;
@@ -100,30 +110,33 @@ export const useComplianceMonitoring = () => {
       }
 
       return { success: true, tasks: data || [] };
-
     } catch (error) {
-      console.error('Error fetching compliance tasks:', error);
-      return { 
-        success: false, 
+      console.error("Error fetching compliance tasks:", error);
+      return {
+        success: false,
         error: error instanceof Error ? error.message : "Unknown error",
-        tasks: []
+        tasks: [],
       };
     }
   };
 
-  const updateTaskStatus = async (taskId: string, status: ComplianceTaskStatus, notes?: string) => {
+  const updateTaskStatus = async (
+    taskId: string,
+    status: ComplianceTaskStatus,
+    notes?: string,
+  ) => {
     try {
       const updateData: any = { status };
-      
-      if (status === 'completed') {
+
+      if (status === "completed") {
         updateData.completed_date = new Date().toISOString();
         updateData.completion_notes = notes;
       }
 
       const { error } = await supabase
-        .from('compliance_tasks')
+        .from("compliance_tasks")
         .update(updateData)
-        .eq('id', taskId);
+        .eq("id", taskId);
 
       if (error) {
         throw error;
@@ -135,19 +148,19 @@ export const useComplianceMonitoring = () => {
       });
 
       return { success: true };
-
     } catch (error) {
-      console.error('Error updating task:', error);
-      
+      console.error("Error updating task:", error);
+
       toast({
         title: "Update Failed",
-        description: error instanceof Error ? error.message : "Failed to update task",
+        description:
+          error instanceof Error ? error.message : "Failed to update task",
         variant: "destructive",
       });
 
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Unknown error" 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   };
@@ -156,6 +169,6 @@ export const useComplianceMonitoring = () => {
     runComplianceCheck,
     getComplianceTasks,
     updateTaskStatus,
-    isChecking
+    isChecking,
   };
 };

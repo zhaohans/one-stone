@@ -1,7 +1,10 @@
-
-import { useState } from 'react';
-import { NotificationService, EmailNotification, SMSNotification } from '@/services/NotificationService';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import {
+  NotificationService,
+  EmailNotification,
+  SMSNotification,
+} from "@/services/NotificationService";
+import { useToast } from "@/hooks/use-toast";
 
 export const useNotifications = () => {
   const [isSending, setIsSending] = useState(false);
@@ -9,10 +12,10 @@ export const useNotifications = () => {
 
   const sendEmail = async (notification: EmailNotification) => {
     setIsSending(true);
-    
+
     try {
       const result = await NotificationService.sendEmail(notification);
-      
+
       if (result.success) {
         toast({
           title: "Email Sent",
@@ -20,17 +23,20 @@ export const useNotifications = () => {
         });
         return { success: true };
       } else {
-        throw new Error(result.error || 'Failed to send email');
+        throw new Error(result.error || "Failed to send email");
       }
-
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
       toast({
         title: "Email Failed",
-        description: error instanceof Error ? error.message : "Failed to send email",
+        description:
+          error instanceof Error ? error.message : "Failed to send email",
         variant: "destructive",
       });
-      return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     } finally {
       setIsSending(false);
     }
@@ -38,10 +44,10 @@ export const useNotifications = () => {
 
   const sendSMS = async (notification: SMSNotification) => {
     setIsSending(true);
-    
+
     try {
       const result = await NotificationService.sendSMS(notification);
-      
+
       if (result.success) {
         toast({
           title: "SMS Sent",
@@ -49,17 +55,20 @@ export const useNotifications = () => {
         });
         return { success: true };
       } else {
-        throw new Error(result.error || 'Failed to send SMS');
+        throw new Error(result.error || "Failed to send SMS");
       }
-
     } catch (error) {
-      console.error('Error sending SMS:', error);
+      console.error("Error sending SMS:", error);
       toast({
         title: "SMS Failed",
-        description: error instanceof Error ? error.message : "Failed to send SMS",
+        description:
+          error instanceof Error ? error.message : "Failed to send SMS",
         variant: "destructive",
       });
-      return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     } finally {
       setIsSending(false);
     }
@@ -69,18 +78,18 @@ export const useNotifications = () => {
     recipientEmail: string,
     alertType: string,
     clientName: string,
-    description: string
+    description: string,
   ) => {
     setIsSending(true);
-    
+
     try {
       const result = await NotificationService.sendComplianceAlert(
         recipientEmail,
         alertType,
         clientName,
-        description
+        description,
       );
-      
+
       if (result.success) {
         toast({
           title: "Compliance Alert Sent",
@@ -88,17 +97,20 @@ export const useNotifications = () => {
         });
         return { success: true };
       } else {
-        throw new Error(result.error || 'Failed to send compliance alert');
+        throw new Error(result.error || "Failed to send compliance alert");
       }
-
     } catch (error) {
-      console.error('Error sending compliance alert:', error);
+      console.error("Error sending compliance alert:", error);
       toast({
         title: "Alert Failed",
-        description: error instanceof Error ? error.message : "Failed to send alert",
+        description:
+          error instanceof Error ? error.message : "Failed to send alert",
         variant: "destructive",
       });
-      return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     } finally {
       setIsSending(false);
     }
@@ -108,6 +120,6 @@ export const useNotifications = () => {
     sendEmail,
     sendSMS,
     sendComplianceAlert,
-    isSending
+    isSending,
   };
 };

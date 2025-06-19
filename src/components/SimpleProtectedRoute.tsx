@@ -1,17 +1,20 @@
-
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/SimpleAuthContext';
-import { Loader2, Clock } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/SimpleAuthContext";
+import { Loader2, Clock } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SimpleProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'user';
+  requiredRole?: "admin" | "user";
 }
 
-const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtectedRouteProps) => {
-  const { isAuthenticated, isEmailVerified, isApproved, isLoading, role } = useAuth();
+const SimpleProtectedRoute = ({
+  children,
+  requiredRole = "user",
+}: SimpleProtectedRouteProps) => {
+  const { isAuthenticated, isEmailVerified, isApproved, isLoading, role } =
+    useAuth();
   const location = useLocation();
 
   // Show loading while checking authentication
@@ -44,12 +47,13 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
           <Alert className="border-yellow-200 bg-yellow-50">
             <Clock className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800">
-              Your account is pending approval. Please wait for an administrator to approve your account before you can access the system.
+              Your account is pending approval. Please wait for an administrator
+              to approve your account before you can access the system.
             </AlertDescription>
           </Alert>
           <div className="mt-4 text-center">
             <button
-              onClick={() => window.location.href = '/auth/login'}
+              onClick={() => (window.location.href = "/auth/login")}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
               Back to Login
@@ -61,7 +65,7 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
   }
 
   // Check role-based access
-  if (requiredRole === 'admin' && role !== 'admin') {
+  if (requiredRole === "admin" && role !== "admin") {
     return <Navigate to="/dashboard" replace />;
   }
 

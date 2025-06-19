@@ -1,5 +1,8 @@
-import React from 'react';
-import { Button } from './ui/button';
+import React from "react";
+import { Button } from "./ui/button";
+import ErrorPage from "../pages/error/ErrorPage";
+import { NotificationService } from "@/services/NotificationService";
+import { useAuth } from "@/contexts/SimpleAuthContext";
 
 interface Props {
   children: React.ReactNode;
@@ -8,10 +11,12 @@ interface Props {
 interface State {
   hasError: boolean;
   error?: Error;
+  errorInfo?: React.ErrorInfo;
+  reportSent?: boolean;
 }
 
-export class ErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
+class ErrorBoundaryInner extends React.Component<Props & { user: any }, State> {
+  constructor(props: Props & { user: any }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -21,29 +26,46 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    this.setState({ errorInfo });
+    console.error("Error caught by boundary:", error, errorInfo);
   }
+
+  sendErrorReport = async () => {
+    const { user } = this.props;
+    const { error, errorInfo } = this.state;
+    const context = [
+      `User: ${user?.email || "Unknown"} (ID: ${user?.id || "N/A"})`,
+      `Error: ${error?.toString()}`,
+      `Stack: ${errorInfo?.componentStack || "N/A"}`,
+      `Time: ${new Date().toISOString()}`,
+      `Location: ${window.location.href}`,
+    ].join("\n");
+    await NotificationService.sendEmail({
+      to: ["admin@yourdomain.com"],
+      subject: `App Error Report: ${error?.message || "Unknown Error"}`,
+      htmlContent: `<pre>${context}</pre>`,
+      textContent: context,
+    });
+    this.setState({ reportSent: true });
+  };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4 p-4 text-center">
-          <h2 className="text-2xl font-bold">Something went wrong</h2>
-          <p className="text-muted-foreground">
-            {this.state.error?.message || 'An unexpected error occurred'}
-          </p>
-          <Button
-            onClick={() => {
-              this.setState({ hasError: false });
-              window.location.reload();
-            }}
-          >
-            Try again
-          </Button>
-        </div>
+        <ErrorPage
+          code={500}
+          message={this.state.error?.message || "An unexpected error occurred"}
+          onSendReport={
+            this.state.reportSent ? undefined : this.sendErrorReport
+          }
+        />
       );
     }
-
     return this.props.children;
   }
-} 
+}
+
+export function ErrorBoundary(props: Props) {
+  const { user } = useAuth();
+  return <ErrorBoundaryInner {...props} user={user} />;
+}

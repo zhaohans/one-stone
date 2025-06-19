@@ -1,7 +1,7 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
-import { GraduationCap } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
+import { GraduationCap } from "lucide-react";
 
 // Training page placeholder - matches Document Vault style
 const Training = () => (
@@ -24,10 +24,12 @@ const Training = () => (
       </CardHeader>
       <CardContent>
         {/* Placeholder for future training table/filter/search */}
-        <div className="text-gray-500">Training assignments and tracking features coming soon.</div>
+        <div className="text-gray-500">
+          Training assignments and tracking features coming soon.
+        </div>
       </CardContent>
     </Card>
   </div>
 );
 
-export default Training; 
+export default Training;

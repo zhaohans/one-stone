@@ -1,7 +1,7 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
-import { FileText } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
+import { FileText } from "lucide-react";
 
 // Internal Policy Management placeholder
 const PolicyManagement = () => (
@@ -24,7 +24,10 @@ const PolicyManagement = () => (
       </CardHeader>
       <CardContent>
         {/* Placeholder for policy list, version control, and upload */}
-        <div className="text-gray-500">Central repository for policies, manuals, and risk documents. Version control and acknowledgment tracking coming soon.</div>
+        <div className="text-gray-500">
+          Central repository for policies, manuals, and risk documents. Version
+          control and acknowledgment tracking coming soon.
+        </div>
       </CardContent>
     </Card>
     {/* Acknowledgment status placeholder */}
@@ -34,10 +37,12 @@ const PolicyManagement = () => (
       </CardHeader>
       <CardContent>
         {/* Placeholder for acknowledgment table/status */}
-        <div className="text-gray-500">Acknowledgment status and audit trail features coming soon.</div>
+        <div className="text-gray-500">
+          Acknowledgment status and audit trail features coming soon.
+        </div>
       </CardContent>
     </Card>
   </div>
 );
 
-export default PolicyManagement; 
+export default PolicyManagement;

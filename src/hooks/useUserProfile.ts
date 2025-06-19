@@ -1,18 +1,17 @@
-
-import { useState, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/integrations/supabase/types';
+import { useState, useEffect } from "react";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
 // Use the actual database type for profiles
-export type UserProfile = Database['public']['Tables']['profiles']['Row'];
+export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export interface UserStatus {
   isEmailVerified: boolean;
   isApproved: boolean;
   isOnboarded: boolean;
-  role: 'admin' | 'user';
-  status: 'active' | 'inactive' | 'suspended' | 'pending_approval';
+  role: "admin" | "user";
+  status: "active" | "inactive" | "suspended" | "pending_approval";
 }
 
 export function useUserProfile(user: User | null) {
@@ -35,8 +34,8 @@ export function useUserProfile(user: User | null) {
   const fetchUserData = async (userId: string) => {
     try {
       // Get comprehensive user status using our new database function
-      const { data: statusData } = await supabase.rpc('get_user_auth_status', {
-        user_id_param: userId
+      const { data: statusData } = await supabase.rpc("get_user_auth_status", {
+        user_id_param: userId,
       });
 
       if (statusData && statusData.length > 0) {
@@ -52,16 +51,16 @@ export function useUserProfile(user: User | null) {
 
       // Get detailed profile
       const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (profileData) {
         setProfile(profileData);
       }
     } catch (error) {
-      console.error('❌ Error fetching user data:', error);
+      console.error("❌ Error fetching user data:", error);
     } finally {
       setIsLoading(false);
     }

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
-import { Receipt } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
+import { Receipt } from "lucide-react";
 
 // Invoice Issuance and Fund Confirmation System placeholder
 const InvoiceSystem = () => (
@@ -21,20 +21,36 @@ const InvoiceSystem = () => (
     {/* Dashboard summary cards (placeholder) */}
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <Card>
-        <CardHeader><CardTitle>Draft</CardTitle></CardHeader>
-        <CardContent><span className="text-gray-500 font-bold text-2xl">--</span></CardContent>
+        <CardHeader>
+          <CardTitle>Draft</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <span className="text-gray-500 font-bold text-2xl">--</span>
+        </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Sent</CardTitle></CardHeader>
-        <CardContent><span className="text-blue-600 font-bold text-2xl">--</span></CardContent>
+        <CardHeader>
+          <CardTitle>Sent</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <span className="text-blue-600 font-bold text-2xl">--</span>
+        </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Paid</CardTitle></CardHeader>
-        <CardContent><span className="text-green-600 font-bold text-2xl">--</span></CardContent>
+        <CardHeader>
+          <CardTitle>Paid</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <span className="text-green-600 font-bold text-2xl">--</span>
+        </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Overdue</CardTitle></CardHeader>
-        <CardContent><span className="text-red-600 font-bold text-2xl">--</span></CardContent>
+        <CardHeader>
+          <CardTitle>Overdue</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <span className="text-red-600 font-bold text-2xl">--</span>
+        </CardContent>
       </Card>
     </div>
     {/* Invoice table placeholder */}
@@ -42,11 +58,15 @@ const InvoiceSystem = () => (
       <CardHeader>
         <CardTitle>Invoices</CardTitle>
         {/* Export/report button placeholder */}
-        <Button variant="outline" className="mt-2">Export Ledger</Button>
+        <Button variant="outline" className="mt-2">
+          Export Ledger
+        </Button>
       </CardHeader>
       <CardContent>
         {/* Placeholder for future invoice table/filter/search */}
-        <div className="text-gray-500">Invoice table, payment confirmation, and alerts coming soon.</div>
+        <div className="text-gray-500">
+          Invoice table, payment confirmation, and alerts coming soon.
+        </div>
       </CardContent>
     </Card>
     {/* Workflow notes placeholder */}
@@ -66,4 +86,4 @@ const InvoiceSystem = () => (
   </div>
 );
 
-export default InvoiceSystem; 
+export default InvoiceSystem;

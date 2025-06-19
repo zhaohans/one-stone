@@ -1,48 +1,63 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, FileText, Search, Filter, Tag, Eye, Download, FolderOpen } from 'lucide-react';
-import DocumentUpload from '../components/DocumentUpload';
-import DocumentsTable from '../components/DocumentsTable';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Upload,
+  FileText,
+  Search,
+  Filter,
+  Tag,
+  Eye,
+  Download,
+  FolderOpen,
+} from "lucide-react";
+import DocumentUpload from "../components/DocumentUpload";
+import DocumentsTable from "../components/DocumentsTable";
 
 const DocumentVault = () => {
   const [documents, setDocuments] = useState([
     {
       id: 1,
-      name: 'Client_Onboarding_Form_JohnDoe.pdf',
-      type: 'PDF',
-      size: '2.4 MB',
-      uploadDate: '2024-03-15',
-      tags: ['KYC', 'Onboarding', 'Client'],
-      linkedTo: 'John Doe - ACC001',
-      version: '1.0',
-      status: 'Active'
+      name: "Client_Onboarding_Form_JohnDoe.pdf",
+      type: "PDF",
+      size: "2.4 MB",
+      uploadDate: "2024-03-15",
+      tags: ["KYC", "Onboarding", "Client"],
+      linkedTo: "John Doe - ACC001",
+      version: "1.0",
+      status: "Active",
     },
     {
       id: 2,
-      name: 'Risk_Assessment_Report_Q1.docx',
-      type: 'DOCX',
-      size: '1.8 MB',
-      uploadDate: '2024-03-12',
-      tags: ['Risk', 'Compliance', 'Quarterly'],
-      linkedTo: 'Portfolio Risk Review',
-      version: '2.1',
-      status: 'Active'
+      name: "Risk_Assessment_Report_Q1.docx",
+      type: "DOCX",
+      size: "1.8 MB",
+      uploadDate: "2024-03-12",
+      tags: ["Risk", "Compliance", "Quarterly"],
+      linkedTo: "Portfolio Risk Review",
+      version: "2.1",
+      status: "Active",
     },
     {
       id: 3,
-      name: 'Bank_Statement_March_2024.xlsx',
-      type: 'XLSX',
-      size: '5.2 MB',
-      uploadDate: '2024-03-10',
-      tags: ['Banking', 'Statement', 'March'],
-      linkedTo: 'Bank A - Custodian',
-      version: '1.0',
-      status: 'Archived'
-    }
+      name: "Bank_Statement_March_2024.xlsx",
+      type: "XLSX",
+      size: "5.2 MB",
+      uploadDate: "2024-03-10",
+      tags: ["Banking", "Statement", "March"],
+      linkedTo: "Bank A - Custodian",
+      version: "1.0",
+      status: "Archived",
+    },
   ]);
 
   const getFileIcon = (type: string) => {
@@ -51,10 +66,14 @@ const DocumentVault = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active': return 'bg-green-100 text-green-800';
-      case 'Archived': return 'bg-gray-100 text-gray-800';
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "Active":
+        return "bg-green-100 text-green-800";
+      case "Archived":
+        return "bg-gray-100 text-gray-800";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -63,7 +82,9 @@ const DocumentVault = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Document Vault</h1>
-          <p className="text-gray-600">Secure document storage with search, tagging, and version control</p>
+          <p className="text-gray-600">
+            Secure document storage with search, tagging, and version control
+          </p>
         </div>
         <DocumentUpload />
       </div>
@@ -77,7 +98,9 @@ const DocumentVault = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Documents</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Documents
+                </p>
                 <p className="text-2xl font-bold text-gray-900">1,247</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
@@ -86,12 +109,14 @@ const DocumentVault = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Storage Used</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Storage Used
+                </p>
                 <p className="text-2xl font-bold text-gray-900">2.4GB</p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
@@ -119,7 +144,9 @@ const DocumentVault = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Recent Uploads</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Recent Uploads
+                </p>
                 <p className="text-2xl font-bold text-gray-900">23</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-full">
@@ -144,7 +171,9 @@ const DocumentVault = () => {
           <Card>
             <CardHeader>
               <CardTitle>Document Library</CardTitle>
-              <CardDescription>Search, filter, and manage all documents</CardDescription>
+              <CardDescription>
+                Search, filter, and manage all documents
+              </CardDescription>
               <div className="flex space-x-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -166,31 +195,46 @@ const DocumentVault = () => {
             <CardContent>
               <div className="space-y-4">
                 {documents.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                  >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         {getFileIcon(doc.type)}
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-900">{doc.name}</h4>
+                        <h4 className="font-medium text-gray-900">
+                          {doc.name}
+                        </h4>
                         <div className="flex items-center space-x-2 mt-1">
-                          <p className="text-sm text-gray-500">{doc.size} • {doc.uploadDate}</p>
+                          <p className="text-sm text-gray-500">
+                            {doc.size} • {doc.uploadDate}
+                          </p>
                           <span className="text-gray-300">•</span>
-                          <p className="text-sm text-gray-500">v{doc.version}</p>
+                          <p className="text-sm text-gray-500">
+                            v{doc.version}
+                          </p>
                         </div>
                         <div className="flex items-center space-x-2 mt-2">
                           {doc.tags.map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs"
+                            >
                               {tag}
                             </Badge>
                           ))}
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">Linked to:</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          Linked to:
+                        </p>
                         <p className="text-xs text-gray-500">{doc.linkedTo}</p>
                       </div>
                       <Badge className={getStatusColor(doc.status)}>
@@ -216,11 +260,15 @@ const DocumentVault = () => {
           <Card>
             <CardHeader>
               <CardTitle>Recently Added</CardTitle>
-              <CardDescription>Documents uploaded in the last 30 days</CardDescription>
+              <CardDescription>
+                Documents uploaded in the last 30 days
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
-                <p className="text-gray-500">Recent documents view coming soon...</p>
+                <p className="text-gray-500">
+                  Recent documents view coming soon...
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -230,11 +278,15 @@ const DocumentVault = () => {
           <Card>
             <CardHeader>
               <CardTitle>KYC Documents</CardTitle>
-              <CardDescription>Know Your Customer documentation</CardDescription>
+              <CardDescription>
+                Know Your Customer documentation
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
-                <p className="text-gray-500">KYC document view coming soon...</p>
+                <p className="text-gray-500">
+                  KYC document view coming soon...
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -244,11 +296,15 @@ const DocumentVault = () => {
           <Card>
             <CardHeader>
               <CardTitle>Compliance Documents</CardTitle>
-              <CardDescription>Regulatory and compliance documentation</CardDescription>
+              <CardDescription>
+                Regulatory and compliance documentation
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
-                <p className="text-gray-500">Compliance document view coming soon...</p>
+                <p className="text-gray-500">
+                  Compliance document view coming soon...
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -258,11 +314,15 @@ const DocumentVault = () => {
           <Card>
             <CardHeader>
               <CardTitle>Archived Documents</CardTitle>
-              <CardDescription>Documents that have been archived</CardDescription>
+              <CardDescription>
+                Documents that have been archived
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
-                <p className="text-gray-500">Archived document view coming soon...</p>
+                <p className="text-gray-500">
+                  Archived document view coming soon...
+                </p>
               </div>
             </CardContent>
           </Card>

@@ -1,5 +1,4 @@
-
-import FeeReports from './FeeReports';
+import FeeReports from "./FeeReports";
 
 const FeeRetrocession = () => {
   return <FeeReports />;

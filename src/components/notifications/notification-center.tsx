@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, Check, Trash2 } from 'lucide-react';
-import { Button } from '../ui/button';
+import React, { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Bell, Check, Trash2 } from "lucide-react";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { ScrollArea } from '../ui/scroll-area';
-import { notificationService } from '../../services/notifications';
-import { Notification } from '../../types';
-import { formatDistanceToNow } from 'date-fns';
+} from "../ui/dropdown-menu";
+import { ScrollArea } from "../ui/scroll-area";
+import { notificationService } from "../../services/notifications";
+import { Notification } from "../../types";
+import { formatDistanceToNow } from "date-fns";
 
 export function NotificationCenter() {
   const [unreadCount, setUnreadCount] = useState(0);
   const queryClient = useQueryClient();
 
   const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications'],
+    queryKey: ["notifications"],
     queryFn: notificationService.getNotifications,
   });
 
@@ -27,9 +27,11 @@ export function NotificationCenter() {
   }, [notifications]);
 
   useEffect(() => {
-    const unsubscribe = notificationService.subscribeToNotifications((notification) => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    });
+    const unsubscribe = notificationService.subscribeToNotifications(
+      (notification) => {
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      },
+    );
 
     return () => {
       unsubscribe();
@@ -38,22 +40,22 @@ export function NotificationCenter() {
 
   const handleMarkAsRead = async (notificationId: string) => {
     await notificationService.markAsRead(notificationId);
-    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
   const handleMarkAllAsRead = async () => {
     await notificationService.markAllAsRead();
-    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
   const handleDelete = async (notificationId: string) => {
     await notificationService.deleteNotification(notificationId);
-    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
   const handleDeleteAll = async () => {
     await notificationService.deleteAllNotifications();
-    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
   return (
@@ -126,7 +128,9 @@ function NotificationItem({
     <DropdownMenuItem className="flex flex-col items-start p-4">
       <div className="flex w-full items-start justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium leading-none">{notification.title}</p>
+          <p className="text-sm font-medium leading-none">
+            {notification.title}
+          </p>
           <p className="text-sm text-muted-foreground">{notification.body}</p>
           <p className="text-xs text-muted-foreground">
             {formatDistanceToNow(new Date(notification.created_at), {
@@ -155,4 +159,4 @@ function NotificationItem({
       </div>
     </DropdownMenuItem>
   );
-} 
+}

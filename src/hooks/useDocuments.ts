@@ -1,15 +1,21 @@
-
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Document {
   id: string;
   client_id?: string;
   account_id?: string;
   trade_id?: string;
-  document_type: 'kyc' | 'account_opening' | 'trade_confirmation' | 'statement' | 'tax_document' | 'compliance' | 'other';
-  document_status: 'pending' | 'approved' | 'rejected' | 'expired';
+  document_type:
+    | "kyc"
+    | "account_opening"
+    | "trade_confirmation"
+    | "statement"
+    | "tax_document"
+    | "compliance"
+    | "other";
+  document_status: "pending" | "approved" | "rejected" | "expired";
   title: string;
   description?: string;
   file_name: string;
@@ -32,23 +38,25 @@ export const useDocuments = (accountId?: string, clientId?: string) => {
 
   const fetchDocuments = async () => {
     if (!accountId && !clientId) return;
-    
+
     setIsLoading(true);
     try {
-      let query = supabase.from('documents').select('*');
-      
+      let query = supabase.from("documents").select("*");
+
       if (accountId) {
-        query = query.eq('account_id', accountId);
+        query = query.eq("account_id", accountId);
       } else if (clientId) {
-        query = query.eq('client_id', clientId);
+        query = query.eq("client_id", clientId);
       }
 
-      const { data, error } = await query.order('upload_date', { ascending: false });
+      const { data, error } = await query.order("upload_date", {
+        ascending: false,
+      });
 
       if (error) throw error;
       setDocuments(data || []);
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error("Error fetching documents:", error);
       toast({
         title: "Error",
         description: "Failed to fetch documents",
@@ -66,6 +74,6 @@ export const useDocuments = (accountId?: string, clientId?: string) => {
   return {
     documents,
     isLoading,
-    refetch: fetchDocuments
+    refetch: fetchDocuments,
   };
 };

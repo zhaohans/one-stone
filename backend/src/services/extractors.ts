@@ -1,6 +1,6 @@
-import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
-import fs from 'fs';
+import pdfParse from "pdf-parse";
+import mammoth from "mammoth";
+import fs from "fs";
 
 export const extractTextFromPDF = async (filePath: string) => {
   const dataBuffer = fs.readFileSync(filePath);
@@ -11,4 +11,4 @@ export const extractTextFromPDF = async (filePath: string) => {
 export const extractTextFromDOCX = async (filePath: string) => {
   const result = await mammoth.extractRawText({ path: filePath });
   return result.value;
-}; 
+};

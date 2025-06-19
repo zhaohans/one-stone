@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useFeeCalculation } from '@/hooks/useFeeCalculation';
-import { CheckCircle, DollarSign, Eye, FileText } from 'lucide-react';
-import FeeDetailsModal from './FeeDetailsModal';
+import React, { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useFeeCalculation } from "@/hooks/useFeeCalculation";
+import { CheckCircle, DollarSign, Eye, FileText } from "lucide-react";
+import FeeDetailsModal from "./FeeDetailsModal";
 
 interface Fee {
   id: string;
@@ -55,14 +62,14 @@ export const FeesTable: React.FC<FeesTableProps> = ({ fees, onFeesUpdate }) => {
 
   const getFeeTypeBadge = (feeType: string) => {
     const colors = {
-      management: 'bg-blue-100 text-blue-800',
-      performance: 'bg-green-100 text-green-800',
-      transaction: 'bg-yellow-100 text-yellow-800',
-      custody: 'bg-purple-100 text-purple-800',
-      retrocession: 'bg-orange-100 text-orange-800',
-      other: 'bg-gray-100 text-gray-800'
+      management: "bg-blue-100 text-blue-800",
+      performance: "bg-green-100 text-green-800",
+      transaction: "bg-yellow-100 text-yellow-800",
+      custody: "bg-purple-100 text-purple-800",
+      retrocession: "bg-orange-100 text-orange-800",
+      other: "bg-gray-100 text-gray-800",
     };
-    
+
     return (
       <Badge className={colors[feeType as keyof typeof colors] || colors.other}>
         {feeType.charAt(0).toUpperCase() + feeType.slice(1)}
@@ -71,9 +78,9 @@ export const FeesTable: React.FC<FeesTableProps> = ({ fees, onFeesUpdate }) => {
   };
 
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency,
     }).format(amount);
   };
 
@@ -98,17 +105,28 @@ export const FeesTable: React.FC<FeesTableProps> = ({ fees, onFeesUpdate }) => {
                 <TableRow key={fee.id}>
                   <TableCell className="font-medium">
                     <div>
-                      <div className="font-semibold">{fee.accounts?.account_name}</div>
-                      <div className="text-sm text-gray-500">{fee.accounts?.account_number}</div>
+                      <div className="font-semibold">
+                        {fee.accounts?.account_name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {fee.accounts?.account_number}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {getFeeTypeBadge(fee.fee_type)}
-                  </TableCell>
+                  <TableCell>{getFeeTypeBadge(fee.fee_type)}</TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <div>{new Date(fee.calculation_period_start).toLocaleDateString()}</div>
-                      <div className="text-gray-500">to {new Date(fee.calculation_period_end).toLocaleDateString()}</div>
+                      <div>
+                        {new Date(
+                          fee.calculation_period_start,
+                        ).toLocaleDateString()}
+                      </div>
+                      <div className="text-gray-500">
+                        to{" "}
+                        {new Date(
+                          fee.calculation_period_end,
+                        ).toLocaleDateString()}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="font-semibold">
@@ -134,10 +152,14 @@ export const FeesTable: React.FC<FeesTableProps> = ({ fees, onFeesUpdate }) => {
                       <div className="space-y-1">
                         {fee.retrocessions.map((retro) => (
                           <div key={retro.id} className="text-xs">
-                            <div className="font-medium">{retro.recipient_name}</div>
+                            <div className="font-medium">
+                              {retro.recipient_name}
+                            </div>
                             <div className="text-gray-500">
                               {formatCurrency(retro.amount, retro.currency)}
-                              {retro.is_paid && <span className="text-green-600 ml-1">✓</span>}
+                              {retro.is_paid && (
+                                <span className="text-green-600 ml-1">✓</span>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -182,11 +204,12 @@ export const FeesTable: React.FC<FeesTableProps> = ({ fees, onFeesUpdate }) => {
             period_start: selectedFee.calculation_period_start,
             period_end: selectedFee.calculation_period_end,
             is_paid: selectedFee.is_paid,
-            retrocessions: selectedFee.retrocessions?.map(r => ({
-              id: r.id,
-              amount: r.amount,
-              recipient: r.recipient_name
-            })) || []
+            retrocessions:
+              selectedFee.retrocessions?.map((r) => ({
+                id: r.id,
+                amount: r.amount,
+                recipient: r.recipient_name,
+              })) || [],
           }}
           open={!!selectedFee}
           onClose={() => setSelectedFee(null)}

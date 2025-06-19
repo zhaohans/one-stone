@@ -1,6 +1,6 @@
-import React from 'react';
-import { useAuth } from '@/contexts/SimpleAuthContext';
-import { NewsFeed } from '@/components/NewsFeed';
+import React from "react";
+import { useAuth } from "@/contexts/SimpleAuthContext";
+import { NewsFeed } from "@/components/NewsFeed";
 
 const News = () => {
   const { user } = useAuth();

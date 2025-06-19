@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import UserService, { OnboardingStep } from '@/services/UserService';
-import { useAuth } from '@/contexts/SimpleAuthContext';
+import { useState, useEffect } from "react";
+import UserService, { OnboardingStep } from "@/services/UserService";
+import { useAuth } from "@/contexts/SimpleAuthContext";
 
 export interface OnboardingState {
   steps: OnboardingStep[];
@@ -48,25 +48,29 @@ export const useOnboarding = () => {
         isLoading: false,
       });
     } catch (error) {
-      console.error('Error loading onboarding progress:', error);
-      setState(prev => ({ ...prev, isLoading: false }));
+      console.error("Error loading onboarding progress:", error);
+      setState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
   const completeStep = async (
-    step: 'profile_completion' | 'preferences_setup' | 'tutorial_completion',
-    data: Record<string, any> = {}
+    step: "profile_completion" | "preferences_setup" | "tutorial_completion",
+    data: Record<string, any> = {},
   ) => {
     if (!user) return false;
 
     try {
-      const success = await UserService.completeOnboardingStep(user.id, step, data);
+      const success = await UserService.completeOnboardingStep(
+        user.id,
+        step,
+        data,
+      );
       if (success) {
         await loadOnboardingProgress();
       }
       return success;
     } catch (error) {
-      console.error('Error completing onboarding step:', error);
+      console.error("Error completing onboarding step:", error);
       return false;
     }
   };
