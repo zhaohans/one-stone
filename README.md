@@ -108,3 +108,4 @@ one-stone/
 
 This project is licensed under the MIT License.
 // Chromatic test trigger
+# Trigger CI
