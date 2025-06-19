@@ -1,73 +1,101 @@
-# Welcome to your Lovable project
+# One Stone - Document Management System
 
-## Project info
+A comprehensive document management system built with React, TypeScript, and Node.js, featuring AI-powered document analysis, Google Drive integration, and compliance tracking.
 
-**URL**: https://lovable.dev/projects/141d23eb-d9dd-49d3-a4c2-9e4734e7522e
+## Features
 
-## How can I edit this code?
+### Core Functionality
+- **Document Upload & Management**: Upload, organize, and manage documents with AI-powered tagging
+- **Google Drive Integration**: Seamless sync with Google Drive, including background sync for files added directly to Drive
+- **AI-Powered Analysis**: Automatic document tagging and content extraction using Google Gemini
+- **Compliance Tracking**: Monitor document compliance status and expiry dates
+- **Version Control**: Track document versions and restore previous versions
+- **Search & Filter**: Advanced search and filtering capabilities
 
-There are several ways of editing your application.
+### Advanced Features
+- **Background Sync**: Automatically detects and processes files added directly to Google Drive
+- **Notification System**: Real-time notifications for new files, compliance issues, and expiry warnings
+- **Compliance Dashboard**: Visual compliance status tracking with badges and tooltips
+- **User Management**: Role-based access control and user management
+- **Fee Management**: Comprehensive fee calculation and reporting system
+- **Client Management**: Client onboarding and management tools
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/141d23eb-d9dd-49d3-a4c2-9e4734e7522e) and start prompting.
+### Frontend
+- **React 18** with TypeScript
+- **Vite** for build tooling
+- **Tailwind CSS** for styling
+- **Radix UI** for accessible components
+- **React Query** for data fetching
+- **Supabase** for authentication and database
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend
+- **Node.js** with TypeScript
+- **Express.js** for API routing
+- **Google Drive API** for file management
+- **Google Gemini AI** for document analysis
+- **Firebase Firestore** for data storage
+- **Multer** for file uploads
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Google Cloud Platform account
+- Supabase account
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installation
 
-Follow these steps:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/zhaohans/one-stone.git
+   cd one-stone
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. **Install dependencies**
+   ```bash
+   # Install frontend dependencies
+   npm install
+   
+   # Install backend dependencies
+   cd backend
+   npm install
+   cd ..
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. **Environment Setup**
+   
+   Create `.env` files in both root and backend directories with your API keys and configuration.
 
-# Step 3: Install the necessary dependencies.
-npm i
+4. **Start the application**
+   ```bash
+   # Start backend
+   cd backend && npm run dev
+   
+   # Start frontend (in new terminal)
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## Project Structure
+
+```
+one-stone/
+├── src/                    # Frontend source code
+├── backend/               # Backend source code
+├── supabase/              # Database migrations
+└── README.md
 ```
 
-**Edit a file directly in GitHub**
+## Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/141d23eb-d9dd-49d3-a4c2-9e4734e7522e) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License.
