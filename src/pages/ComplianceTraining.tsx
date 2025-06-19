@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
 
-// Dummy data for placeholder
-const EMPLOYEES = [
+// Placeholder data for demo
+const PLACEHOLDER_EMPLOYEES = [
   {
     id: 1,
     name: "Alice Smith",
@@ -63,6 +63,7 @@ const STATUS_LABELS = {
   expiring: "Expiring",
   expired: "Expired",
 };
+type StatusKey = keyof typeof STATUS_COLORS;
 
 const ComplianceTraining = () => {
   const [filterDept, setFilterDept] = useState("all");
@@ -71,12 +72,13 @@ const ComplianceTraining = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  // Placeholder for filtered data
-  const filtered = EMPLOYEES.filter(
+  // Use placeholder data for demo
+  const employees = PLACEHOLDER_EMPLOYEES;
+  const filtered = employees.filter(
     (e) =>
       (filterDept === "all" || e.department === filterDept) &&
       (filterRole === "all" || e.role === filterRole) &&
-      (filterType === "all" || filterType === "all") && // Placeholder, update when training type is in data
+      (filterType === "all" || filterType === "all") &&
       (!search || e.name.toLowerCase().includes(search.toLowerCase())),
   );
 
@@ -124,7 +126,6 @@ const ComplianceTraining = () => {
               <SelectItem value="Manager">Manager</SelectItem>
             </SelectContent>
           </Select>
-          {/* Training type filter placeholder */}
           <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Training Type" />
@@ -138,7 +139,7 @@ const ComplianceTraining = () => {
           <Button variant="outline" className="ml-auto" size="sm">
             <FileDown className="w-4 h-4 mr-2" /> Export CSV
           </Button>
-          <Button onClick={() => setShowModal(true)} size="sm">
+          <Button onClick={() => setShowModal(true)} size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
             <Plus className="w-4 h-4 mr-2" /> Add Training Record
           </Button>
         </CardContent>
@@ -171,47 +172,49 @@ const ComplianceTraining = () => {
                   </td>
                 </tr>
               ) : (
-                filtered.map((emp) => (
-                  <tr key={emp.id} className="border-b last:border-0">
-                    <td className="px-4 py-2">{emp.name}</td>
-                    <td className="px-4 py-2">{emp.department}</td>
-                    <td className="px-4 py-2">{emp.role}</td>
-                    <td className="px-4 py-2">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded text-white text-xs font-semibold ${STATUS_COLORS[emp.status]}`}
-                      >
-                        {STATUS_LABELS[emp.status]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2">{emp.last}</td>
-                    <td className="px-4 py-2">{emp.next}</td>
-                    <td className="px-4 py-2">{emp.provider}</td>
-                    <td className="px-4 py-2">
-                      {/* Placeholder for proof upload/download */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        title="Upload/View Proof"
-                      >
-                        <Upload className="w-4 h-4" />
-                      </Button>
-                    </td>
-                    <td className="px-4 py-2">
-                      {/* Placeholder for edit/delete actions */}
-                      <Button variant="outline" size="icon" title="Edit">
-                        <span className="sr-only">Edit</span>✏️
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        title="Delete"
-                        className="ml-2"
-                      >
-                        <span className="sr-only">Delete</span>🗑️
-                      </Button>
-                    </td>
-                  </tr>
-                ))
+                filtered.map((emp) => {
+                  const statusKey = emp.status as StatusKey;
+                  return (
+                    <tr key={emp.id} className="border-b last:border-0 hover:bg-blue-50 transition-colors">
+                      <td className="px-4 py-2 font-medium text-gray-900">{emp.name}</td>
+                      <td className="px-4 py-2">{emp.department}</td>
+                      <td className="px-4 py-2">{emp.role}</td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded text-white text-xs font-semibold ${STATUS_COLORS[statusKey]}`}
+                        >
+                          {STATUS_LABELS[statusKey]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2">{emp.last}</td>
+                      <td className="px-4 py-2">{emp.next}</td>
+                      <td className="px-4 py-2">{emp.provider}</td>
+                      <td className="px-4 py-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Upload/View Proof"
+                          className="hover:bg-blue-100"
+                        >
+                          <Upload className="w-4 h-4 text-blue-600" />
+                        </Button>
+                      </td>
+                      <td className="px-4 py-2">
+                        <Button variant="outline" size="icon" title="Edit" className="hover:bg-yellow-100">
+                          <span className="sr-only">Edit</span>✏️
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          title="Delete"
+                          className="ml-2 hover:bg-red-100"
+                        >
+                          <span className="sr-only">Delete</span>🗑️
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -219,15 +222,15 @@ const ComplianceTraining = () => {
       </Card>
       {/* Add Training Record Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
+        <DialogContent className="max-w-md w-full rounded-2xl shadow-2xl border-2 border-blue-200">
           <DialogHeader>
-            <DialogTitle>Add Training Record</DialogTitle>
+            <DialogTitle className="text-blue-700">Add Training Record</DialogTitle>
           </DialogHeader>
           {/* Form fields for new record (employee, type, date, provider, proof upload) */}
           <div className="space-y-4 py-2">
-            <Input placeholder="Employee Name" />
+            <Input placeholder="Employee Name" className="bg-blue-50" />
             <Select>
-              <SelectTrigger>
+              <SelectTrigger className="bg-blue-50">
                 <SelectValue placeholder="Training Type" />
               </SelectTrigger>
               <SelectContent>
@@ -235,12 +238,12 @@ const ComplianceTraining = () => {
                 <SelectItem value="KYC">KYC</SelectItem>
               </SelectContent>
             </Select>
-            <Input type="date" placeholder="Training Date" />
-            <Input placeholder="Provider" />
-            <Input type="file" accept="application/pdf,image/*" />
+            <Input type="date" placeholder="Training Date" className="bg-blue-50" />
+            <Input placeholder="Provider" className="bg-blue-50" />
+            <Input type="file" accept="application/pdf,image/*" className="bg-blue-50" />
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="bg-blue-600 text-white hover:bg-blue-700">Save</Button>
             <Button variant="ghost" onClick={() => setShowModal(false)}>
               Cancel
             </Button>

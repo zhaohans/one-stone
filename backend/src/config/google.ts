@@ -45,13 +45,7 @@ export async function getGoogleCredentials() {
     });
 
     const response = await oauth2Client.refreshAccessToken();
-    credentials.tokens = {
-      access_token: (response as any).credentials.access_token || undefined,
-      refresh_token: credentials.tokens.refresh_token, // Preserve refresh token
-      scope: (response as any).credentials.scope || credentials.tokens.scope,
-      token_type: (response as any).credentials.token_type || "Bearer",
-      expiry_date: (response as any).credentials.expiry_date || Date.now() + 3600000,
-    };
+    credentials.tokens = (response as any).tokens;
   }
 
   return credentials;

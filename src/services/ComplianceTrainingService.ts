@@ -1,14 +1,33 @@
 // ComplianceTrainingService: API integration for compliance training management
 // Replace fetch/axios URLs with your backend endpoints
 
+import { supabase } from "@/integrations/supabase/client";
+
+const TABLE = "compliance_training";
+const BUCKET = "trainingproofs";
+
 /**
  * Fetch all training records (optionally filtered)
  * @param {object} filters
  */
 export async function fetchAllTrainingRecords(filters = {}) {
-  // TODO: Replace with real API call
-  // return fetch('/api/compliance-training?...').then(res => res.json());
-  return [];
+  let query = supabase.from(TABLE).select("*");
+  // Add filters if needed
+  if (filters.department && filters.department !== "all") {
+    query = query.eq("department", filters.department);
+  }
+  if (filters.role && filters.role !== "all") {
+    query = query.eq("role", filters.role);
+  }
+  if (filters.type && filters.type !== "all") {
+    query = query.eq("training_type", filters.type);
+  }
+  if (filters.search) {
+    query = query.ilike("employee_name", `%${filters.search}%`);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
 }
 
 /**
@@ -16,9 +35,9 @@ export async function fetchAllTrainingRecords(filters = {}) {
  * @param {object} data
  */
 export async function createTrainingRecord(data) {
-  // TODO: Replace with real API call
-  // return fetch('/api/compliance-training', { method: 'POST', body: JSON.stringify(data) });
-  return { success: true };
+  const { data: record, error } = await supabase.from(TABLE).insert([data]).select().single();
+  if (error) throw error;
+  return record;
 }
 
 /**
@@ -27,9 +46,9 @@ export async function createTrainingRecord(data) {
  * @param {object} data
  */
 export async function updateTrainingRecord(id, data) {
-  // TODO: Replace with real API call
-  // return fetch(`/api/compliance-training/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-  return { success: true };
+  const { data: record, error } = await supabase.from(TABLE).update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return record;
 }
 
 /**
@@ -37,8 +56,8 @@ export async function updateTrainingRecord(id, data) {
  * @param {string|number} id
  */
 export async function deleteTrainingRecord(id) {
-  // TODO: Replace with real API call
-  // return fetch(`/api/compliance-training/${id}`, { method: 'DELETE' });
+  const { error } = await supabase.from(TABLE).delete().eq("id", id);
+  if (error) throw error;
   return { success: true };
 }
 
@@ -47,9 +66,7 @@ export async function deleteTrainingRecord(id) {
  * @param {string} query
  */
 export async function searchTrainingRecords(query) {
-  // TODO: Replace with real API call
-  // return fetch(`/api/compliance-training/search?q=${encodeURIComponent(query)}`);
-  return [];
+  return fetchAllTrainingRecords({ search: query });
 }
 
 /**
@@ -57,16 +74,31 @@ export async function searchTrainingRecords(query) {
  * @param {object} filters
  */
 export async function exportTrainingRecords(filters = {}) {
-  // TODO: Replace with real API call
-  // return fetch('/api/compliance-training/export?...');
-  return { url: "/download/training.csv" };
+  // Fetch all records and convert to CSV
+  const records = await fetchAllTrainingRecords(filters);
+  const header = 'employee_name,department,role,status,last_training_date,next_due_date,provider,proof_url\n';
+  const rows = records.map(r => `${r.employee_name},${r.department},${r.role},${r.status},${r.last_training_date},${r.next_due_date},${r.provider},${r.proof_url || ''}`).join('\n');
+  const csv = header + rows;
+  // Create a Blob and return a download URL
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  return { url };
 }
 
 /**
  * Trigger reminders for expiring/expired training
  */
 export async function triggerTrainingReminders() {
-  // TODO: Replace with real API call
-  // return fetch('/api/compliance-training/reminders', { method: 'POST' });
+  // Placeholder: implement reminder logic if needed
   return { success: true };
+}
+
+export async function uploadProof(id, file) {
+  const filePath = `${id}/${file.name}`;
+  const { data, error } = await supabase.storage.from(BUCKET).upload(filePath, file, { upsert: true });
+  if (error) throw error;
+  // Update record with proof URL
+  const publicUrl = supabase.storage.from(BUCKET).getPublicUrl(filePath).data.publicUrl;
+  await updateTrainingRecord(id, { proof_url: publicUrl });
+  return { url: publicUrl };
 }

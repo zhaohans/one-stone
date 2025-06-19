@@ -81,11 +81,11 @@ router.get("/list", async (req: Request, res: Response) => {
   try {
     const { q, tag, status, fromDate, toDate } = req.query;
     const docs = await getAllDocumentsMetadata({
-      q: q as string ?? "",
-      tag: tag as string ?? "",
-      status: status as string ?? "",
-      fromDate: fromDate as string ?? "",
-      toDate: toDate as string ?? "",
+      q: (q as string) ?? "",
+      tag: (tag as string) ?? "",
+      status: (status as string) ?? "",
+      fromDate: (fromDate as string) ?? "",
+      toDate: (toDate as string) ?? "",
     });
     res.json({ success: true, documents: docs });
   } catch (error: any) {

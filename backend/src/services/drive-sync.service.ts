@@ -52,7 +52,7 @@ export class DriveSyncService {
 
   private async getDatabaseFiles() {
     const snapshot = await firestore.collection("documents").get();
-    return snapshot.docs.map((doc) => ({
+    return snapshot.docs.map((doc: any) => ({
       id: doc.id,
       driveFileId: doc.data().driveFileId,
     }));
