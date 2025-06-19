@@ -5,6 +5,7 @@ A comprehensive document management system built with React, TypeScript, and Nod
 ## Features
 
 ### Core Functionality
+
 - **Document Upload & Management**: Upload, organize, and manage documents with AI-powered tagging
 - **Google Drive Integration**: Seamless sync with Google Drive, including background sync for files added directly to Drive
 - **AI-Powered Analysis**: Automatic document tagging and content extraction using Google Gemini
@@ -13,6 +14,7 @@ A comprehensive document management system built with React, TypeScript, and Nod
 - **Search & Filter**: Advanced search and filtering capabilities
 
 ### Advanced Features
+
 - **Background Sync**: Automatically detects and processes files added directly to Google Drive
 - **Notification System**: Real-time notifications for new files, compliance issues, and expiry warnings
 - **Compliance Dashboard**: Visual compliance status tracking with badges and tooltips
@@ -23,6 +25,7 @@ A comprehensive document management system built with React, TypeScript, and Nod
 ## Tech Stack
 
 ### Frontend
+
 - **React 18** with TypeScript
 - **Vite** for build tooling
 - **Tailwind CSS** for styling
@@ -31,6 +34,7 @@ A comprehensive document management system built with React, TypeScript, and Nod
 - **Supabase** for authentication and database
 
 ### Backend
+
 - **Node.js** with TypeScript
 - **Express.js** for API routing
 - **Google Drive API** for file management
@@ -41,7 +45,8 @@ A comprehensive document management system built with React, TypeScript, and Nod
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 - Google Cloud Platform account
 - Supabase account
@@ -49,16 +54,18 @@ A comprehensive document management system built with React, TypeScript, and Nod
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/zhaohans/one-stone.git
    cd one-stone
    ```
 
 2. **Install dependencies**
+
    ```bash
    # Install frontend dependencies
    npm install
-   
+
    # Install backend dependencies
    cd backend
    npm install
@@ -66,14 +73,15 @@ A comprehensive document management system built with React, TypeScript, and Nod
    ```
 
 3. **Environment Setup**
-   
+
    Create `.env` files in both root and backend directories with your API keys and configuration.
 
 4. **Start the application**
+
    ```bash
    # Start backend
    cd backend && npm run dev
-   
+
    # Start frontend (in new terminal)
    npm run dev
    ```
@@ -99,3 +107,4 @@ one-stone/
 ## License
 
 This project is licensed under the MIT License.
+// Chromatic test trigger
