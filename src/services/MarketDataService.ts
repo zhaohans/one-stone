@@ -1,5 +1,4 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface MarketQuote {
   symbol: string;
@@ -26,103 +25,122 @@ export interface PortfolioUpdateResponse {
 export class MarketDataService {
   static async getQuotes(symbols: string[]): Promise<MarketDataResponse> {
     try {
-      console.log('Fetching market data for symbols:', symbols);
-      
-      const { data, error } = await supabase.functions.invoke('market-data', {
-        body: { symbols }
+      console.log("Fetching market data for symbols:", symbols);
+
+      const { data, error } = await supabase.functions.invoke("market-data", {
+        body: { symbols },
       });
 
       if (error) {
-        console.error('Market data function error:', error);
+        console.error("Market data function error:", error);
         return { success: false, error: error.message };
       }
 
-      console.log('Market data response:', data);
+      console.log("Market data response:", data);
       return data;
     } catch (error) {
-      console.error('Market data service error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      console.error("Market data service error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
 
-  static async getHistoricalPrices(symbol: string, period: string = '1M'): Promise<MarketDataResponse> {
+  static async getHistoricalPrices(
+    symbol: string,
+    period: string = "1M",
+  ): Promise<MarketDataResponse> {
     try {
-      console.log('Fetching historical data for:', symbol, period);
-      
-      const { data, error } = await supabase.functions.invoke('market-data', {
-        body: { 
-          symbol, 
+      console.log("Fetching historical data for:", symbol, period);
+
+      const { data, error } = await supabase.functions.invoke("market-data", {
+        body: {
+          symbol,
           period,
-          type: 'historical' 
-        }
+          type: "historical",
+        },
       });
 
       if (error) {
-        console.error('Historical data function error:', error);
+        console.error("Historical data function error:", error);
         return { success: false, error: error.message };
       }
 
       return data;
     } catch (error) {
-      console.error('Historical data service error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      console.error("Historical data service error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
 
-  static async updatePortfolioValues(accountId?: string): Promise<PortfolioUpdateResponse> {
+  static async updatePortfolioValues(
+    accountId?: string,
+  ): Promise<PortfolioUpdateResponse> {
     try {
-      console.log('Updating portfolio values for account:', accountId);
-      
-      const { data, error } = await supabase.functions.invoke('update-portfolio-values', {
-        body: { accountId }
-      });
+      console.log("Updating portfolio values for account:", accountId);
+
+      const { data, error } = await supabase.functions.invoke(
+        "update-portfolio-values",
+        {
+          body: { accountId },
+        },
+      );
 
       if (error) {
-        console.error('Portfolio update function error:', error);
+        console.error("Portfolio update function error:", error);
         return { success: false, error: error.message };
       }
 
       return data;
     } catch (error) {
-      console.error('Portfolio update service error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      console.error("Portfolio update service error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
 
-  static async updateSecurityPrices(quotes: MarketQuote[]): Promise<{ success: boolean; error?: string }> {
+  static async updateSecurityPrices(
+    quotes: MarketQuote[],
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('Updating security prices in database:', quotes.length, 'securities');
-      
+      console.log(
+        "Updating security prices in database:",
+        quotes.length,
+        "securities",
+      );
+
       // Update each security's current price
       for (const quote of quotes) {
         const { error } = await supabase
-          .from('securities')
-          .update({ 
+          .from("securities")
+          .update({
             current_price: quote.current_price,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
-          .eq('symbol', quote.symbol);
+          .eq("symbol", quote.symbol);
 
         if (error) {
-          console.error('Error updating security price for', quote.symbol, ':', error);
+          console.error(
+            "Error updating security price for",
+            quote.symbol,
+            ":",
+            error,
+          );
         }
       }
 
       return { success: true };
     } catch (error) {
-      console.error('Error updating security prices:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      console.error("Error updating security prices:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }

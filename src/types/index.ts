@@ -1,4 +1,4 @@
-export type UserRole = 'user' | 'moderator' | 'admin';
+export type UserRole = "user" | "moderator" | "admin";
 
 export interface User {
   id: string;
@@ -27,4 +27,4 @@ export interface Session {
   access_token: string;
   refresh_token: string;
   expires_at: number;
-} 
+}

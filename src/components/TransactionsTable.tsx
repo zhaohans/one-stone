@@ -1,9 +1,16 @@
-import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useTrades } from '@/hooks/useTrades';
-import { Skeleton } from '@/components/ui/skeleton';
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useTrades } from "@/hooks/useTrades";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TransactionsTableProps {
   accountId: string;
@@ -12,17 +19,17 @@ interface TransactionsTableProps {
 const TransactionsTable = ({ accountId }: TransactionsTableProps) => {
   const { trades, isLoading } = useTrades(accountId);
 
-  const formatCurrency = (amount?: number, currency = 'USD') => {
-    if (amount === undefined || amount === null) return '-';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+  const formatCurrency = (amount?: number, currency = "USD") => {
+    if (amount === undefined || amount === null) return "-";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency,
     }).format(amount);
   };
 
   const formatNumber = (value?: number) => {
-    if (value === undefined || value === null) return '-';
-    return new Intl.NumberFormat('en-US', {
+    if (value === undefined || value === null) return "-";
+    return new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 6,
     }).format(value);
@@ -30,34 +37,34 @@ const TransactionsTable = ({ accountId }: TransactionsTableProps) => {
 
   const getTradeTypeColor = (type: string) => {
     switch (type) {
-      case 'buy':
-      case 'transfer_in':
-        return 'bg-green-100 text-green-800';
-      case 'sell':
-      case 'transfer_out':
-        return 'bg-red-100 text-red-800';
-      case 'dividend':
-        return 'bg-blue-100 text-blue-800';
-      case 'fee':
-        return 'bg-yellow-100 text-yellow-800';
+      case "buy":
+      case "transfer_in":
+        return "bg-green-100 text-green-800";
+      case "sell":
+      case "transfer_out":
+        return "bg-red-100 text-red-800";
+      case "dividend":
+        return "bg-blue-100 text-blue-800";
+      case "fee":
+        return "bg-yellow-100 text-yellow-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'settled':
-        return 'bg-green-100 text-green-800';
-      case 'executed':
-        return 'bg-blue-100 text-blue-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
-      case 'failed':
-        return 'bg-red-100 text-red-800';
+      case "settled":
+        return "bg-green-100 text-green-800";
+      case "executed":
+        return "bg-blue-100 text-blue-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+      case "failed":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -83,9 +90,7 @@ const TransactionsTable = ({ accountId }: TransactionsTableProps) => {
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           Transactions
-          <Badge variant="outline">
-            {trades.length} transactions
-          </Badge>
+          <Badge variant="outline">{trades.length} transactions</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -115,13 +120,17 @@ const TransactionsTable = ({ accountId }: TransactionsTableProps) => {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{trade.security?.symbol}</div>
-                        <div className="text-sm text-gray-500">{trade.security?.name}</div>
+                        <div className="font-medium">
+                          {trade.security?.symbol}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {trade.security?.name}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={getTradeTypeColor(trade.trade_type)}>
-                        {trade.trade_type.replace('_', ' ')}
+                        {trade.trade_type.replace("_", " ")}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

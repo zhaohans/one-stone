@@ -1,7 +1,6 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Account, CreateAccountData, UpdateAccountData } from '@/types/account';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Account, CreateAccountData, UpdateAccountData } from "@/types/account";
 
 export const useAccountOperations = () => {
   const { toast } = useToast();
@@ -14,16 +13,16 @@ export const useAccountOperations = () => {
         account_type: accountData.account_type,
         base_currency: accountData.base_currency,
         opening_date: accountData.opening_date,
-        account_status: 'active' as const,
+        account_status: "active" as const,
         account_number: `ACC-${Date.now()}`,
         created_by: (await supabase.auth.getUser()).data.user?.id,
         risk_tolerance: accountData.risk_tolerance,
         investment_objective: accountData.investment_objective,
-        benchmark: accountData.benchmark
+        benchmark: accountData.benchmark,
       };
 
       const { data, error } = await supabase
-        .from('accounts')
+        .from("accounts")
         .insert([requiredData])
         .select()
         .single();
@@ -37,7 +36,7 @@ export const useAccountOperations = () => {
 
       return { success: true, data };
     } catch (error) {
-      console.error('Error creating account:', error);
+      console.error("Error creating account:", error);
       toast({
         title: "Error",
         description: "Failed to create account",
@@ -59,20 +58,20 @@ export const useAccountOperations = () => {
         benchmark: updates.benchmark,
         closing_date: updates.closing_date,
         updated_by: (await supabase.auth.getUser()).data.user?.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       // Remove undefined values
-      Object.keys(updateData).forEach(key => {
+      Object.keys(updateData).forEach((key) => {
         if (updateData[key] === undefined) {
           delete updateData[key];
         }
       });
 
       const { data, error } = await supabase
-        .from('accounts')
+        .from("accounts")
         .update(updateData)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -85,7 +84,7 @@ export const useAccountOperations = () => {
 
       return { success: true, data };
     } catch (error) {
-      console.error('Error updating account:', error);
+      console.error("Error updating account:", error);
       toast({
         title: "Error",
         description: "Failed to update account",
@@ -97,10 +96,7 @@ export const useAccountOperations = () => {
 
   const deleteAccount = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('accounts')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from("accounts").delete().eq("id", id);
 
       if (error) throw error;
 
@@ -111,7 +107,7 @@ export const useAccountOperations = () => {
 
       return { success: true };
     } catch (error) {
-      console.error('Error deleting account:', error);
+      console.error("Error deleting account:", error);
       toast({
         title: "Error",
         description: "Failed to delete account",
@@ -121,25 +117,28 @@ export const useAccountOperations = () => {
     }
   };
 
-  const bulkUpdateAccounts = async (accountIds: string[], updates: Pick<UpdateAccountData, 'account_status'>) => {
+  const bulkUpdateAccounts = async (
+    accountIds: string[],
+    updates: Pick<UpdateAccountData, "account_status">,
+  ) => {
     try {
       const updateData: any = {
         account_status: updates.account_status,
         updated_by: (await supabase.auth.getUser()).data.user?.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       // Remove undefined values
-      Object.keys(updateData).forEach(key => {
+      Object.keys(updateData).forEach((key) => {
         if (updateData[key] === undefined) {
           delete updateData[key];
         }
       });
 
       const { error } = await supabase
-        .from('accounts')
+        .from("accounts")
         .update(updateData)
-        .in('id', accountIds);
+        .in("id", accountIds);
 
       if (error) throw error;
 
@@ -150,7 +149,7 @@ export const useAccountOperations = () => {
 
       return { success: true };
     } catch (error) {
-      console.error('Error bulk updating accounts:', error);
+      console.error("Error bulk updating accounts:", error);
       toast({
         title: "Error",
         description: "Failed to update accounts",
@@ -164,6 +163,6 @@ export const useAccountOperations = () => {
     createAccount,
     updateAccount,
     deleteAccount,
-    bulkUpdateAccounts
+    bulkUpdateAccounts,
   };
 };

@@ -1,7 +1,7 @@
-import { Session, User } from '../types';
-import { supabase } from '../lib/supabase';
+import { Session, User } from "../types";
+import { supabase } from "../lib/supabase";
 
-const SESSION_KEY = 'app_session';
+const SESSION_KEY = "app_session";
 
 export const sessionService = {
   async getSession(): Promise<Session | null> {
@@ -9,7 +9,7 @@ export const sessionService = {
     if (!sessionStr) return null;
 
     const session: Session = JSON.parse(sessionStr);
-    
+
     // Check if session is expired
     if (Date.now() >= session.expires_at) {
       await this.refreshSession(session.refresh_token);
@@ -47,7 +47,7 @@ export const sessionService = {
         await this.setSession(newSession);
       }
     } catch (error) {
-      console.error('Error refreshing session:', error);
+      console.error("Error refreshing session:", error);
       await this.clearSession();
       throw error;
     }
@@ -60,4 +60,4 @@ export const sessionService = {
       await this.setSession(session);
     }
   },
-}; 
+};

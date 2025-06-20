@@ -14,13 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1"
         with:
           create_credentials_file: true
-          workload_identity_provider: 'projects/309045407817/locations/global/workloadIdentityPools/YOUR_POOL_ID/providers/YOUR_PROVIDER_ID'
-          service_account: 'ci-cd-service-account@chromatic-theme-463318-e0.iam.gserviceaccount.com'
+          workload_identity_provider: "projects/309045407817/locations/global/workloadIdentityPools/YOUR_POOL_ID/providers/YOUR_PROVIDER_ID"
+          service_account: "ci-cd-service-account@chromatic-theme-463318-e0.iam.gserviceaccount.com"
 
       - name: Test gcloud
         run: |

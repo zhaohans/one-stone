@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Initial project setup
 - Document management system
 - Google Drive integration
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-06-19
 
 ### Added
+
 - Complete document management system
 - React frontend with TypeScript
 - Node.js backend with Express
@@ -49,7 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Responsive UI with Tailwind CSS
 
 ### Security
+
 - Environment variable configuration
 - Secure file upload handling
 - OAuth 2.0 authentication
-- Role-based access control 
+- Role-based access control

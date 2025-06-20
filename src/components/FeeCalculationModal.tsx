@@ -1,16 +1,31 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, CalendarIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { useFeeCalculation } from '@/hooks/useFeeCalculation';
-import { useAccountsContext } from '@/contexts/AccountsContext';
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar, CalendarIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useFeeCalculation } from "@/hooks/useFeeCalculation";
+import { useAccountsContext } from "@/contexts/AccountsContext";
 
 interface FeeCalculationModalProps {
   isOpen: boolean;
@@ -21,10 +36,17 @@ interface FeeCalculationModalProps {
 export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
   isOpen,
   onClose,
-  onFeeCalculated
+  onFeeCalculated,
 }) => {
-  const [accountId, setAccountId] = useState<string>('');
-  const [feeType, setFeeType] = useState<'management' | 'performance' | 'transaction' | 'custody' | 'retrocession' | 'other'>('management');
+  const [accountId, setAccountId] = useState<string>("");
+  const [feeType, setFeeType] = useState<
+    | "management"
+    | "performance"
+    | "transaction"
+    | "custody"
+    | "retrocession"
+    | "other"
+  >("management");
   const [feeRate, setFeeRate] = useState<number>(1.0);
   const [periodStart, setPeriodStart] = useState<Date>();
   const [periodEnd, setPeriodEnd] = useState<Date>();
@@ -37,10 +59,10 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
 
     const result = await calculateFee({
       account_id: accountId,
-      period_start: format(periodStart, 'yyyy-MM-dd'),
-      period_end: format(periodEnd, 'yyyy-MM-dd'),
+      period_start: format(periodStart, "yyyy-MM-dd"),
+      period_end: format(periodEnd, "yyyy-MM-dd"),
       fee_type: feeType,
-      fee_rate: feeRate
+      fee_rate: feeRate,
     });
 
     if (result.success) {
@@ -55,10 +77,12 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
         <DialogHeader>
           <DialogTitle>Calculate Fee</DialogTitle>
         </DialogHeader>
-        
+
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="account" className="text-right">Account</Label>
+            <Label htmlFor="account" className="text-right">
+              Account
+            </Label>
             <Select value={accountId} onValueChange={setAccountId}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select account" />
@@ -74,8 +98,13 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="feeType" className="text-right">Fee Type</Label>
-            <Select value={feeType} onValueChange={(value: any) => setFeeType(value)}>
+            <Label htmlFor="feeType" className="text-right">
+              Fee Type
+            </Label>
+            <Select
+              value={feeType}
+              onValueChange={(value: any) => setFeeType(value)}
+            >
               <SelectTrigger className="col-span-3">
                 <SelectValue />
               </SelectTrigger>
@@ -91,7 +120,9 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="feeRate" className="text-right">Fee Rate (%)</Label>
+            <Label htmlFor="feeRate" className="text-right">
+              Fee Rate (%)
+            </Label>
             <Input
               id="feeRate"
               type="number"
@@ -110,11 +141,15 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
                   variant={"outline"}
                   className={cn(
                     "col-span-3 justify-start text-left font-normal",
-                    !periodStart && "text-muted-foreground"
+                    !periodStart && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {periodStart ? format(periodStart, "PPP") : <span>Pick a date</span>}
+                  {periodStart ? (
+                    format(periodStart, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -136,11 +171,15 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
                   variant={"outline"}
                   className={cn(
                     "col-span-3 justify-start text-left font-normal",
-                    !periodEnd && "text-muted-foreground"
+                    !periodEnd && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {periodEnd ? format(periodEnd, "PPP") : <span>Pick a date</span>}
+                  {periodEnd ? (
+                    format(periodEnd, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -156,12 +195,14 @@ export const FeeCalculationModal: React.FC<FeeCalculationModalProps> = ({
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button 
-            onClick={handleCalculate} 
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCalculate}
             disabled={isCalculating || !accountId || !periodStart || !periodEnd}
           >
-            {isCalculating ? 'Calculating...' : 'Calculate Fee'}
+            {isCalculating ? "Calculating..." : "Calculate Fee"}
           </Button>
         </div>
       </DialogContent>

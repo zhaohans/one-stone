@@ -1,8 +1,8 @@
-import { supabase } from '../integrations/supabase/client';
-import axios from 'axios';
+import { supabase } from "../integrations/supabase/client";
+import axios from "axios";
 
-const NEWS_API_KEY = process.env.NEWS_API_KEY || '<YOUR_NEWSAPI_KEY_HERE>';
-const NEWS_API_URL = 'https://newsapi.org/v2/everything';
+const NEWS_API_KEY = process.env.NEWS_API_KEY || "<YOUR_NEWSAPI_KEY_HERE>";
+const NEWS_API_URL = "https://newsapi.org/v2/everything";
 
 export interface NewsArticle {
   title: string;
@@ -13,16 +13,18 @@ export interface NewsArticle {
   source: { name: string };
 }
 
-export async function fetchRelevantNews(userId: string): Promise<NewsArticle[]> {
+export async function fetchRelevantNews(
+  userId: string,
+): Promise<NewsArticle[]> {
   // 1. Gather keywords from your database
   // Example: get customer names, regions, and recent trade tickers for this user
   const keywords = new Set<string>();
 
   // Fetch client companies and countries
   const { data: clients } = await supabase
-    .from('clients')
-    .select('client_code, country, first_name, last_name')
-    .eq('user_id', userId);
+    .from("clients")
+    .select("client_code, country, first_name, last_name")
+    .eq("user_id", userId);
   if (clients) {
     clients.forEach((c: any) => {
       if (c.client_code) keywords.add(c.client_code);
@@ -34,10 +36,10 @@ export async function fetchRelevantNews(userId: string): Promise<NewsArticle[]> 
 
   // Fetch recent trades (tickers)
   const { data: trades } = await supabase
-    .from('trades')
-    .select('security_id')
-    .eq('created_by', userId)
-    .order('trade_date', { ascending: false })
+    .from("trades")
+    .select("security_id")
+    .eq("created_by", userId)
+    .order("trade_date", { ascending: false })
     .limit(10);
   if (trades) {
     trades.forEach((t: any) => {
@@ -53,8 +55,8 @@ export async function fetchRelevantNews(userId: string): Promise<NewsArticle[]> 
         params: {
           q: keyword,
           apiKey: NEWS_API_KEY,
-          language: 'en',
-          sortBy: 'publishedAt',
+          language: "en",
+          sortBy: "publishedAt",
           pageSize: 10,
         },
       });
@@ -73,6 +75,7 @@ export async function fetchRelevantNews(userId: string): Promise<NewsArticle[]> 
 
   // 3. Return deduplicated, sorted articles
   return Array.from(articlesMap.values()).sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    (a, b) =>
+      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
   );
-} 
+}

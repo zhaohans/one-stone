@@ -1,50 +1,62 @@
-
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/contexts/SimpleAuthContext';
-import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/SimpleAuthContext";
+import {
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
     // Clear error when user starts typing
-    if (error) setError('');
+    if (error) setError("");
   };
 
   const validateForm = () => {
     if (!formData.email || !formData.password) {
-      setError('Email and password are required');
+      setError("Email and password are required");
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return false;
     }
 
@@ -53,10 +65,10 @@ const SignupForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
-    console.log('🚀 Starting signup process...');
+    console.log("🚀 Starting signup process...");
 
     if (!validateForm()) {
       setIsSubmitting(false);
@@ -68,29 +80,29 @@ const SignupForm = () => {
         formData.email,
         formData.password,
         formData.firstName,
-        formData.lastName
+        formData.lastName,
       );
 
-      console.log('📝 Signup result:', success);
+      console.log("📝 Signup result:", success);
 
       if (success) {
-        console.log('✅ Signup successful, showing success state');
+        console.log("✅ Signup successful, showing success state");
         setSuccess(true);
         // Clear form data for security
         setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
         });
       } else {
-        console.log('❌ Signup failed');
-        setError('Signup failed. Please try again.');
+        console.log("❌ Signup failed");
+        setError("Signup failed. Please try again.");
       }
     } catch (error: any) {
-      console.error('💥 Signup error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      console.error("💥 Signup error:", error);
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -105,22 +117,22 @@ const SignupForm = () => {
             Account Created!
           </CardTitle>
           <CardDescription>
-            We've sent you a verification email. Please check your inbox and click the verification link to activate your account.
+            We've sent you a verification email. Please check your inbox and
+            click the verification link to activate your account.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
             <Mail className="h-4 w-4" />
             <AlertDescription>
-              Can't find the email? Check your spam folder. Your account will need to be approved by an administrator before you can log in.
+              Can't find the email? Check your spam folder. Your account will
+              need to be approved by an administrator before you can log in.
             </AlertDescription>
           </Alert>
-          
+
           <div className="text-center">
             <Link to="/auth/login">
-              <Button className="w-full">
-                Go to Login
-              </Button>
+              <Button className="w-full">Go to Login</Button>
             </Link>
           </div>
         </CardContent>
@@ -132,9 +144,7 @@ const SignupForm = () => {
     <Card className="w-full">
       <CardHeader className="text-center">
         <CardTitle>Create Account</CardTitle>
-        <CardDescription>
-          Join One Stone Capital today
-        </CardDescription>
+        <CardDescription>Join One Stone Capital today</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -144,7 +154,7 @@ const SignupForm = () => {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
@@ -162,7 +172,7 @@ const SignupForm = () => {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
               <div className="relative">
@@ -215,7 +225,9 @@ const SignupForm = () => {
                 disabled={isSubmitting}
               />
             </div>
-            <p className="text-xs text-gray-500">Must be at least 6 characters long</p>
+            <p className="text-xs text-gray-500">
+              Must be at least 6 characters long
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -243,14 +255,17 @@ const SignupForm = () => {
                 Creating Account...
               </>
             ) : (
-              'Create Account'
+              "Create Account"
             )}
           </Button>
 
           <div className="text-center">
             <span className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/auth/login" className="text-blue-600 hover:underline font-medium">
+              Already have an account?{" "}
+              <Link
+                to="/auth/login"
+                className="text-blue-600 hover:underline font-medium"
+              >
                 Sign in
               </Link>
             </span>

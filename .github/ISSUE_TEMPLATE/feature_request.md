@@ -1,9 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: '[FEATURE] '
-labels: ['enhancement']
-assignees: ''
+title: "[FEATURE] "
+labels: ["enhancement"]
+assignees: ""
 ---
 
 **Is your feature request related to a problem? Please describe.**
@@ -19,4 +19,4 @@ A clear and concise description of any alternative solutions or features you've 
 Add any other context or screenshots about the feature request here.
 
 **Implementation ideas**
-If you have any ideas about how this could be implemented, please share them here. 
+If you have any ideas about how this could be implemented, please share them here.

@@ -1,6 +1,5 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { AuthError } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
+import { AuthError } from "@supabase/supabase-js";
 
 export interface LoginCredentials {
   email: string;
@@ -18,12 +17,14 @@ class SimpleAuthService {
   async login(credentials: LoginCredentials) {
     try {
       // Check if account is locked
-      const { data: isLocked } = await supabase.rpc('is_account_locked', {
-        user_email: credentials.email
+      const { data: isLocked } = await supabase.rpc("is_account_locked", {
+        user_email: credentials.email,
       });
 
       if (isLocked) {
-        throw new Error('Account is temporarily locked due to too many failed login attempts. Please try again later.');
+        throw new Error(
+          "Account is temporarily locked due to too many failed login attempts. Please try again later.",
+        );
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -33,16 +34,16 @@ class SimpleAuthService {
 
       if (error) {
         // Handle failed login attempt
-        await supabase.rpc('handle_failed_login', {
-          user_email: credentials.email
+        await supabase.rpc("handle_failed_login", {
+          user_email: credentials.email,
         });
         throw error;
       }
 
       if (data.user) {
         // Reset failed login attempts on success
-        await supabase.rpc('reset_failed_login_attempts', {
-          user_email: credentials.email
+        await supabase.rpc("reset_failed_login_attempts", {
+          user_email: credentials.email,
         });
       }
 
@@ -60,10 +61,10 @@ class SimpleAuthService {
         options: {
           emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
-            first_name: credentials.firstName || '',
-            last_name: credentials.lastName || '',
-          }
-        }
+            first_name: credentials.firstName || "",
+            last_name: credentials.lastName || "",
+          },
+        },
       });
 
       return { data, error };
@@ -84,7 +85,7 @@ class SimpleAuthService {
   async resetPassword(email: string) {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       return { error };
     } catch (error) {
@@ -95,11 +96,11 @@ class SimpleAuthService {
   async resendVerification(email: string) {
     try {
       const { error } = await supabase.auth.resend({
-        type: 'signup',
+        type: "signup",
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
-        }
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
       });
       return { error };
     } catch (error) {

@@ -1,6 +1,6 @@
-import { NotificationCenter } from './NotificationCenter';
+import { NotificationCenter } from "./NotificationCenter";
 
 <div className="flex items-center gap-4">
   <NotificationCenter />
   {/* ... existing user menu ... */}
-</div> 
+</div>;

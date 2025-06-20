@@ -1,21 +1,50 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Switch } from '@/components/ui/switch';
-import { 
-  Building2, 
-  Users, 
-  Building, 
-  DollarSign, 
-  FileText, 
-  Settings as SettingsIcon, 
-  Shield, 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import {
+  Building2,
+  Users,
+  Building,
+  DollarSign,
+  FileText,
+  Settings as SettingsIcon,
+  Shield,
   Search,
   Plus,
   Edit,
@@ -28,74 +57,167 @@ import {
   CheckCircle,
   XCircle,
   Filter,
-  RotateCcw
-} from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { toast } from '@/hooks/use-toast';
-import { useSettings } from '@/contexts/SettingsContext';
+  RotateCcw,
+} from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "@/hooks/use-toast";
+import { useSettings } from "@/contexts/SettingsContext";
 
 // Mock data
 const users = [
-  { id: 1, name: 'K. Shen', email: 'k.shen@onestone.com', role: 'Relationship Manager', status: 'Active', lastLogin: '2024-06-16 09:15' },
-  { id: 2, name: 'M. Johnson', email: 'm.johnson@onestone.com', role: 'Compliance Officer', status: 'Active', lastLogin: '2024-06-16 08:30' },
-  { id: 3, name: 'S. Williams', email: 's.williams@onestone.com', role: 'Portfolio Manager', status: 'Inactive', lastLogin: '2024-06-10 14:22' },
+  {
+    id: 1,
+    name: "K. Shen",
+    email: "k.shen@onestone.com",
+    role: "Relationship Manager",
+    status: "Active",
+    lastLogin: "2024-06-16 09:15",
+  },
+  {
+    id: 2,
+    name: "M. Johnson",
+    email: "m.johnson@onestone.com",
+    role: "Compliance Officer",
+    status: "Active",
+    lastLogin: "2024-06-16 08:30",
+  },
+  {
+    id: 3,
+    name: "S. Williams",
+    email: "s.williams@onestone.com",
+    role: "Portfolio Manager",
+    status: "Inactive",
+    lastLogin: "2024-06-10 14:22",
+  },
 ];
 
 const roles = [
-  { id: 1, name: 'Relationship Manager', permissions: 12, users: 8 },
-  { id: 2, name: 'Compliance Officer', permissions: 15, users: 3 },
-  { id: 3, name: 'Portfolio Manager', permissions: 10, users: 5 },
-  { id: 4, name: 'Administrator', permissions: 20, users: 2 },
+  { id: 1, name: "Relationship Manager", permissions: 12, users: 8 },
+  { id: 2, name: "Compliance Officer", permissions: 15, users: 3 },
+  { id: 3, name: "Portfolio Manager", permissions: 10, users: 5 },
+  { id: 4, name: "Administrator", permissions: 20, users: 2 },
 ];
 
 const banks = [
-  { id: 1, name: 'UBS Switzerland AG', type: 'Custodian', code: 'UBSW', status: 'Active', contact: 'ops@ubs.ch' },
-  { id: 2, name: 'Credit Suisse', type: 'Bank', code: 'CSGN', status: 'Active', contact: 'support@credit-suisse.com' },
-  { id: 3, name: 'Julius Baer', type: 'Custodian', code: 'JUUS', status: 'Inactive', contact: 'custody@juliusbaer.com' },
+  {
+    id: 1,
+    name: "UBS Switzerland AG",
+    type: "Custodian",
+    code: "UBSW",
+    status: "Active",
+    contact: "ops@ubs.ch",
+  },
+  {
+    id: 2,
+    name: "Credit Suisse",
+    type: "Bank",
+    code: "CSGN",
+    status: "Active",
+    contact: "support@credit-suisse.com",
+  },
+  {
+    id: 3,
+    name: "Julius Baer",
+    type: "Custodian",
+    code: "JUUS",
+    status: "Inactive",
+    contact: "custody@juliusbaer.com",
+  },
 ];
 
 const feeTemplates = [
-  { id: 1, name: 'Standard Management Fee', type: 'Management', formula: '1.5% p.a.', rate: '1.50%', status: 'Active', lastUpdated: '2024-05-15' },
-  { id: 2, name: 'Retrocession Basic', type: 'Retrocession', formula: '0.75% trailing', rate: '0.75%', status: 'Active', lastUpdated: '2024-06-01' },
-  { id: 3, name: 'Performance Fee Tier', type: 'Performance', formula: '20% above HWM', rate: '20.00%', status: 'Draft', lastUpdated: '2024-06-10' },
+  {
+    id: 1,
+    name: "Standard Management Fee",
+    type: "Management",
+    formula: "1.5% p.a.",
+    rate: "1.50%",
+    status: "Active",
+    lastUpdated: "2024-05-15",
+  },
+  {
+    id: 2,
+    name: "Retrocession Basic",
+    type: "Retrocession",
+    formula: "0.75% trailing",
+    rate: "0.75%",
+    status: "Active",
+    lastUpdated: "2024-06-01",
+  },
+  {
+    id: 3,
+    name: "Performance Fee Tier",
+    type: "Performance",
+    formula: "20% above HWM",
+    rate: "20.00%",
+    status: "Draft",
+    lastUpdated: "2024-06-10",
+  },
 ];
 
 const auditLogs = [
-  { id: 1, timestamp: '2024-06-16 10:30:15', user: 'K. Shen', action: 'User Created', module: 'User Management', detail: 'Created user: M. Johnson', status: 'Success', ip: '192.168.1.15' },
-  { id: 2, timestamp: '2024-06-16 09:45:20', user: 'Admin', action: 'Role Modified', module: 'Role Management', detail: 'Updated permissions for: Compliance Officer', status: 'Success', ip: '192.168.1.10' },
-  { id: 3, timestamp: '2024-06-16 08:15:10', user: 'S. Williams', action: 'Login Failed', module: 'Authentication', detail: 'Invalid password attempt', status: 'Failure', ip: '192.168.1.25' },
+  {
+    id: 1,
+    timestamp: "2024-06-16 10:30:15",
+    user: "K. Shen",
+    action: "User Created",
+    module: "User Management",
+    detail: "Created user: M. Johnson",
+    status: "Success",
+    ip: "192.168.1.15",
+  },
+  {
+    id: 2,
+    timestamp: "2024-06-16 09:45:20",
+    user: "Admin",
+    action: "Role Modified",
+    module: "Role Management",
+    detail: "Updated permissions for: Compliance Officer",
+    status: "Success",
+    ip: "192.168.1.10",
+  },
+  {
+    id: 3,
+    timestamp: "2024-06-16 08:15:10",
+    user: "S. Williams",
+    action: "Login Failed",
+    module: "Authentication",
+    detail: "Invalid password attempt",
+    status: "Failure",
+    ip: "192.168.1.25",
+  },
 ];
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState('company');
+  const [activeTab, setActiveTab] = useState("company");
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showAddRoleModal, setShowAddRoleModal] = useState(false);
   const { disableLandingPage, setDisableLandingPage } = useSettings();
 
   const companyForm = useForm({
     defaultValues: {
-      companyName: 'One Stone Capital',
-      legalAddress: 'Bahnhofstrasse 12, 8001 Zurich, Switzerland',
-      registrationNumber: 'CHE-123.456.789',
-      primaryEmail: 'info@onestone.com',
-      primaryPhone: '+41 44 123 4567',
-      website: 'www.onestone.com',
-      disclaimer: 'This document is confidential and proprietary...'
-    }
+      companyName: "One Stone Capital",
+      legalAddress: "Bahnhofstrasse 12, 8001 Zurich, Switzerland",
+      registrationNumber: "CHE-123.456.789",
+      primaryEmail: "info@onestone.com",
+      primaryPhone: "+41 44 123 4567",
+      website: "www.onestone.com",
+      disclaimer: "This document is confidential and proprietary...",
+    },
   });
 
   const userForm = useForm({
     defaultValues: {
-      name: '',
-      email: '',
-      role: '',
-      tempPassword: '',
-      expiryDate: ''
-    }
+      name: "",
+      email: "",
+      role: "",
+      tempPassword: "",
+      expiryDate: "",
+    },
   });
 
   const handleCompanyInfoSave = (data: any) => {
-    console.log('Company info updated:', data);
+    console.log("Company info updated:", data);
     toast({
       title: "Success",
       description: "Company information updated successfully.",
@@ -103,7 +225,7 @@ const Settings = () => {
   };
 
   const handleAddUser = (data: any) => {
-    console.log('Adding user:', data);
+    console.log("Adding user:", data);
     setShowAddUserModal(false);
     toast({
       title: "User Added",
@@ -112,7 +234,7 @@ const Settings = () => {
   };
 
   const handleSecuritySettingsSave = () => {
-    console.log('Security settings updated:', { disableLandingPage });
+    console.log("Security settings updated:", { disableLandingPage });
     toast({
       title: "Security Settings Updated",
       description: "Landing page settings have been saved successfully.",
@@ -124,11 +246,17 @@ const Settings = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-1">Manage company settings, users, and system configuration</p>
+          <p className="text-gray-600 mt-1">
+            Manage company settings, users, and system configuration
+          </p>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="company" className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
@@ -169,11 +297,16 @@ const Settings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Company Information</CardTitle>
-              <CardDescription>Manage your company details and regulatory information</CardDescription>
+              <CardDescription>
+                Manage your company details and regulatory information
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...companyForm}>
-                <form onSubmit={companyForm.handleSubmit(handleCompanyInfoSave)} className="space-y-6">
+                <form
+                  onSubmit={companyForm.handleSubmit(handleCompanyInfoSave)}
+                  className="space-y-6"
+                >
                   <div className="grid grid-cols-2 gap-6">
                     <FormField
                       control={companyForm.control}
@@ -200,7 +333,7 @@ const Settings = () => {
                       )}
                     />
                   </div>
-                  
+
                   <FormField
                     control={companyForm.control}
                     name="legalAddress"
@@ -262,7 +395,9 @@ const Settings = () => {
                         <FormControl>
                           <Textarea {...field} rows={4} />
                         </FormControl>
-                        <FormDescription>This text will appear on exported documents</FormDescription>
+                        <FormDescription>
+                          This text will appear on exported documents
+                        </FormDescription>
                       </FormItem>
                     )}
                   />
@@ -289,9 +424,14 @@ const Settings = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>User Management</CardTitle>
-                    <CardDescription>Manage user accounts and access levels</CardDescription>
+                    <CardDescription>
+                      Manage user accounts and access levels
+                    </CardDescription>
                   </div>
-                  <Dialog open={showAddUserModal} onOpenChange={setShowAddUserModal}>
+                  <Dialog
+                    open={showAddUserModal}
+                    onOpenChange={setShowAddUserModal}
+                  >
                     <DialogTrigger asChild>
                       <Button>
                         <UserPlus className="w-4 h-4 mr-2" />
@@ -301,10 +441,15 @@ const Settings = () => {
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Add New User</DialogTitle>
-                        <DialogDescription>Send an invitation to a new user</DialogDescription>
+                        <DialogDescription>
+                          Send an invitation to a new user
+                        </DialogDescription>
                       </DialogHeader>
                       <Form {...userForm}>
-                        <form onSubmit={userForm.handleSubmit(handleAddUser)} className="space-y-4">
+                        <form
+                          onSubmit={userForm.handleSubmit(handleAddUser)}
+                          className="space-y-4"
+                        >
                           <FormField
                             control={userForm.control}
                             name="name"
@@ -336,13 +481,20 @@ const Settings = () => {
                               <FormItem>
                                 <FormLabel>Role</FormLabel>
                                 <FormControl>
-                                  <Input {...field} placeholder="Select role..." />
+                                  <Input
+                                    {...field}
+                                    placeholder="Select role..."
+                                  />
                                 </FormControl>
                               </FormItem>
                             )}
                           />
                           <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setShowAddUserModal(false)}>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setShowAddUserModal(false)}
+                            >
                               Cancel
                             </Button>
                             <Button type="submit">Send Invitation</Button>
@@ -368,20 +520,30 @@ const Settings = () => {
                   <TableBody>
                     {users.map((user) => (
                       <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell className="font-medium">
+                          {user.name}
+                        </TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.role}</TableCell>
                         <TableCell>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            user.status === 'Active' 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-red-100 text-red-700'
-                          }`}>
-                            {user.status === 'Active' ? <CheckCircle className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              user.status === "Active"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {user.status === "Active" ? (
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                            ) : (
+                              <XCircle className="w-3 h-3 mr-1" />
+                            )}
                             {user.status}
                           </span>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-500">{user.lastLogin}</TableCell>
+                        <TableCell className="text-sm text-gray-500">
+                          {user.lastLogin}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="sm">
@@ -405,7 +567,9 @@ const Settings = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Role Management</CardTitle>
-                    <CardDescription>Configure roles and permissions</CardDescription>
+                    <CardDescription>
+                      Configure roles and permissions
+                    </CardDescription>
                   </div>
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />
@@ -426,7 +590,9 @@ const Settings = () => {
                   <TableBody>
                     {roles.map((role) => (
                       <TableRow key={role.id}>
-                        <TableCell className="font-medium">{role.name}</TableCell>
+                        <TableCell className="font-medium">
+                          {role.name}
+                        </TableCell>
                         <TableCell>{role.permissions} permissions</TableCell>
                         <TableCell>{role.users} users</TableCell>
                         <TableCell>
@@ -455,7 +621,9 @@ const Settings = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Banks & Custodians</CardTitle>
-                  <CardDescription>Manage master data for banks and custodians</CardDescription>
+                  <CardDescription>
+                    Manage master data for banks and custodians
+                  </CardDescription>
                 </div>
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
@@ -482,11 +650,13 @@ const Settings = () => {
                       <TableCell>{bank.type}</TableCell>
                       <TableCell>{bank.code}</TableCell>
                       <TableCell>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          bank.status === 'Active' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-gray-100 text-gray-700'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            bank.status === "Active"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
                           {bank.status}
                         </span>
                       </TableCell>
@@ -516,7 +686,9 @@ const Settings = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Fee Templates & Rate Plans</CardTitle>
-                  <CardDescription>Configure fee calculation templates and rate structures</CardDescription>
+                  <CardDescription>
+                    Configure fee calculation templates and rate structures
+                  </CardDescription>
                 </div>
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
@@ -540,20 +712,26 @@ const Settings = () => {
                 <TableBody>
                   {feeTemplates.map((template) => (
                     <TableRow key={template.id}>
-                      <TableCell className="font-medium">{template.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {template.name}
+                      </TableCell>
                       <TableCell>{template.type}</TableCell>
                       <TableCell>{template.formula}</TableCell>
                       <TableCell>{template.rate}</TableCell>
                       <TableCell>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          template.status === 'Active' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            template.status === "Active"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
                           {template.status}
                         </span>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-500">{template.lastUpdated}</TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {template.lastUpdated}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" size="sm">
@@ -579,7 +757,9 @@ const Settings = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Print & Export Templates</CardTitle>
-                  <CardDescription>Manage document templates for reports and exports</CardDescription>
+                  <CardDescription>
+                    Manage document templates for reports and exports
+                  </CardDescription>
                 </div>
                 <Button>
                   <Upload className="w-4 h-4 mr-2" />
@@ -590,8 +770,13 @@ const Settings = () => {
             <CardContent>
               <div className="text-center py-12 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">No templates uploaded</h3>
-                <p className="text-sm">Upload custom templates for fee reports, client statements, and other documents.</p>
+                <h3 className="text-lg font-medium mb-2">
+                  No templates uploaded
+                </h3>
+                <p className="text-sm">
+                  Upload custom templates for fee reports, client statements,
+                  and other documents.
+                </p>
                 <Button className="mt-4">
                   <Upload className="w-4 h-4 mr-2" />
                   Upload First Template
@@ -607,7 +792,9 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Regional Settings</CardTitle>
-                <CardDescription>Configure date, time, and currency formats</CardDescription>
+                <CardDescription>
+                  Configure date, time, and currency formats
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -619,7 +806,9 @@ const Settings = () => {
                   <Input defaultValue="24-hour" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Default Currency</label>
+                  <label className="text-sm font-medium">
+                    Default Currency
+                  </label>
                   <Input defaultValue="CHF" />
                 </div>
                 <div className="space-y-2">
@@ -632,23 +821,37 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>Configure how you receive notifications</CardDescription>
+                <CardDescription>
+                  Configure how you receive notifications
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Email Notifications</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <span className="text-sm font-medium">
+                    Email Notifications
+                  </span>
+                  <Button variant="outline" size="sm">
+                    Enable
+                  </Button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">In-App Notifications</span>
-                  <Button variant="outline" size="sm">Enable</Button>
+                  <span className="text-sm font-medium">
+                    In-App Notifications
+                  </span>
+                  <Button variant="outline" size="sm">
+                    Enable
+                  </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">SMS Notifications</span>
-                  <Button variant="outline" size="sm">Disable</Button>
+                  <Button variant="outline" size="sm">
+                    Disable
+                  </Button>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Auto-logout after</label>
+                  <label className="text-sm font-medium">
+                    Auto-logout after
+                  </label>
                   <Input defaultValue="4 hours" />
                 </div>
               </CardContent>
@@ -662,7 +865,9 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Password Policy</CardTitle>
-                <CardDescription>Configure password strength requirements</CardDescription>
+                <CardDescription>
+                  Configure password strength requirements
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -678,7 +883,9 @@ const Settings = () => {
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Require Special Characters</span>
+                  <span className="text-sm font-medium">
+                    Require Special Characters
+                  </span>
                   <Switch defaultChecked />
                 </div>
               </CardContent>
@@ -687,21 +894,29 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Access Control</CardTitle>
-                <CardDescription>Control user access and landing behavior</CardDescription>
+                <CardDescription>
+                  Control user access and landing behavior
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <span className="text-sm font-medium">Disable Landing Page</span>
-                    <p className="text-xs text-gray-500">Skip landing page and redirect users directly to dashboard</p>
+                    <span className="text-sm font-medium">
+                      Disable Landing Page
+                    </span>
+                    <p className="text-xs text-gray-500">
+                      Skip landing page and redirect users directly to dashboard
+                    </p>
                   </div>
-                  <Switch 
+                  <Switch
                     checked={disableLandingPage}
                     onCheckedChange={setDisableLandingPage}
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Enforce 2FA for all users</span>
+                  <span className="text-sm font-medium">
+                    Enforce 2FA for all users
+                  </span>
                   <Switch />
                 </div>
                 <div className="flex items-center justify-between">
@@ -709,11 +924,16 @@ const Settings = () => {
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Allow App-based 2FA</span>
+                  <span className="text-sm font-medium">
+                    Allow App-based 2FA
+                  </span>
                   <Switch defaultChecked />
                 </div>
                 <div className="pt-4">
-                  <Button onClick={handleSecuritySettingsSave} className="w-full">
+                  <Button
+                    onClick={handleSecuritySettingsSave}
+                    className="w-full"
+                  >
                     Save Security Settings
                   </Button>
                 </div>
@@ -728,10 +948,13 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Emergency Lockout</span>
-                  <Button variant="destructive" size="sm">Activate</Button>
+                  <Button variant="destructive" size="sm">
+                    Activate
+                  </Button>
                 </div>
                 <div className="text-xs text-gray-500">
-                  Emergency lockout will immediately disable all user access to the system.
+                  Emergency lockout will immediately disable all user access to
+                  the system.
                 </div>
               </CardContent>
             </Card>
@@ -745,7 +968,9 @@ const Settings = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>System Audit Log</CardTitle>
-                  <CardDescription>Complete audit trail of all system activities</CardDescription>
+                  <CardDescription>
+                    Complete audit trail of all system activities
+                  </CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline">
@@ -775,27 +1000,36 @@ const Settings = () => {
                 <TableBody>
                   {auditLogs.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell className="text-sm font-mono">{log.timestamp}</TableCell>
+                      <TableCell className="text-sm font-mono">
+                        {log.timestamp}
+                      </TableCell>
                       <TableCell>{log.user}</TableCell>
                       <TableCell>{log.action}</TableCell>
                       <TableCell>{log.module}</TableCell>
-                      <TableCell className="max-w-xs truncate">{log.detail}</TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        {log.detail}
+                      </TableCell>
                       <TableCell>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          log.status === 'Success' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-red-100 text-red-700'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            log.status === "Success"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
                           {log.status}
                         </span>
                       </TableCell>
-                      <TableCell className="text-sm font-mono">{log.ip}</TableCell>
+                      <TableCell className="text-sm font-mono">
+                        {log.ip}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               <div className="mt-4 text-sm text-gray-500 text-center">
-                All critical changes are logged for compliance and audit purposes.
+                All critical changes are logged for compliance and audit
+                purposes.
               </div>
             </CardContent>
           </Card>

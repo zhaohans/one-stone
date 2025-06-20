@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Trade {
   id: string;
@@ -9,7 +8,13 @@ export interface Trade {
   security_id: string;
   trade_date: string;
   settlement_date?: string;
-  trade_type: 'buy' | 'sell' | 'transfer_in' | 'transfer_out' | 'dividend' | 'fee';
+  trade_type:
+    | "buy"
+    | "sell"
+    | "transfer_in"
+    | "transfer_out"
+    | "dividend"
+    | "fee";
   quantity: number;
   price?: number;
   gross_amount?: number;
@@ -19,7 +24,7 @@ export interface Trade {
   net_amount?: number;
   currency: string;
   exchange_rate?: number;
-  trade_status: 'pending' | 'executed' | 'settled' | 'cancelled' | 'failed';
+  trade_status: "pending" | "executed" | "settled" | "cancelled" | "failed";
   reference_number?: string;
   counterparty?: string;
   notes?: string;
@@ -43,22 +48,24 @@ export const useTrades = (accountId?: string) => {
 
   const fetchTrades = async () => {
     if (!accountId) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('trades')
-        .select(`
+        .from("trades")
+        .select(
+          `
           *,
           security:securities(id, symbol, name, currency)
-        `)
-        .eq('account_id', accountId)
-        .order('trade_date', { ascending: false });
+        `,
+        )
+        .eq("account_id", accountId)
+        .order("trade_date", { ascending: false });
 
       if (error) throw error;
       setTrades(data || []);
     } catch (error) {
-      console.error('Error fetching trades:', error);
+      console.error("Error fetching trades:", error);
       toast({
         title: "Error",
         description: "Failed to fetch transactions",
@@ -76,6 +83,6 @@ export const useTrades = (accountId?: string) => {
   return {
     trades,
     isLoading,
-    refetch: fetchTrades
+    refetch: fetchTrades,
   };
 };

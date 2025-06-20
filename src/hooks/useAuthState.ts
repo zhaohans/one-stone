@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { Session, User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface AuthState {
   user: User | null;
@@ -22,37 +21,40 @@ export function useAuthState() {
     let mounted = true;
 
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!mounted) return;
-        
-        console.log('🔔 Auth state changed:', event, session?.user?.id || 'null');
-        
-        setState({
-          user: session?.user || null,
-          session,
-          isLoading: false,
-          isAuthenticated: !!session?.user,
-        });
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+
+      console.log("🔔 Auth state changed:", event, session?.user?.id || "null");
+
+      setState({
+        user: session?.user || null,
+        session,
+        isLoading: false,
+        isAuthenticated: !!session?.user,
+      });
+    });
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        setState({
-          user: session?.user || null,
-          session,
-          isLoading: false,
-          isAuthenticated: !!session?.user,
-        });
-      }
-    }).catch(error => {
-      console.error('❌ Error getting initial session:', error);
-      if (mounted) {
-        setState(prev => ({ ...prev, isLoading: false }));
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (mounted) {
+          setState({
+            user: session?.user || null,
+            session,
+            isLoading: false,
+            isAuthenticated: !!session?.user,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("❌ Error getting initial session:", error);
+        if (mounted) {
+          setState((prev) => ({ ...prev, isLoading: false }));
+        }
+      });
 
     return () => {
       mounted = false;

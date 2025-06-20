@@ -1,22 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/contexts/SimpleAuthContext';
-import UserService, { UserProfile } from '@/services/UserService';
-import { toast } from 'sonner';
-import { CheckCircle, XCircle, Clock, User, Mail, Calendar, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/SimpleAuthContext";
+import UserService, { UserProfile } from "@/services/UserService";
+import { toast } from "sonner";
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  User,
+  Mail,
+  Calendar,
+  AlertCircle,
+} from "lucide-react";
+import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const UserManagement = () => {
   const { role, profile } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [pendingUsers, setPendingUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [processingUsers, setProcessingUsers] = useState<Set<string>>(new Set());
+  const [processingUsers, setProcessingUsers] = useState<Set<string>>(
+    new Set(),
+  );
   const [roleLoading, setRoleLoading] = useState<string | null>(null);
 
   const fetchUsers = async () => {
@@ -24,39 +53,39 @@ const UserManagement = () => {
     try {
       const [allUsers, pending] = await Promise.all([
         UserService.getAllUsers(),
-        UserService.getPendingUsers()
+        UserService.getPendingUsers(),
       ]);
       setUsers(allUsers);
       setPendingUsers(pending);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      toast.error('Failed to load users');
+      console.error("Error fetching users:", error);
+      toast.error("Failed to load users");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (role === 'admin') {
+    if (role === "admin") {
       fetchUsers();
     }
   }, [role]);
 
   const handleApproveUser = async (userId: string) => {
-    setProcessingUsers(prev => new Set(prev).add(userId));
+    setProcessingUsers((prev) => new Set(prev).add(userId));
     try {
       const success = await UserService.approveUser(userId);
       if (success) {
-        toast.success('User approved successfully');
+        toast.success("User approved successfully");
         await fetchUsers();
       } else {
-        toast.error('Failed to approve user');
+        toast.error("Failed to approve user");
       }
     } catch (error) {
-      console.error('Error approving user:', error);
-      toast.error('Failed to approve user');
+      console.error("Error approving user:", error);
+      toast.error("Failed to approve user");
     } finally {
-      setProcessingUsers(prev => {
+      setProcessingUsers((prev) => {
         const newSet = new Set(prev);
         newSet.delete(userId);
         return newSet;
@@ -65,20 +94,20 @@ const UserManagement = () => {
   };
 
   const handleRejectUser = async (userId: string) => {
-    setProcessingUsers(prev => new Set(prev).add(userId));
+    setProcessingUsers((prev) => new Set(prev).add(userId));
     try {
       const success = await UserService.rejectUser(userId);
       if (success) {
-        toast.success('User rejected successfully');
+        toast.success("User rejected successfully");
         await fetchUsers();
       } else {
-        toast.error('Failed to reject user');
+        toast.error("Failed to reject user");
       }
     } catch (error) {
-      console.error('Error rejecting user:', error);
-      toast.error('Failed to reject user');
+      console.error("Error rejecting user:", error);
+      toast.error("Failed to reject user");
     } finally {
-      setProcessingUsers(prev => {
+      setProcessingUsers((prev) => {
         const newSet = new Set(prev);
         newSet.delete(userId);
         return newSet;
@@ -86,19 +115,22 @@ const UserManagement = () => {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: 'admin' | 'user') => {
+  const handleRoleChange = async (
+    userId: string,
+    newRole: "admin" | "user",
+  ) => {
     setRoleLoading(userId);
     try {
       const success = await UserService.updateUserRole(userId, newRole);
       if (success) {
-        toast.success('User role updated');
+        toast.success("User role updated");
         await fetchUsers();
       } else {
-        toast.error('Failed to update user role');
+        toast.error("Failed to update user role");
       }
     } catch (error) {
-      console.error('Error updating user role:', error);
-      toast.error('Failed to update user role');
+      console.error("Error updating user role:", error);
+      toast.error("Failed to update user role");
     } finally {
       setRoleLoading(null);
     }
@@ -106,25 +138,46 @@ const UserManagement = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'active':
-        return <Badge variant="default" className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
-      case 'pending_approval':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
-      case 'inactive':
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Inactive</Badge>;
-      case 'suspended':
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Suspended</Badge>;
+      case "active":
+        return (
+          <Badge variant="default" className="bg-green-100 text-green-800">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Active
+          </Badge>
+        );
+      case "pending_approval":
+        return (
+          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+            <Clock className="w-3 h-3 mr-1" />
+            Pending
+          </Badge>
+        );
+      case "inactive":
+        return (
+          <Badge variant="destructive">
+            <XCircle className="w-3 h-3 mr-1" />
+            Inactive
+          </Badge>
+        );
+      case "suspended":
+        return (
+          <Badge variant="destructive">
+            <XCircle className="w-3 h-3 mr-1" />
+            Suspended
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  if (role !== 'admin') {
+  if (role !== "admin") {
     return (
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          You do not have permission to access this page. Only administrators can manage users.
+          You do not have permission to access this page. Only administrators
+          can manage users.
         </AlertDescription>
       </Alert>
     );
@@ -171,7 +224,11 @@ const UserManagement = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-gray-400" />
-                        <span>{user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : 'No name provided'}</span>
+                        <span>
+                          {user.first_name && user.last_name
+                            ? `${user.first_name} ${user.last_name}`
+                            : "No name provided"}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -183,7 +240,9 @@ const UserManagement = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-gray-400" />
-                        <span>{format(new Date(user.created_at), 'MMM dd, yyyy')}</span>
+                        <span>
+                          {format(new Date(user.created_at), "MMM dd, yyyy")}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -249,7 +308,11 @@ const UserManagement = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-gray-400" />
-                      <span>{user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : 'No name provided'}</span>
+                      <span>
+                        {user.first_name && user.last_name
+                          ? `${user.first_name} ${user.last_name}`
+                          : "No name provided"}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
@@ -258,7 +321,9 @@ const UserManagement = () => {
                     {user.id !== profile?.id ? (
                       <Select
                         value={user.role}
-                        onValueChange={(value) => handleRoleChange(user.id, value as 'admin' | 'user')}
+                        onValueChange={(value) =>
+                          handleRoleChange(user.id, value as "admin" | "user")
+                        }
                         disabled={roleLoading === user.id}
                       >
                         <SelectTrigger className="w-28">
@@ -270,13 +335,19 @@ const UserManagement = () => {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={
+                          user.role === "admin" ? "default" : "secondary"
+                        }
+                      >
                         {user.role}
                       </Badge>
                     )}
                   </TableCell>
                   <TableCell>{getStatusBadge(user.status)}</TableCell>
-                  <TableCell>{format(new Date(user.created_at), 'MMM dd, yyyy')}</TableCell>
+                  <TableCell>
+                    {format(new Date(user.created_at), "MMM dd, yyyy")}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

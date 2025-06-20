@@ -1,62 +1,75 @@
-
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/contexts/SimpleAuthContext';
-import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/SimpleAuthContext";
+import { Loader2, Mail, Lock, AlertCircle } from "lucide-react";
 
 const SimpleLoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
-  
-  const { login, resetPassword, resendVerification, isAuthenticated, isEmailVerified } = useAuth();
+
+  const {
+    login,
+    resetPassword,
+    resendVerification,
+    isAuthenticated,
+    isEmailVerified,
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
     setNeedsVerification(false);
 
     if (!email || !password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       setIsSubmitting(false);
       return;
     }
 
     try {
       const success = await login(email, password);
-      
+
       if (success) {
-        const from = location.state?.from?.pathname || '/dashboard';
+        const from = location.state?.from?.pathname || "/dashboard";
         navigate(from, { replace: true });
         return;
       }
     } catch (error: any) {
-      console.error('💥 Login error:', error);
-      if (error.message?.toLowerCase().includes('email')) {
+      console.error("💥 Login error:", error);
+      if (error.message?.toLowerCase().includes("email")) {
         setNeedsVerification(true);
-        setError('Please verify your email before signing in. Check your inbox for a verification link.');
+        setError(
+          "Please verify your email before signing in. Check your inbox for a verification link.",
+        );
       } else {
-        setError('Login failed. Please try again.');
+        setError("Login failed. Please try again.");
       }
     }
-    
+
     setIsSubmitting(false);
   };
 
   const handleResendVerification = async () => {
     if (!email) {
-      setError('Please enter your email address');
+      setError("Please enter your email address");
       return;
     }
 
@@ -65,11 +78,11 @@ const SimpleLoginForm = () => {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     if (!email) {
-      setError('Please enter your email address');
+      setError("Please enter your email address");
       setIsSubmitting(false);
       return;
     }
@@ -80,7 +93,7 @@ const SimpleLoginForm = () => {
         setShowForgotPassword(false);
       }
     } catch (error) {
-      console.error('Password reset error:', error);
+      console.error("Password reset error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -96,14 +109,15 @@ const SimpleLoginForm = () => {
             Check Your Email
           </CardTitle>
           <CardDescription>
-            We've sent you a verification email. Please check your inbox and click the verification link to continue.
+            We've sent you a verification email. Please check your inbox and
+            click the verification link to continue.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Can't find the email? Check your spam folder or{' '}
+              Can't find the email? Check your spam folder or{" "}
               <button
                 onClick={() => resendVerification(email)}
                 className="text-blue-600 hover:underline font-medium"
@@ -123,7 +137,8 @@ const SimpleLoginForm = () => {
         <CardHeader className="text-center">
           <CardTitle>Reset Password</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a link to reset your
+            password.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -134,7 +149,7 @@ const SimpleLoginForm = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="reset-email">Email</Label>
               <div className="relative">
@@ -160,10 +175,10 @@ const SimpleLoginForm = () => {
                     Sending Reset Link...
                   </>
                 ) : (
-                  'Send Reset Link'
+                  "Send Reset Link"
                 )}
               </Button>
-              
+
               <Button
                 type="button"
                 variant="ghost"
@@ -209,7 +224,7 @@ const SimpleLoginForm = () => {
               </AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
@@ -262,14 +277,17 @@ const SimpleLoginForm = () => {
                 Signing In...
               </>
             ) : (
-              'Sign In'
+              "Sign In"
             )}
           </Button>
 
           <div className="text-center">
             <span className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/auth/signup" className="text-blue-600 hover:underline font-medium">
+              Don't have an account?{" "}
+              <Link
+                to="/auth/signup"
+                className="text-blue-600 hover:underline font-medium"
+              >
                 Sign up
               </Link>
             </span>

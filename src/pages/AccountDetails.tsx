@@ -1,6 +1,5 @@
-
-import React from 'react';
-import AccountDetails from '@/components/AccountDetails';
+import React from "react";
+import AccountDetails from "@/components/AccountDetails";
 
 const AccountDetailsPage = () => {
   return (

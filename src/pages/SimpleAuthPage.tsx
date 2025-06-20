@@ -1,9 +1,8 @@
-
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import SimpleLoginForm from '@/components/auth/SimpleLoginForm';
-import SignupForm from '@/components/auth/SignupForm';
-import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import SimpleLoginForm from "@/components/auth/SimpleLoginForm";
+import SignupForm from "@/components/auth/SignupForm";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -13,7 +12,9 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <span className="text-white font-bold text-xl">OSC</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">One Stone Capital</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            One Stone Capital
+          </h1>
           <p className="text-gray-600 mt-2">Investment Management Platform</p>
         </div>
         {children}

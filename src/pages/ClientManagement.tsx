@@ -1,28 +1,41 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu';
-import { 
-  Search, 
-  Plus, 
-  Download, 
-  Upload, 
-  Filter, 
-  Eye, 
-  Edit, 
-  Archive, 
-  Trash, 
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  Search,
+  Plus,
+  Download,
+  Upload,
+  Filter,
+  Eye,
+  Edit,
+  Archive,
+  Trash,
   MoreHorizontal,
   Users,
   Building2,
@@ -38,59 +51,75 @@ import {
   Grid3X3,
   List,
   Loader2,
-  CheckCircle
-} from 'lucide-react';
-import { useClientsContext, Client } from '@/contexts/ClientsContext';
-import { ClientForm } from '@/components/ClientForm';
+  CheckCircle,
+} from "lucide-react";
+import { useClientsContext, Client } from "@/contexts/ClientsContext";
+import { ClientForm } from "@/components/ClientForm";
 
 const ClientManagement = () => {
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showClientForm, setShowClientForm] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
-    kyc_status: 'all',
-    country: '',
-    search: ''
+    kyc_status: "all",
+    country: "",
+    search: "",
   });
 
-  const { clients, isLoading, createClient, updateClient, deleteClient, bulkUpdateClients } = useClientsContext();
+  const {
+    clients,
+    isLoading,
+    createClient,
+    updateClient,
+    deleteClient,
+    bulkUpdateClients,
+  } = useClientsContext();
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active': return 'bg-green-100 text-green-800';
-      case 'Prospect': return 'bg-blue-100 text-blue-800';
-      case 'Archived': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "Active":
+        return "bg-green-100 text-green-800";
+      case "Prospect":
+        return "bg-blue-100 text-blue-800";
+      case "Archived":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getKycStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'expired': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "expired":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const handleClientSelect = (clientId: string) => {
-    setSelectedClients(prev => 
-      prev.includes(clientId) 
-        ? prev.filter(id => id !== clientId)
-        : [...prev, clientId]
+    setSelectedClients((prev) =>
+      prev.includes(clientId)
+        ? prev.filter((id) => id !== clientId)
+        : [...prev, clientId],
     );
   };
 
   const handleSelectAll = () => {
     setSelectedClients(
-      selectedClients.length === clients.length 
+      selectedClients.length === clients.length
         ? []
-        : clients.map(client => client.id)
+        : clients.map((client) => client.id),
     );
   };
 
@@ -105,12 +134,14 @@ const ClientManagement = () => {
   };
 
   const handleDeleteClient = async (clientId: string) => {
-    if (confirm('Are you sure you want to delete this client?')) {
+    if (confirm("Are you sure you want to delete this client?")) {
       await deleteClient(clientId);
     }
   };
 
-  const handleBulkKycUpdate = async (status: 'pending' | 'approved' | 'rejected' | 'expired') => {
+  const handleBulkKycUpdate = async (
+    status: "pending" | "approved" | "rejected" | "expired",
+  ) => {
     if (selectedClients.length > 0) {
       await bulkUpdateClients(selectedClients, { kyc_status: status });
       setSelectedClients([]);
@@ -123,25 +154,34 @@ const ClientManagement = () => {
         <div className="flex items-center space-x-4">
           <Avatar className="w-16 h-16">
             <AvatarFallback className="text-xl bg-blue-100 text-blue-600">
-              {client.first_name?.[0]}{client.last_name?.[0]}
+              {client.first_name?.[0]}
+              {client.last_name?.[0]}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{client.first_name} {client.last_name}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {client.first_name} {client.last_name}
+            </h2>
             <div className="flex items-center space-x-3 mt-1">
               <Badge variant="outline" className="text-xs">
                 <User className="w-3 h-3 mr-1" />
                 Individual
               </Badge>
-              <Badge className={getKycStatusColor(client.kyc_status || 'pending')}>
-                {client.kyc_status || 'pending'}
+              <Badge
+                className={getKycStatusColor(client.kyc_status || "pending")}
+              >
+                {client.kyc_status || "pending"}
               </Badge>
               <span className="text-sm text-gray-500">{client.country}</span>
             </div>
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={() => handleEditClient(client)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleEditClient(client)}
+          >
             <Edit className="w-4 h-4 mr-2" />
             Edit Profile
           </Button>
@@ -149,7 +189,11 @@ const ClientManagement = () => {
             <Mail className="w-4 h-4 mr-2" />
             Send KYC Reminder
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handleDeleteClient(client.id)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDeleteClient(client.id)}
+          >
             <Archive className="w-4 h-4 mr-2" />
             Archive Client
           </Button>
@@ -178,17 +222,25 @@ const ClientManagement = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Status</span>
-                  <Badge className={getKycStatusColor(client.kyc_status || 'pending')}>
-                    {client.kyc_status || 'pending'}
+                  <Badge
+                    className={getKycStatusColor(
+                      client.kyc_status || "pending",
+                    )}
+                  >
+                    {client.kyc_status || "pending"}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Risk Profile</span>
-                  <span className="text-sm">{client.risk_profile || 'moderate'}</span>
+                  <span className="text-sm">
+                    {client.risk_profile || "moderate"}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Client Code</span>
-                  <span className="text-sm font-mono">{client.client_code}</span>
+                  <span className="text-sm font-mono">
+                    {client.client_code}
+                  </span>
                 </div>
                 <div className="pt-2">
                   <Button className="w-full" variant="outline">
@@ -232,7 +284,9 @@ const ClientManagement = () => {
                 )}
                 <div className="flex items-center space-x-3">
                   <Calendar className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm">Created: {new Date(client.created_at).toLocaleDateString()}</span>
+                  <span className="text-sm">
+                    Created: {new Date(client.created_at).toLocaleDateString()}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -352,7 +406,9 @@ const ClientManagement = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-          <p className="text-gray-600">Manage your client relationships and onboarding</p>
+          <p className="text-gray-600">
+            Manage your client relationships and onboarding
+          </p>
         </div>
         <div className="flex items-center space-x-3">
           <Button variant="outline" size="sm">
@@ -384,8 +440,8 @@ const ClientManagement = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
             >
@@ -394,16 +450,16 @@ const ClientManagement = () => {
             </Button>
             <div className="flex items-center space-x-2">
               <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
+                variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setViewMode('list')}
+                onClick={() => setViewMode("list")}
               >
                 <List className="w-4 h-4" />
               </Button>
               <Button
-                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                variant={viewMode === "grid" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setViewMode('grid')}
+                onClick={() => setViewMode("grid")}
               >
                 <Grid3X3 className="w-4 h-4" />
               </Button>
@@ -414,11 +470,18 @@ const ClientManagement = () => {
             <div className="mt-4 pt-4 border-t">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">KYC Status</label>
-                  <select 
+                  <label className="text-sm font-medium text-gray-700">
+                    KYC Status
+                  </label>
+                  <select
                     className="w-full mt-1 p-2 border rounded-md text-sm"
                     value={filters.kyc_status}
-                    onChange={(e) => setFilters(prev => ({ ...prev, kyc_status: e.target.value }))}
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        kyc_status: e.target.value,
+                      }))
+                    }
                   >
                     <option value="all">All KYC</option>
                     <option value="approved">Approved</option>
@@ -428,11 +491,18 @@ const ClientManagement = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Country</label>
-                  <Input 
+                  <label className="text-sm font-medium text-gray-700">
+                    Country
+                  </label>
+                  <Input
                     placeholder="Filter by country"
                     value={filters.country}
-                    onChange={(e) => setFilters(prev => ({ ...prev, country: e.target.value }))}
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        country: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -450,21 +520,23 @@ const ClientManagement = () => {
                 {selectedClients.length} client(s) selected
               </span>
               <div className="flex items-center space-x-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
-                  onClick={() => handleBulkKycUpdate('approved')}
+                  onClick={() => handleBulkKycUpdate("approved")}
                 >
                   Approve KYC
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
-                  onClick={() => handleBulkKycUpdate('rejected')}
+                  onClick={() => handleBulkKycUpdate("rejected")}
                 >
                   Reject KYC
                 </Button>
-                <Button variant="outline" size="sm">Bulk Export</Button>
+                <Button variant="outline" size="sm">
+                  Bulk Export
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -477,7 +549,7 @@ const ClientManagement = () => {
           <div className="flex items-center justify-between">
             <CardTitle>Client Directory</CardTitle>
             <span className="text-sm text-gray-500">
-              {isLoading ? 'Loading...' : `Showing ${clients.length} clients`}
+              {isLoading ? "Loading..." : `Showing ${clients.length} clients`}
             </span>
           </div>
         </CardHeader>
@@ -487,9 +559,12 @@ const ClientManagement = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-8">
-                    <input 
+                    <input
                       type="checkbox"
-                      checked={selectedClients.length === clients.length && clients.length > 0}
+                      checked={
+                        selectedClients.length === clients.length &&
+                        clients.length > 0
+                      }
                       onChange={handleSelectAll}
                       className="rounded"
                     />
@@ -508,7 +583,7 @@ const ClientManagement = () => {
                 {clients.map((client) => (
                   <TableRow key={client.id} className="hover:bg-gray-50">
                     <TableCell>
-                      <input 
+                      <input
                         type="checkbox"
                         checked={selectedClients.includes(client.id)}
                         onChange={() => handleClientSelect(client.id)}
@@ -519,30 +594,41 @@ const ClientManagement = () => {
                       <div className="flex items-center space-x-3">
                         <Avatar className="w-8 h-8">
                           <AvatarFallback className="text-sm bg-blue-100 text-blue-600">
-                            {client.first_name?.[0]}{client.last_name?.[0]}
+                            {client.first_name?.[0]}
+                            {client.last_name?.[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <button 
+                          <button
                             className="font-medium text-blue-600 hover:text-blue-800 text-left"
                             onClick={() => setSelectedClient(client)}
                           >
                             {client.first_name} {client.last_name}
                           </button>
-                          <div className="text-xs text-gray-500">{client.phone}</div>
+                          <div className="text-xs text-gray-500">
+                            {client.phone}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="font-mono text-sm">{client.client_code}</span>
+                      <span className="font-mono text-sm">
+                        {client.client_code}
+                      </span>
                     </TableCell>
                     <TableCell className="text-sm">{client.email}</TableCell>
                     <TableCell>
-                      <Badge className={getKycStatusColor(client.kyc_status || 'pending')}>
-                        {client.kyc_status || 'pending'}
+                      <Badge
+                        className={getKycStatusColor(
+                          client.kyc_status || "pending",
+                        )}
+                      >
+                        {client.kyc_status || "pending"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm">{client.risk_profile || 'moderate'}</TableCell>
+                    <TableCell className="text-sm">
+                      {client.risk_profile || "moderate"}
+                    </TableCell>
                     <TableCell className="text-sm">{client.country}</TableCell>
                     <TableCell className="text-sm">
                       {new Date(client.created_at).toLocaleDateString()}
@@ -555,11 +641,15 @@ const ClientManagement = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => setSelectedClient(client)}>
+                          <DropdownMenuItem
+                            onClick={() => setSelectedClient(client)}
+                          >
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditClient(client)}>
+                          <DropdownMenuItem
+                            onClick={() => handleEditClient(client)}
+                          >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Profile
                           </DropdownMenuItem>
@@ -568,7 +658,10 @@ const ClientManagement = () => {
                             Send KYC Reminder
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClient(client.id)}>
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={() => handleDeleteClient(client.id)}
+                          >
                             <Trash className="w-4 h-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
@@ -584,8 +677,12 @@ const ClientManagement = () => {
           {!isLoading && clients.length === 0 && (
             <div className="text-center py-12">
               <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No clients found</h3>
-              <p className="text-gray-500 mb-4">Add your first client to get started.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No clients found
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Add your first client to get started.
+              </p>
               <Button onClick={handleCreateClient}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add New Client
@@ -603,9 +700,10 @@ const ClientManagement = () => {
           setShowClientForm(false);
           setEditingClient(null);
         }}
-        onSubmit={editingClient ? 
-          (data) => updateClient(editingClient.id, data) : 
-          createClient
+        onSubmit={
+          editingClient
+            ? (data) => updateClient(editingClient.id, data)
+            : createClient
         }
       />
     </div>

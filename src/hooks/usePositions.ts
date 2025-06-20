@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Position {
   id: string;
@@ -29,23 +28,25 @@ export const usePositions = (accountId?: string) => {
 
   const fetchPositions = async () => {
     if (!accountId) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('positions')
-        .select(`
+        .from("positions")
+        .select(
+          `
           *,
           security:securities(id, symbol, name, currency, security_type)
-        `)
-        .eq('account_id', accountId)
-        .gt('quantity', 0) // Only show positions with quantity > 0
-        .order('market_value', { ascending: false });
+        `,
+        )
+        .eq("account_id", accountId)
+        .gt("quantity", 0) // Only show positions with quantity > 0
+        .order("market_value", { ascending: false });
 
       if (error) throw error;
       setPositions(data || []);
     } catch (error) {
-      console.error('Error fetching positions:', error);
+      console.error("Error fetching positions:", error);
       toast({
         title: "Error",
         description: "Failed to fetch holdings",
@@ -63,6 +64,6 @@ export const usePositions = (accountId?: string) => {
   return {
     positions,
     isLoading,
-    refetch: fetchPositions
+    refetch: fetchPositions,
   };
 };

@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Client } from '@/hooks/useClients';
-import { z } from 'zod';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Client } from "@/hooks/useClients";
+import { z } from "zod";
 
 interface ClientFormProps {
   client?: Client;
@@ -17,9 +29,9 @@ interface ClientFormProps {
 }
 
 const clientSchema = z.object({
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
   date_of_birth: z.string().optional(),
   nationality: z.string().optional(),
@@ -39,24 +51,24 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  isLoading = false
+  isLoading = false,
 }) => {
   const [formData, setFormData] = useState<Partial<Client>>({
-    first_name: client?.first_name || '',
-    last_name: client?.last_name || '',
-    email: client?.email || '',
-    phone: client?.phone || '',
-    date_of_birth: client?.date_of_birth || '',
-    nationality: client?.nationality || '',
-    tax_residence: client?.tax_residence || '',
-    address_line1: client?.address_line1 || '',
-    address_line2: client?.address_line2 || '',
-    city: client?.city || '',
-    state: client?.state || '',
-    postal_code: client?.postal_code || '',
-    country: client?.country || '',
-    risk_profile: client?.risk_profile || 'moderate',
-    kyc_status: client?.kyc_status || 'pending'
+    first_name: client?.first_name || "",
+    last_name: client?.last_name || "",
+    email: client?.email || "",
+    phone: client?.phone || "",
+    date_of_birth: client?.date_of_birth || "",
+    nationality: client?.nationality || "",
+    tax_residence: client?.tax_residence || "",
+    address_line1: client?.address_line1 || "",
+    address_line2: client?.address_line2 || "",
+    city: client?.city || "",
+    state: client?.state || "",
+    postal_code: client?.postal_code || "",
+    country: client?.country || "",
+    risk_profile: client?.risk_profile || "moderate",
+    kyc_status: client?.kyc_status || "pending",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -67,7 +79,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
     const parseResult = clientSchema.safeParse(formData);
     if (!parseResult.success) {
       const fieldErrors: Record<string, string> = {};
-      parseResult.error.errors.forEach(err => {
+      parseResult.error.errors.forEach((err) => {
         if (err.path[0]) fieldErrors[err.path[0]] = err.message;
       });
       setErrors(fieldErrors);
@@ -80,16 +92,18 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   };
 
   const handleChange = (field: keyof Client, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{client ? 'Edit Client' : 'Add New Client'}</DialogTitle>
+          <DialogTitle>{client ? "Edit Client" : "Add New Client"}</DialogTitle>
           <DialogDescription>
-            {client ? 'Update client information' : 'Create a new client profile'}
+            {client
+              ? "Update client information"
+              : "Create a new client profile"}
           </DialogDescription>
         </DialogHeader>
 
@@ -100,20 +114,24 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               <Input
                 id="first_name"
                 value={formData.first_name}
-                onChange={(e) => handleChange('first_name', e.target.value)}
+                onChange={(e) => handleChange("first_name", e.target.value)}
                 aria-invalid={!!errors.first_name}
               />
-              {errors.first_name && <p className="text-red-600 text-xs mt-1">{errors.first_name}</p>}
+              {errors.first_name && (
+                <p className="text-red-600 text-xs mt-1">{errors.first_name}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="last_name">Last Name *</Label>
               <Input
                 id="last_name"
                 value={formData.last_name}
-                onChange={(e) => handleChange('last_name', e.target.value)}
+                onChange={(e) => handleChange("last_name", e.target.value)}
                 aria-invalid={!!errors.last_name}
               />
-              {errors.last_name && <p className="text-red-600 text-xs mt-1">{errors.last_name}</p>}
+              {errors.last_name && (
+                <p className="text-red-600 text-xs mt-1">{errors.last_name}</p>
+              )}
             </div>
           </div>
 
@@ -124,17 +142,19 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
+                onChange={(e) => handleChange("email", e.target.value)}
                 aria-invalid={!!errors.email}
               />
-              {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-600 text-xs mt-1">{errors.email}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
+                onChange={(e) => handleChange("phone", e.target.value)}
               />
             </div>
           </div>
@@ -146,7 +166,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 id="date_of_birth"
                 type="date"
                 value={formData.date_of_birth}
-                onChange={(e) => handleChange('date_of_birth', e.target.value)}
+                onChange={(e) => handleChange("date_of_birth", e.target.value)}
               />
             </div>
             <div>
@@ -154,7 +174,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               <Input
                 id="nationality"
                 value={formData.nationality}
-                onChange={(e) => handleChange('nationality', e.target.value)}
+                onChange={(e) => handleChange("nationality", e.target.value)}
               />
             </div>
           </div>
@@ -164,7 +184,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             <Input
               id="address_line1"
               value={formData.address_line1}
-              onChange={(e) => handleChange('address_line1', e.target.value)}
+              onChange={(e) => handleChange("address_line1", e.target.value)}
             />
           </div>
 
@@ -173,7 +193,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             <Input
               id="address_line2"
               value={formData.address_line2}
-              onChange={(e) => handleChange('address_line2', e.target.value)}
+              onChange={(e) => handleChange("address_line2", e.target.value)}
             />
           </div>
 
@@ -183,7 +203,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               <Input
                 id="city"
                 value={formData.city}
-                onChange={(e) => handleChange('city', e.target.value)}
+                onChange={(e) => handleChange("city", e.target.value)}
               />
             </div>
             <div>
@@ -191,7 +211,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               <Input
                 id="state"
                 value={formData.state}
-                onChange={(e) => handleChange('state', e.target.value)}
+                onChange={(e) => handleChange("state", e.target.value)}
               />
             </div>
             <div>
@@ -199,7 +219,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               <Input
                 id="postal_code"
                 value={formData.postal_code}
-                onChange={(e) => handleChange('postal_code', e.target.value)}
+                onChange={(e) => handleChange("postal_code", e.target.value)}
               />
             </div>
           </div>
@@ -210,7 +230,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               <Input
                 id="country"
                 value={formData.country}
-                onChange={(e) => handleChange('country', e.target.value)}
+                onChange={(e) => handleChange("country", e.target.value)}
               />
             </div>
             <div>
@@ -218,7 +238,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               <Input
                 id="tax_residence"
                 value={formData.tax_residence}
-                onChange={(e) => handleChange('tax_residence', e.target.value)}
+                onChange={(e) => handleChange("tax_residence", e.target.value)}
               />
             </div>
           </div>
@@ -226,7 +246,10 @@ export const ClientForm: React.FC<ClientFormProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="risk_profile">Risk Profile</Label>
-              <Select value={formData.risk_profile} onValueChange={(value) => handleChange('risk_profile', value)}>
+              <Select
+                value={formData.risk_profile}
+                onValueChange={(value) => handleChange("risk_profile", value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -239,7 +262,10 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             </div>
             <div>
               <Label htmlFor="kyc_status">KYC Status</Label>
-              <Select value={formData.kyc_status} onValueChange={(value) => handleChange('kyc_status', value)}>
+              <Select
+                value={formData.kyc_status}
+                onValueChange={(value) => handleChange("kyc_status", value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -258,7 +284,11 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : (client ? 'Update Client' : 'Create Client')}
+              {isLoading
+                ? "Saving..."
+                : client
+                  ? "Update Client"
+                  : "Create Client"}
             </Button>
           </div>
         </form>
