@@ -5,12 +5,12 @@ import { GraduationCap } from "lucide-react";
 
 // Training page placeholder - matches Document Vault style
 const Training = () => (
-  <div className="p-4 max-w-5xl mx-auto">
+  <div className="p-4 max-w-7xl mx-auto">
+    <h1 className="text-2xl font-bold text-gray-900 mb-4">Training</h1>
     {/* Page header and breadcrumb */}
     <div className="mb-4 flex items-center gap-4">
       <GraduationCap className="w-7 h-7 text-primary" />
       <div>
-        <h1 className="text-2xl font-bold">Training</h1>
         <Breadcrumb>
           <BreadcrumbItem>Home</BreadcrumbItem>
           <BreadcrumbItem>Training</BreadcrumbItem>

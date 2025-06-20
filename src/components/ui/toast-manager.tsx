@@ -1,58 +1,31 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import * as toastUtils from "./toast-utils";
 
-export type ToastType = "success" | "error" | "warning" | "info";
-
-export interface Toast {
-  id: string;
-  type: ToastType;
-  title: string;
-  message?: string;
-  duration?: number;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
+declare global {
+  interface Window {
+    notificationService?: {
+      createNotification?: (n: { title: string; body: string }) => void;
+      notifyAdmin?: (n: { title: string; body: string }) => void;
+    };
+  }
 }
-
-interface ToastContextType {
-  toasts: Toast[];
-  addToast: (toast: Omit<Toast, "id">) => void;
-  removeToast: (id: string) => void;
-  clearToasts: () => void;
-}
-
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const useToast = () => {
-  const context = useContext(ToastContext);
+  const context = useContext(toastUtils.ToastContext);
   if (!context) {
     throw new Error("useToast must be used within a ToastProvider");
   }
   return context;
 };
 
-const toastIcons = {
-  success: CheckCircle,
-  error: AlertCircle,
-  warning: AlertTriangle,
-  info: Info,
-};
-
-const toastStyles = {
-  success: "bg-green-50 border-green-200 text-green-800",
-  error: "bg-red-50 border-red-200 text-red-800",
-  warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
-  info: "bg-blue-50 border-blue-200 text-blue-800",
-};
-
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, setToasts] = useState<toastUtils.Toast[]>([]);
 
-  const addToast = useCallback((toast: Omit<Toast, "id">) => {
+  const addToast = useCallback((toast: Omit<toastUtils.Toast, "id">) => {
     const id = Math.random().toString(36).substr(2, 9);
     const newToast = { ...toast, id };
     setToasts((prev) => [...prev, newToast]);
@@ -75,12 +48,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <ToastContext.Provider
+    <toastUtils.ToastContext.Provider
       value={{ toasts, addToast, removeToast, clearToasts }}
     >
       {children}
       <ToastContainer />
-    </ToastContext.Provider>
+    </toastUtils.ToastContext.Provider>
   );
 };
 
@@ -96,17 +69,17 @@ const ToastContainer: React.FC = () => {
   );
 };
 
-const ToastItem: React.FC<{ toast: Toast; onRemove: (id: string) => void }> = ({
+const ToastItem: React.FC<{ toast: toastUtils.Toast; onRemove: (id: string) => void }> = ({
   toast,
   onRemove,
 }) => {
-  const Icon = toastIcons[toast.type];
+  const Icon = toastUtils.toastIcons[toast.type];
 
   return (
     <div
       className={cn(
         "flex items-start p-4 rounded-lg border shadow-lg transition-all duration-300 ease-in-out",
-        toastStyles[toast.type],
+        toastUtils.toastStyles[toast.type],
       )}
     >
       <Icon className="h-5 w-5 mt-0.5 mr-3 flex-shrink-0" />
@@ -134,14 +107,47 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: string) => void }> = ({
   );
 };
 
-// Convenience functions for common toast types
-export const toast = {
-  success: (title: string, message?: string) =>
-    useToast().addToast({ type: "success", title, message }),
-  error: (title: string, message?: string) =>
-    useToast().addToast({ type: "error", title, message }),
-  warning: (title: string, message?: string) =>
-    useToast().addToast({ type: "warning", title, message }),
-  info: (title: string, message?: string) =>
-    useToast().addToast({ type: "info", title, message }),
-};
+export function useSuccessToast() {
+  const { addToast } = useToast();
+  return (title: string, message?: string) =>
+    addToast({ type: "success", title, message });
+}
+
+export function useErrorToast() {
+  const { addToast } = useToast();
+  return (title: string, message?: string, options?: { code?: string; duration?: number; notifyAdmin?: boolean }) => {
+    const duration = options?.duration ?? 15000; // 15s default for errors
+    addToast({ type: "error", title, message, duration });
+    // Add to notification center
+    if (options?.code || options?.notifyAdmin) {
+      // Send to notification center (in-app)
+      if (window.notificationService && typeof window.notificationService.createNotification === 'function') {
+        window.notificationService.createNotification({
+          title: `Error: ${title}`,
+          body: `${options?.code ? `[${options.code}] ` : ''}${message || ''}`,
+        });
+      }
+      // Send to admin (email or special notification)
+      if (options?.notifyAdmin && window.notificationService && typeof window.notificationService.notifyAdmin === 'function') {
+        window.notificationService.notifyAdmin({
+          title: `Error: ${title}`,
+          body: `${options?.code ? `[${options.code}] ` : ''}${message || ''}`,
+        });
+      }
+    }
+  };
+}
+
+export function useWarningToast() {
+  const { addToast } = useToast();
+  return (title: string, message?: string) =>
+    addToast({ type: "warning", title, message });
+}
+
+export function useInfoToast() {
+  const { addToast } = useToast();
+  return (title: string, message?: string) =>
+    addToast({ type: "info", title, message });
+}
+
+// (If you have a real toast system, replace this with the actual implementation)

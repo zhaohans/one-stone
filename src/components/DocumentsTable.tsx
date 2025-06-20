@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
-import { toast } from "./ui/toast-manager";
+import { useSuccessToast, useErrorToast } from "./ui/toast-manager";
 import {
   Tooltip,
   TooltipTrigger,
@@ -10,6 +10,15 @@ import {
   TooltipProvider,
 } from "./ui/tooltip";
 import { LoadingSpinner } from "./ui/loading-spinner";
+import {
+  Upload,
+  FilePlus,
+  Edit,
+  Download,
+  FolderOpen,
+  History,
+} from "lucide-react";
+import { Progress } from "./ui/progress";
 
 interface DocumentMeta {
   id: string;
@@ -21,7 +30,58 @@ interface DocumentMeta {
   mimetype?: string;
   category?: string;
   complianceStatus?: string;
+  docling?: any;
   [key: string]: any;
+}
+
+function getComplianceBadge(status?: string) {
+  switch (status) {
+    case "missing_tags":
+      return (
+        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+          Missing Tags
+        </span>
+      );
+    case "missing_expiry":
+      return (
+        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+          Missing Expiry
+        </span>
+      );
+    case "missing_status":
+      return (
+        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+          Missing Status
+        </span>
+      );
+    case "expiring_soon":
+      return (
+        <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
+          Expiring Soon
+        </span>
+      );
+    default:
+      return (
+        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+          OK
+        </span>
+      );
+  }
+}
+
+function getComplianceTooltip(status?: string) {
+  switch (status) {
+    case "missing_tags":
+      return "This document is missing required tags.";
+    case "missing_expiry":
+      return "This document is missing an expiry date.";
+    case "missing_status":
+      return "This document is missing a status.";
+    case "expiring_soon":
+      return "This document is expiring within 7 days.";
+    default:
+      return "This document is compliant.";
+  }
 }
 
 const DocumentsTable: React.FC = () => {
@@ -50,6 +110,16 @@ const DocumentsTable: React.FC = () => {
   const [uploadingVersion, setUploadingVersion] = useState(false);
   const [complianceFilter, setComplianceFilter] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  const successToast = useSuccessToast();
+  const errorToast = useErrorToast();
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadCategory, setUploadCategory] = useState("");
+  const [uploadTags, setUploadTags] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadDriveLink, setUploadDriveLink] = useState("");
+  const [analysisIdx, setAnalysisIdx] = useState<number | null>(null);
 
   const fetchDocs = async (
     q = "",
@@ -72,6 +142,19 @@ const DocumentsTable: React.FC = () => {
       if (category) params.append("category", category);
       if (compliance) params.append("compliance", compliance);
       const res = await fetch(`/documents/list?${params.toString()}`);
+      if (!res.ok) {
+        // Try to parse error from response, fallback to status text
+        let errorText = `HTTP ${res.status}: ${res.statusText}`;
+        try {
+          const data = await res.json();
+          if (data && data.error) errorText = data.error;
+        } catch {
+          // Ignore JSON parse error, use status text
+        }
+        setError(errorText);
+        setLoading(false);
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         let docs = data.documents;
@@ -94,7 +177,7 @@ const DocumentsTable: React.FC = () => {
         setError(data.error || "Failed to fetch documents");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to fetch documents");
+      setError(err?.message || String(err) || "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -232,10 +315,10 @@ const DocumentsTable: React.FC = () => {
         );
         setEditIdx(null);
       } else {
-        toast.error("Error", data.error || "Failed to update tags");
+        errorToast("Error", data.error || "Failed to update tags");
       }
     } catch (err: any) {
-      toast.error("Error", err.message || "Failed to update tags");
+      errorToast("Error", err.message || "Failed to update tags");
     }
   };
 
@@ -271,12 +354,12 @@ const DocumentsTable: React.FC = () => {
         const data = await res.json();
         if (data.success) {
           folderId = data.folderId;
-          toast.success(
+          successToast(
             "Folder created",
             `Folder "${moveFolderId}" created in Drive.`,
           );
         } else {
-          toast.error("Error", data.error || "Failed to create folder");
+          errorToast("Error", data.error || "Failed to create folder");
           setMoveLoading(false);
           return;
         }
@@ -302,12 +385,12 @@ const DocumentsTable: React.FC = () => {
           categoryFilter,
           complianceFilter,
         );
-        toast.success("Document moved", "Document moved successfully.");
+        successToast("Document moved", "Document moved successfully.");
       } else {
-        toast.error("Error", data.error || "Failed to move document");
+        errorToast("Error", data.error || "Failed to move document");
       }
     } catch (err: any) {
-      toast.error("Error", err.message || "Failed to move document");
+      errorToast("Error", err.message || "Failed to move document");
     } finally {
       setMoveLoading(false);
     }
@@ -323,10 +406,10 @@ const DocumentsTable: React.FC = () => {
       if (data.success) {
         setVersions(data.versions);
       } else {
-        toast.error("Error", data.error || "Failed to fetch versions");
+        errorToast("Error", data.error || "Failed to fetch versions");
       }
     } catch (err: any) {
-      toast.error("Error", err.message || "Failed to fetch versions");
+      errorToast("Error", err.message || "Failed to fetch versions");
     } finally {
       setVersionLoading(false);
     }
@@ -345,14 +428,14 @@ const DocumentsTable: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Version uploaded", "New version uploaded successfully.");
+        successToast("Version uploaded", "New version uploaded successfully.");
         handleVersionHistory(versionIdx); // Refresh versions
         setNewVersionFile(null);
       } else {
-        toast.error("Error", data.error || "Failed to upload version");
+        errorToast("Error", data.error || "Failed to upload version");
       }
     } catch (err: any) {
-      toast.error("Error", err.message || "Failed to upload version");
+      errorToast("Error", err.message || "Failed to upload version");
     } finally {
       setUploadingVersion(false);
     }
@@ -379,7 +462,7 @@ const DocumentsTable: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(
+        successToast(
           "Version restored",
           "This version is now the current version.",
         );
@@ -394,10 +477,57 @@ const DocumentsTable: React.FC = () => {
         );
         handleVersionHistory(versionIdx); // Refresh versions
       } else {
-        toast.error("Error", data.error || "Failed to restore version");
+        errorToast("Error", data.error || "Failed to restore version");
       }
     } catch (err: any) {
-      toast.error("Error", err.message || "Failed to restore version");
+      errorToast("Error", err.message || "Failed to restore version");
+    }
+  };
+
+  const extractDriveFileId = (link: string) => {
+    const match = link.match(/\/d\/([\w-]+)/);
+    return match ? match[1] : "";
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
+    setUploadProgress(0);
+    try {
+      let body;
+      if (uploadDriveLink) {
+        const driveFileId = extractDriveFileId(uploadDriveLink);
+        body = JSON.stringify({
+          driveFileId,
+          driveLink: uploadDriveLink,
+          category: uploadCategory,
+          tags: uploadTags,
+        });
+      } else {
+        if (!uploadFile) return;
+        const formData = new FormData();
+        formData.append("file", uploadFile);
+        formData.append("category", uploadCategory);
+        formData.append("tags", JSON.stringify(uploadTags));
+        body = formData;
+      }
+      const res = await fetch("/documents/upload", {
+        method: "POST",
+        body,
+      });
+      const data = await res.json();
+      if (data.success) {
+        successToast("Upload complete", "Document metadata saved successfully.");
+        setShowUploadModal(false);
+        setRetryCount((c) => c + 1);
+      } else {
+        errorToast("Error", data.error || "Failed to save document metadata");
+      }
+    } catch (err: any) {
+      errorToast("Error", err.message || "Failed to save document metadata");
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -419,447 +549,502 @@ const DocumentsTable: React.FC = () => {
     );
 
   return (
-    <div className="flex">
-      <aside className="w-48 mr-6">
-        <div className="mb-4 font-semibold text-gray-700">Categories</div>
-        <ul className="space-y-2">
-          <li>
-            <button
-              className={`w-full text-left px-2 py-1 rounded ${categoryFilter === "" ? "bg-blue-100 font-bold" : "hover:bg-gray-100"}`}
-              onClick={() => handleCategoryFilter("")}
-            >
-              All Categories
-            </button>
-          </li>
-          {allCategories.map((cat) => (
-            <li key={cat}>
-              <button
-                className={`w-full text-left px-2 py-1 rounded ${categoryFilter === cat ? "bg-blue-100 font-bold" : "hover:bg-gray-100"}`}
-                onClick={() => handleCategoryFilter(cat)}
-              >
-                {cat}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </aside>
-      <div className="flex-1">
-        <div className="flex items-center gap-4 mb-4 flex-wrap">
-          <Input
-            placeholder="Search by name or tag..."
-            value={search}
-            onChange={handleSearchChange}
-            className="w-64"
-          />
-          <select
-            value={tagFilter}
-            onChange={handleTagFilterChange}
-            className="border rounded px-2 py-1 text-sm"
-          >
-            <option value="">All Tags</option>
-            {allTags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
-            ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={handleStatusFilterChange}
-            className="border rounded px-2 py-1 text-sm"
-          >
-            <option value="">All Statuses</option>
-            {statusOptions.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-          <select
-            value={complianceFilter}
-            onChange={handleComplianceFilterChange}
-            className="border rounded px-2 py-1 text-sm"
-          >
-            <option value="">All Compliance</option>
-            <option value="needs_attention">Needs Attention</option>
-          </select>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500">From</label>
-            <Input
-              type="date"
-              value={fromDate}
-              onChange={handleFromDateChange}
-              className="w-32"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500">To</label>
-            <Input
-              type="date"
-              value={toDate}
-              onChange={handleToDateChange}
-              className="w-32"
-            />
-          </div>
+    <div className="flex flex-col gap-4">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full border text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 text-left">File Name</th>
-                <th className="p-2 text-left">Tags</th>
-                <th className="p-2 text-left">Uploaded</th>
-                <th className="p-2 text-left">Size</th>
-                <th className="p-2 text-left">Compliance</th>
-                <th className="p-2 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {documents.map((doc, idx) => (
-                <tr key={doc.id} className="border-b">
-                  <td className="p-2">
-                    <a
-                      href={`https://drive.google.com/file/d/${doc.driveFileId}/view`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline"
-                    >
-                      {doc.fileName}
-                    </a>
-                  </td>
-                  <td className="p-2">
-                    {editIdx === idx ? (
-                      <div className="flex flex-wrap gap-2">
-                        {editTags.map((tag, i) => (
-                          <span
-                            key={i}
-                            className="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded"
-                          >
-                            <Input
-                              className="w-20 text-xs"
-                              value={tag}
-                              onChange={(e) =>
-                                handleTagChange(i, e.target.value)
-                              }
-                            />
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleRemoveTag(i)}
-                            >
-                              ×
-                            </Button>
-                          </span>
-                        ))}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleAddTag}
-                        >
-                          + Add
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {(doc.aiTags?.tags || []).map(
-                          (tag: string, i: number) => (
-                            <Badge
-                              key={i}
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ),
-                        )}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {doc.uploadedAt
-                      ? new Date(doc.uploadedAt).toLocaleString()
-                      : ""}
-                  </td>
-                  <td className="p-2">
-                    {doc.size ? (doc.size / 1024).toFixed(1) + " KB" : ""}
-                  </td>
-                  <td className="p-2">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          {getComplianceBadge(doc.complianceStatus)}
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {getComplianceTooltip(doc.complianceStatus)}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </td>
-                  <td className="p-2">
-                    {editIdx === idx ? (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => handleSaveTags(doc, idx)}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setEditIdx(null)}
-                        >
-                          Cancel
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(idx)}
-                        >
-                          Edit Tags
-                        </Button>
-                        <a
-                          href={`https://drive.google.com/uc?id=${doc.driveFileId}&export=download`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button size="sm" variant="ghost">
-                            Download
-                          </Button>
-                        </a>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleMove(idx)}
-                        >
-                          Move
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleVersionHistory(idx)}
-                        >
-                          Version History
-                        </Button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {/* Move Modal */}
-        {moveIdx !== null && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="bg-white p-6 rounded shadow-lg w-80">
-              <h4 className="font-semibold mb-2">Move Document</h4>
-              <div className="mb-2">
-                <label className="block text-xs mb-1">
-                  Select Category/Folder
-                </label>
-                <select
-                  value={moveCategory}
-                  onChange={(e) => setMoveCategory(e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
-                  aria-label="Select category or folder"
-                >
-                  <option value="">-- Select --</option>
-                  {allCategories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                  <option value="__new__">+ New Category/Folder</option>
-                </select>
-                {moveCategory === "__new__" && (
-                  <Input
-                    id="move-folder-input"
-                    className="mt-2"
-                    placeholder="New category/folder name"
-                    value={moveFolderId}
-                    onChange={(e) => setMoveFolderId(e.target.value)}
-                    aria-label="New category or folder name"
-                  />
-                )}
+      )}
+      {/* Upload Button */}
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-bold">Documents</h2>
+        <Button
+          className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+          onClick={() => setShowUploadModal(true)}
+        >
+          <Upload className="w-4 h-4" /> Upload Document
+        </Button>
+      </div>
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-[9999] bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl border-2 border-blue-200 p-8">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FilePlus className="w-5 h-5" /> Upload Document
+            </h3>
+            <form onSubmit={handleUpload} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">File *</label>
+                <Input
+                  type="file"
+                  accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                  required
+                />
               </div>
-              <div className="flex gap-2 mt-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Category
+                </label>
+                <Input
+                  placeholder="e.g. Compliance, HR, Finance"
+                  value={uploadCategory}
+                  onChange={(e) => setUploadCategory(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Tags (comma separated)
+                </label>
+                <Input
+                  placeholder="e.g. policy, contract"
+                  value={uploadTags.join(", ")}
+                  onChange={(e) =>
+                    setUploadTags(
+                      e.target.value.split(",").map((t) => t.trim()),
+                    )
+                  }
+                />
+              </div>
+              {uploading && (
+                <div className="w-full my-2">
+                  <Progress value={uploadProgress} />
+                  <div className="text-xs text-gray-500 mt-1">
+                    Uploading... {uploadProgress}%
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-end gap-2 mt-4">
                 <Button
-                  size="sm"
-                  onClick={handleMoveConfirm}
-                  disabled={moveLoading}
-                  aria-label="Confirm move"
-                >
-                  {moveLoading ? (
-                    <span className="animate-spin mr-2">⏳</span>
-                  ) : null}
-                  {moveLoading ? "Moving..." : "Move"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={closeMoveModal}
-                  aria-label="Cancel move"
+                  variant="outline"
+                  onClick={() => setShowUploadModal(false)}
+                  type="button"
                 >
                   Cancel
                 </Button>
-              </div>
-            </div>
-          </div>
-        )}
-        {versionIdx !== null && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="bg-white p-6 rounded shadow-lg w-[32rem] max-h-[90vh] overflow-y-auto">
-              <h4 className="font-semibold mb-2">Version History</h4>
-              {versionLoading ? (
-                <div>Loading...</div>
-              ) : (
-                <>
-                  <table className="w-full text-xs mb-4">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="p-2 text-left">Version</th>
-                        <th className="p-2 text-left">File Name</th>
-                        <th className="p-2 text-left">Uploaded</th>
-                        <th className="p-2 text-left">Uploader</th>
-                        <th className="p-2 text-left">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {versions.map((v, i) => (
-                        <tr key={i} className="border-b">
-                          <td className="p-2">{v.version}</td>
-                          <td className="p-2">{v.fileName}</td>
-                          <td className="p-2">
-                            {v.uploadedAt
-                              ? new Date(v.uploadedAt).toLocaleString()
-                              : ""}
-                          </td>
-                          <td className="p-2">{v.uploader || ""}</td>
-                          <td className="p-2">
-                            <a
-                              href={`https://drive.google.com/uc?id=${v.driveFileId}&export=download`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <Button size="sm" variant="ghost">
-                                Download
-                              </Button>
-                            </a>
-                            {i !== versions.length - 1 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRestoreVersion(v)}
-                              >
-                                Restore
-                              </Button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="mt-4">
-                    <label className="block text-xs mb-1">
-                      Upload New Version
-                    </label>
-                    <Input
-                      type="file"
-                      accept=".pdf,.docx"
-                      onChange={(e) =>
-                        setNewVersionFile(e.target.files?.[0] || null)
-                      }
-                      disabled={uploadingVersion}
-                    />
-                    <Button
-                      size="sm"
-                      className="mt-2"
-                      onClick={handleUploadVersion}
-                      disabled={!newVersionFile || uploadingVersion}
-                    >
-                      {uploadingVersion ? "Uploading..." : "Upload Version"}
-                    </Button>
-                  </div>
-                </>
-              )}
-              <div className="flex gap-2 mt-4">
                 <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={closeVersionModal}
-                  aria-label="Close version history"
+                  type="submit"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                  disabled={uploading || !uploadFile}
                 >
-                  Close
+                  Upload
                 </Button>
               </div>
-            </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
+      {/* Filters Bar */}
+      <div className="flex flex-wrap gap-4 items-center bg-gray-50 p-3 rounded-lg mb-2">
+        <Input
+          placeholder="Search by name or tag..."
+          value={search}
+          onChange={handleSearchChange}
+          className="w-56"
+        />
+        <select
+          value={tagFilter}
+          onChange={handleTagFilterChange}
+          className="border rounded px-2 py-1 text-sm"
+        >
+          <option value="">All Tags</option>
+          {allTags.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
+        </select>
+        <select
+          value={statusFilter}
+          onChange={handleStatusFilterChange}
+          className="border rounded px-2 py-1 text-sm"
+        >
+          <option value="">All Statuses</option>
+          {statusOptions.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+        <select
+          value={complianceFilter}
+          onChange={handleComplianceFilterChange}
+          className="border rounded px-2 py-1 text-sm"
+        >
+          <option value="">All Compliance</option>
+          <option value="needs_attention">Needs Attention</option>
+        </select>
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-500">From</label>
+          <Input
+            type="date"
+            value={fromDate}
+            onChange={handleFromDateChange}
+            className="w-32"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-500">To</label>
+          <Input
+            type="date"
+            value={toDate}
+            onChange={handleToDateChange}
+            className="w-32"
+          />
+        </div>
       </div>
+      <div className="flex">
+        <aside className="w-48 mr-6">
+          <div className="mb-4 font-semibold text-gray-700">Categories</div>
+          <ul className="space-y-2">
+            <li>
+              <button
+                className={`w-full text-left px-2 py-1 rounded ${categoryFilter === "" ? "bg-blue-100 font-bold" : "hover:bg-gray-100"}`}
+                onClick={() => handleCategoryFilter("")}
+              >
+                All Categories
+              </button>
+            </li>
+            {allCategories.map((cat) => (
+              <li key={cat}>
+                <button
+                  className={`w-full text-left px-2 py-1 rounded ${categoryFilter === cat ? "bg-blue-100 font-bold" : "hover:bg-gray-100"}`}
+                  onClick={() => handleCategoryFilter(cat)}
+                >
+                  {cat}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </aside>
+        <div className="flex-1">
+          <div className="overflow-x-auto">
+            <table className="min-w-full border text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 text-left">File Name</th>
+                  <th className="p-2 text-left">Tags</th>
+                  <th className="p-2 text-left">Uploaded</th>
+                  <th className="p-2 text-left">Size</th>
+                  <th className="p-2 text-left">Compliance</th>
+                  <th className="p-2 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc, idx) => (
+                  <tr key={doc.id} className="border-b">
+                    <td className="p-2">
+                      <div className="flex flex-col">
+                        <span className="font-semibold">{doc.fileName}</span>
+                        <Button size="xs" variant="outline" className="mt-1 w-fit" onClick={() => setAnalysisIdx(idx)}>
+                          View Analysis
+                        </Button>
+                      </div>
+                    </td>
+                    <td className="p-2">
+                      {editIdx === idx ? (
+                        <div className="flex flex-wrap gap-2">
+                          {editTags.map((tag, i) => (
+                            <span
+                              key={i}
+                              className="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded"
+                            >
+                              <Input
+                                className="w-20 text-xs"
+                                value={tag}
+                                onChange={(e) =>
+                                  handleTagChange(i, e.target.value)
+                                }
+                              />
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleRemoveTag(i)}
+                              >
+                                ×
+                              </Button>
+                            </span>
+                          ))}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleAddTag}
+                          >
+                            + Add
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {(doc.aiTags?.tags || []).map(
+                            (tag: string, i: number) => (
+                              <Badge
+                                key={i}
+                                className="bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 text-xs font-medium"
+                              >
+                                {tag}
+                              </Badge>
+                            ),
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td className="p-2">
+                      {doc.uploadedAt
+                        ? new Date(doc.uploadedAt).toLocaleString()
+                        : ""}
+                    </td>
+                    <td className="p-2">
+                      {doc.size ? (doc.size / 1024).toFixed(1) + " KB" : ""}
+                    </td>
+                    <td className="p-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            {getComplianceBadge(doc.complianceStatus)}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {getComplianceTooltip(doc.complianceStatus)}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </td>
+                    <td className="p-2">
+                      {editIdx === idx ? (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => handleSaveTags(doc, idx)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setEditIdx(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(idx)}
+                          >
+                            Edit Tags
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleMove(idx)}
+                          >
+                            Move
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleVersionHistory(idx)}
+                          >
+                            Version History
+                          </Button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Move Modal */}
+          {moveIdx !== null && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="bg-white p-6 rounded shadow-lg w-80">
+                <h4 className="font-semibold mb-2">Move Document</h4>
+                <div className="mb-2">
+                  <label className="block text-xs mb-1">
+                    Select Category/Folder
+                  </label>
+                  <select
+                    value={moveCategory}
+                    onChange={(e) => setMoveCategory(e.target.value)}
+                    className="border rounded px-2 py-1 w-full"
+                    aria-label="Select category or folder"
+                  >
+                    <option value="">-- Select --</option>
+                    {allCategories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                    <option value="__new__">+ New Category/Folder</option>
+                  </select>
+                  {moveCategory === "__new__" && (
+                    <Input
+                      id="move-folder-input"
+                      className="mt-2"
+                      placeholder="New category/folder name"
+                      value={moveFolderId}
+                      onChange={(e) => setMoveFolderId(e.target.value)}
+                      aria-label="New category or folder name"
+                    />
+                  )}
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    onClick={handleMoveConfirm}
+                    disabled={moveLoading}
+                    aria-label="Confirm move"
+                  >
+                    {moveLoading ? (
+                      <span className="animate-spin mr-2">⏳</span>
+                    ) : null}
+                    {moveLoading ? "Moving..." : "Move"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={closeMoveModal}
+                    aria-label="Cancel move"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          {versionIdx !== null && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="bg-white p-6 rounded shadow-lg w-[32rem] max-h-[90vh] overflow-y-auto">
+                <h4 className="font-semibold mb-2">Version History</h4>
+                {versionLoading ? (
+                  <div>Loading...</div>
+                ) : (
+                  <>
+                    <table className="w-full text-xs mb-4">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="p-2 text-left">Version</th>
+                          <th className="p-2 text-left">File Name</th>
+                          <th className="p-2 text-left">Uploaded</th>
+                          <th className="p-2 text-left">Uploader</th>
+                          <th className="p-2 text-left">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {versions.map((v, i) => (
+                          <tr key={i} className="border-b">
+                            <td className="p-2">{v.version}</td>
+                            <td className="p-2">{v.fileName}</td>
+                            <td className="p-2">
+                              {v.uploadedAt
+                                ? new Date(v.uploadedAt).toLocaleString()
+                                : ""}
+                            </td>
+                            <td className="p-2">{v.uploader || ""}</td>
+                            <td className="p-2">
+                              <a
+                                href={`https://drive.google.com/uc?id=${v.driveFileId}&export=download`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Button size="sm" variant="ghost">
+                                  Download
+                                </Button>
+                              </a>
+                              {i !== versions.length - 1 && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleRestoreVersion(v)}
+                                >
+                                  Restore
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div className="mt-4">
+                      <label className="block text-xs mb-1">
+                        Upload New Version
+                      </label>
+                      <Input
+                        type="file"
+                        accept=".pdf,.docx"
+                        onChange={(e) =>
+                          setNewVersionFile(e.target.files?.[0] || null)
+                        }
+                        disabled={uploadingVersion}
+                      />
+                      <Button
+                        size="sm"
+                        className="mt-2"
+                        onClick={handleUploadVersion}
+                        disabled={!newVersionFile || uploadingVersion}
+                      >
+                        {uploadingVersion ? "Uploading..." : "Upload Version"}
+                      </Button>
+                    </div>
+                  </>
+                )}
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={closeVersionModal}
+                    aria-label="Close version history"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      {analysisIdx !== null && documents[analysisIdx] && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white max-w-lg w-full rounded-2xl shadow-2xl border-2 border-blue-200 p-8 relative">
+            <button className="absolute top-2 right-2 text-gray-500 hover:text-black" onClick={() => setAnalysisIdx(null)}>
+              ×
+            </button>
+            <h3 className="text-lg font-semibold mb-4">AI Document Analysis</h3>
+            {documents[analysisIdx].docling ? (
+              <div className="space-y-2">
+                {documents[analysisIdx].docling.summary && (
+                  <div><strong>Summary:</strong> {documents[analysisIdx].docling.summary}</div>
+                )}
+                {documents[analysisIdx].docling.text && (
+                  <div><strong>Extracted Text:</strong><div className="max-h-40 overflow-y-auto bg-gray-50 p-2 rounded mt-1 text-xs">{documents[analysisIdx].docling.text}</div></div>
+                )}
+                {documents[analysisIdx].docling.tags && Array.isArray(documents[analysisIdx].docling.tags) && (
+                  <div><strong>Tags:</strong> {documents[analysisIdx].docling.tags.join(", ")}</div>
+                )}
+                {/* Show raw JSON if no summary/text/tags */}
+                {!documents[analysisIdx].docling.summary && !documents[analysisIdx].docling.text && !documents[analysisIdx].docling.tags && (
+                  <pre className="whitespace-pre-wrap break-all bg-gray-100 p-2 rounded text-xs">{JSON.stringify(documents[analysisIdx].docling, null, 2)}</pre>
+                )}
+              </div>
+            ) : (
+              <div className="text-gray-500">No AI analysis available for this document.</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
-function getComplianceBadge(status?: string) {
-  switch (status) {
-    case "missing_tags":
-      return (
-        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
-          Missing Tags
-        </span>
-      );
-    case "missing_expiry":
-      return (
-        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
-          Missing Expiry
-        </span>
-      );
-    case "missing_status":
-      return (
-        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
-          Missing Status
-        </span>
-      );
-    case "expiring_soon":
-      return (
-        <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
-          Expiring Soon
-        </span>
-      );
-    default:
-      return (
-        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
-          OK
-        </span>
-      );
-  }
-}
-
-function getComplianceTooltip(status?: string) {
-  switch (status) {
-    case "missing_tags":
-      return "This document is missing required tags.";
-    case "missing_expiry":
-      return "This document is missing an expiry date.";
-    case "missing_status":
-      return "This document is missing a status.";
-    case "expiring_soon":
-      return "This document is expiring within 7 days.";
-    default:
-      return "This document is compliant.";
-  }
-}
 
 export default DocumentsTable;

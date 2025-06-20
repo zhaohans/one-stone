@@ -6,12 +6,12 @@ import { Receipt } from "lucide-react";
 
 // Invoice Issuance and Fund Confirmation System placeholder
 const InvoiceSystem = () => (
-  <div className="p-4 max-w-6xl mx-auto">
+  <div className="p-4 max-w-7xl mx-auto">
+    <h1 className="text-2xl font-bold text-gray-900 mb-4">Invoice System</h1>
     {/* Page header and breadcrumb */}
     <div className="mb-4 flex items-center gap-4">
       <Receipt className="w-7 h-7 text-primary" />
       <div>
-        <h1 className="text-2xl font-bold">Invoice System</h1>
         <Breadcrumb>
           <BreadcrumbItem>Home</BreadcrumbItem>
           <BreadcrumbItem>Invoice System</BreadcrumbItem>

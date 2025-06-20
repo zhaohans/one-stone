@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LoadingSpinner } from "./ui/loading-spinner";
-import { toast } from "./ui/toast-manager";
+import { useSuccessToast, useErrorToast } from "./ui/toast-manager";
 import { ErrorBoundary } from "./ui/error-boundary";
 
 export const NewsFeed: React.FC = () => {
@@ -8,6 +8,9 @@ export const NewsFeed: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+
+  const successToast = useSuccessToast();
+  const errorToast = useErrorToast();
 
   useEffect(() => {
     setLoading(true);
@@ -30,7 +33,7 @@ export const NewsFeed: React.FC = () => {
       .catch((err) => {
         console.error("Error fetching news:", err);
         setError("Failed to load news feed");
-        toast.error("News Feed Error", "Failed to load news feed");
+        errorToast("News Feed Error", "Failed to load news feed");
         setLoading(false);
       });
   }, [retryCount]);

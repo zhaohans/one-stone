@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/toast-manager";
+import { useSuccessToast, useErrorToast } from "@/components/ui/toast-manager";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
@@ -33,6 +33,8 @@ const Onboarding: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const successToast = useSuccessToast();
+  const errorToast = useErrorToast();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -61,14 +63,14 @@ const Onboarding: React.FC = () => {
           department: form.department,
           position: form.position,
         })
-        .eq("id", profile?.id);
+        .eq("id", profile?.id ?? "");
       setIsSubmitting(false);
       if (error) {
         setError("Failed to update profile info");
-        toast.error("Failed to update profile info");
+        errorToast("Failed to update profile info");
         return;
       }
-      toast.success("Profile info saved");
+      successToast("Profile info saved");
       refreshProfile();
     }
     setStep((s) => s + 1);
@@ -83,13 +85,18 @@ const Onboarding: React.FC = () => {
       "preferences_setup",
       "tutorial_completion",
     ];
-    const onboardingRows = requiredSteps.map((step) => ({
-      user_id: profile?.id!,
-      step: step as any, // typecast for supabase enum
-      completed_at: new Date().toISOString(),
-      data: {},
-      updated_at: new Date().toISOString(),
-    }));
+    const onboardingRows = requiredSteps.map((step) => {
+      if (!profile?.id) {
+        throw new Error("Profile ID is missing");
+      }
+      return {
+        user_id: profile.id,
+        step: step as any, // typecast for supabase enum
+        completed_at: new Date().toISOString(),
+        data: {},
+        updated_at: new Date().toISOString(),
+      };
+    });
     await supabase
       .from("user_onboarding")
       .upsert(onboardingRows, { onConflict: "user_id,step" });
@@ -103,14 +110,14 @@ const Onboarding: React.FC = () => {
         department: form.department,
         position: form.position,
       })
-      .eq("id", profile?.id);
+      .eq("id", profile?.id ?? "");
     setIsSubmitting(false);
     if (error) {
       setError("Failed to complete onboarding");
-      toast.error("Failed to complete onboarding");
+      errorToast("Failed to complete onboarding");
       return;
     }
-    toast.success("Onboarding complete!");
+    successToast("Onboarding complete!");
     refreshProfile();
     navigate("/dashboard");
   };

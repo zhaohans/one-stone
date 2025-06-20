@@ -113,3 +113,25 @@ jobs:
       - name: Restore bun.lockb
         run: |
           if [ -f bun.lockb.bak ]; then mv bun.lockb.bak bun.lockb; fi
+
+  auto-improve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Make auto-improve.sh executable
+        run: chmod +x ./auto-improve.sh
+
+      - name: Run auto-improve.sh
+        run: ./auto-improve.sh

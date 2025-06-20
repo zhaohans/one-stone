@@ -34,9 +34,11 @@ export default [
       "**/.storybook/**",
       "**/stories/**",
       "**/__tests__/**",
-      "**/*.d.ts"
+      "**/*.d.ts",
+      "dist/**",
+      "build/**",
     ],
-    files: ["src/**/*.{ts,tsx}", "backend/src/**/*.{ts,tsx}"] ,
+    files: ["src/**/*.{ts,tsx}", "backend/src/**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

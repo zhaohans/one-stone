@@ -35,7 +35,11 @@ export async function fetchAllTrainingRecords(filters = {}) {
  * @param {object} data
  */
 export async function createTrainingRecord(data) {
-  const { data: record, error } = await supabase.from(TABLE).insert([data]).select().single();
+  const { data: record, error } = await supabase
+    .from(TABLE)
+    .insert([data])
+    .select()
+    .single();
   if (error) throw error;
   return record;
 }
@@ -46,7 +50,12 @@ export async function createTrainingRecord(data) {
  * @param {object} data
  */
 export async function updateTrainingRecord(id, data) {
-  const { data: record, error } = await supabase.from(TABLE).update(data).eq("id", id).select().single();
+  const { data: record, error } = await supabase
+    .from(TABLE)
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return record;
 }
@@ -76,11 +85,17 @@ export async function searchTrainingRecords(query) {
 export async function exportTrainingRecords(filters = {}) {
   // Fetch all records and convert to CSV
   const records = await fetchAllTrainingRecords(filters);
-  const header = 'employee_name,department,role,status,last_training_date,next_due_date,provider,proof_url\n';
-  const rows = records.map(r => `${r.employee_name},${r.department},${r.role},${r.status},${r.last_training_date},${r.next_due_date},${r.provider},${r.proof_url || ''}`).join('\n');
+  const header =
+    "employee_name,department,role,status,last_training_date,next_due_date,provider,proof_url\n";
+  const rows = records
+    .map(
+      (r) =>
+        `${r.employee_name},${r.department},${r.role},${r.status},${r.last_training_date},${r.next_due_date},${r.provider},${r.proof_url || ""}`,
+    )
+    .join("\n");
   const csv = header + rows;
   // Create a Blob and return a download URL
-  const blob = new Blob([csv], { type: 'text/csv' });
+  const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   return { url };
 }
@@ -95,10 +110,13 @@ export async function triggerTrainingReminders() {
 
 export async function uploadProof(id, file) {
   const filePath = `${id}/${file.name}`;
-  const { data, error } = await supabase.storage.from(BUCKET).upload(filePath, file, { upsert: true });
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .upload(filePath, file, { upsert: true });
   if (error) throw error;
   // Update record with proof URL
-  const publicUrl = supabase.storage.from(BUCKET).getPublicUrl(filePath).data.publicUrl;
+  const publicUrl = supabase.storage.from(BUCKET).getPublicUrl(filePath)
+    .data.publicUrl;
   await updateTrainingRecord(id, { proof_url: publicUrl });
   return { url: publicUrl };
 }

@@ -4,7 +4,7 @@ import cors from "cors";
 import path from "path";
 import documentsRouter from "./routes/documents";
 import authRouter from "./routes/auth";
-import { startSyncJob } from "./jobs/sync-job";
+// import { startSyncJob } from "./jobs/sync-job";
 import { config } from "./config/environment";
 
 const app = express();
@@ -79,7 +79,7 @@ app.listen(PORT, () => {
   // Start background jobs in development only
   if (config.NODE_ENV === "development") {
     try {
-      startSyncJob();
+      // startSyncJob();
       console.log("🔄 Background sync job started");
     } catch (error: any) {
       console.error("❌ Failed to start sync job:", error);

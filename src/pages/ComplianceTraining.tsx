@@ -71,8 +71,27 @@ const ComplianceTraining = () => {
   const [filterType, setFilterType] = useState("all");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    department: "",
+    role: "",
+    status: "up_to_date",
+    last: "",
+    next: "",
+    provider: "",
+    proof: null,
+  });
+  const [errors, setErrors] = useState<any>({});
 
-  // Use placeholder data for demo
+  // Debug: Log when component renders and modal state changes
+  React.useEffect(() => {
+    console.log("ComplianceTraining component rendered");
+  }, []);
+  React.useEffect(() => {
+    console.log("Modal open state:", showModal);
+  }, [showModal]);
+
+  // Always use placeholder data for demo
   const employees = PLACEHOLDER_EMPLOYEES;
   const filtered = employees.filter(
     (e) =>
@@ -82,13 +101,45 @@ const ComplianceTraining = () => {
       (!search || e.name.toLowerCase().includes(search.toLowerCase())),
   );
 
+  const handleFormChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simple validation for demo
+    const newErrors: any = {};
+    if (!formData.name) newErrors.name = "Name required";
+    if (!formData.department) newErrors.department = "Department required";
+    if (!formData.role) newErrors.role = "Role required";
+    if (!formData.last) newErrors.last = "Last training date required";
+    if (!formData.next) newErrors.next = "Next due date required";
+    if (!formData.provider) newErrors.provider = "Provider required";
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
+      setShowModal(false);
+      setFormData({
+        name: "",
+        department: "",
+        role: "",
+        status: "up_to_date",
+        last: "",
+        next: "",
+        provider: "",
+        proof: null,
+      });
+    }
+  };
+
   return (
     <div className="p-4 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold text-gray-900 mb-4">
+        Compliance Training
+      </h1>
       {/* Page header and breadcrumb */}
       <div className="mb-4 flex items-center gap-4">
         <GraduationCap className="w-7 h-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-bold">Compliance Training</h1>
           <Breadcrumb>
             <BreadcrumbItem>Home</BreadcrumbItem>
             <BreadcrumbItem>Compliance</BreadcrumbItem>
@@ -139,7 +190,14 @@ const ComplianceTraining = () => {
           <Button variant="outline" className="ml-auto" size="sm">
             <FileDown className="w-4 h-4 mr-2" /> Export CSV
           </Button>
-          <Button onClick={() => setShowModal(true)} size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
+          <Button
+            onClick={() => {
+              console.log("DEBUG: Add Training Record button clicked");
+              setShowModal(true);
+            }}
+            size="sm"
+            className="bg-blue-600 text-white hover:bg-blue-700"
+          >
             <Plus className="w-4 h-4 mr-2" /> Add Training Record
           </Button>
         </CardContent>
@@ -150,6 +208,9 @@ const ComplianceTraining = () => {
           <CardTitle>Employee Training Status</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
+          <div className="mb-2 text-xs text-blue-600 font-mono">
+            DEBUG: Placeholder data count: {employees.length}
+          </div>
           <table className="min-w-full text-sm">
             <thead>
               <tr className="bg-gray-50">
@@ -168,15 +229,21 @@ const ComplianceTraining = () => {
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="text-center py-8 text-gray-400">
-                    No records found.
+                    No records found. (Demo: Placeholder data should always
+                    show)
                   </td>
                 </tr>
               ) : (
                 filtered.map((emp) => {
                   const statusKey = emp.status as StatusKey;
                   return (
-                    <tr key={emp.id} className="border-b last:border-0 hover:bg-blue-50 transition-colors">
-                      <td className="px-4 py-2 font-medium text-gray-900">{emp.name}</td>
+                    <tr
+                      key={emp.id}
+                      className="border-b last:border-0 hover:bg-blue-50 transition-colors"
+                    >
+                      <td className="px-4 py-2 font-medium text-gray-900">
+                        {emp.name}
+                      </td>
                       <td className="px-4 py-2">{emp.department}</td>
                       <td className="px-4 py-2">{emp.role}</td>
                       <td className="px-4 py-2">
@@ -200,7 +267,12 @@ const ComplianceTraining = () => {
                         </Button>
                       </td>
                       <td className="px-4 py-2">
-                        <Button variant="outline" size="icon" title="Edit" className="hover:bg-yellow-100">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          title="Edit"
+                          className="hover:bg-yellow-100"
+                        >
                           <span className="sr-only">Edit</span>✏️
                         </Button>
                         <Button
@@ -222,34 +294,303 @@ const ComplianceTraining = () => {
       </Card>
       {/* Add Training Record Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-md w-full rounded-2xl shadow-2xl border-2 border-blue-200">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border-2 border-blue-200">
           <DialogHeader>
-            <DialogTitle className="text-blue-700">Add Training Record</DialogTitle>
+            <DialogTitle className="text-blue-700">
+              Add Training Record
+            </DialogTitle>
           </DialogHeader>
-          {/* Form fields for new record (employee, type, date, provider, proof upload) */}
-          <div className="space-y-4 py-2">
-            <Input placeholder="Employee Name" className="bg-blue-50" />
-            <Select>
-              <SelectTrigger className="bg-blue-50">
-                <SelectValue placeholder="Training Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="AML">AML</SelectItem>
-                <SelectItem value="KYC">KYC</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input type="date" placeholder="Training Date" className="bg-blue-50" />
-            <Input placeholder="Provider" className="bg-blue-50" />
-            <Input type="file" accept="application/pdf,image/*" className="bg-blue-50" />
+          <div className="mb-2 text-xs text-green-600 font-mono">
+            DEBUG: Modal is open
           </div>
-          <DialogFooter>
-            <Button type="submit" className="bg-blue-600 text-white hover:bg-blue-700">Save</Button>
-            <Button variant="ghost" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Employee Name *
+                  </label>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => handleFormChange("name", e.target.value)}
+                    aria-invalid={!!errors.name}
+                  />
+                  {errors.name && (
+                    <p className="text-red-600 text-xs mt-1">{errors.name}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Department *
+                  </label>
+                  <Select
+                    value={formData.department}
+                    onValueChange={(value) =>
+                      handleFormChange("department", value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Compliance">Compliance</SelectItem>
+                      <SelectItem value="Finance">Finance</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.department && (
+                    <p className="text-red-600 text-xs mt-1">
+                      {errors.department}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Role *
+                  </label>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value) => handleFormChange("role", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Officer">Officer</SelectItem>
+                      <SelectItem value="Analyst">Analyst</SelectItem>
+                      <SelectItem value="Manager">Manager</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.role && (
+                    <p className="text-red-600 text-xs mt-1">{errors.role}</p>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Last Training Date *
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.last}
+                    onChange={(e) => handleFormChange("last", e.target.value)}
+                    aria-invalid={!!errors.last}
+                  />
+                  {errors.last && (
+                    <p className="text-red-600 text-xs mt-1">{errors.last}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Next Due Date *
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.next}
+                    onChange={(e) => handleFormChange("next", e.target.value)}
+                    aria-invalid={!!errors.next}
+                  />
+                  {errors.next && (
+                    <p className="text-red-600 text-xs mt-1">{errors.next}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Provider *
+                  </label>
+                  <Input
+                    value={formData.provider}
+                    onChange={(e) =>
+                      handleFormChange("provider", e.target.value)
+                    }
+                    aria-invalid={!!errors.provider}
+                  />
+                  {errors.provider && (
+                    <p className="text-red-600 text-xs mt-1">
+                      {errors.provider}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Proof (PDF/Image)
+                  </label>
+                  <Input
+                    type="file"
+                    accept="application/pdf,image/*"
+                    onChange={(e) =>
+                      handleFormChange("proof", e.target.files?.[0] || null)
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowModal(false)}
+                type="button"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Save
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
+      {/* DEBUG: Render modal content directly if showModal is true */}
+      {showModal && (
+        <div className="fixed inset-0 z-[9999] bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white max-w-3xl w-full rounded-2xl shadow-2xl border-2 border-blue-200 p-8">
+            <div className="mb-2 text-xs text-green-600 font-mono">
+              DEBUG: Modal content rendered directly
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Employee Name *
+                    </label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => handleFormChange("name", e.target.value)}
+                      aria-invalid={!!errors.name}
+                    />
+                    {errors.name && (
+                      <p className="text-red-600 text-xs mt-1">{errors.name}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Department *
+                    </label>
+                    <Select
+                      value={formData.department}
+                      onValueChange={(value) =>
+                        handleFormChange("department", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Compliance">Compliance</SelectItem>
+                        <SelectItem value="Finance">Finance</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.department && (
+                      <p className="text-red-600 text-xs mt-1">
+                        {errors.department}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Role *
+                    </label>
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value) => handleFormChange("role", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Officer">Officer</SelectItem>
+                        <SelectItem value="Analyst">Analyst</SelectItem>
+                        <SelectItem value="Manager">Manager</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.role && (
+                      <p className="text-red-600 text-xs mt-1">{errors.role}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Last Training Date *
+                    </label>
+                    <Input
+                      type="date"
+                      value={formData.last}
+                      onChange={(e) => handleFormChange("last", e.target.value)}
+                      aria-invalid={!!errors.last}
+                    />
+                    {errors.last && (
+                      <p className="text-red-600 text-xs mt-1">{errors.last}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Next Due Date *
+                    </label>
+                    <Input
+                      type="date"
+                      value={formData.next}
+                      onChange={(e) => handleFormChange("next", e.target.value)}
+                      aria-invalid={!!errors.next}
+                    />
+                    {errors.next && (
+                      <p className="text-red-600 text-xs mt-1">{errors.next}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Provider *
+                    </label>
+                    <Input
+                      value={formData.provider}
+                      onChange={(e) =>
+                        handleFormChange("provider", e.target.value)
+                      }
+                      aria-invalid={!!errors.provider}
+                    />
+                    {errors.provider && (
+                      <p className="text-red-600 text-xs mt-1">
+                        {errors.provider}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Proof (PDF/Image)
+                    </label>
+                    <Input
+                      type="file"
+                      accept="application/pdf,image/*"
+                      onChange={(e) =>
+                        handleFormChange("proof", e.target.files?.[0] || null)
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowModal(false)}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Save
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* TODO: Integrate backend API for fetch/create/update/delete/search, automate reminders, and export */}
     </div>
   );

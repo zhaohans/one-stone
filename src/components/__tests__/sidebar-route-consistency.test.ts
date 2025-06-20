@@ -21,14 +21,17 @@ describe("Sidebar and Route Consistency", () => {
       (m) => m[1],
     );
 
+    // Normalize routes for comparison (remove leading/trailing slashes)
+    const normalize = (r: string) => r.replace(/^\/+|\/+$/g, "");
+    const appRoutesNorm = appRoutes.map(normalize);
+    const sidebarRoutesNorm = sidebarRoutes.map(normalize);
+
     // Check for missing routes in either direction
-    const missingInSidebar = appRoutes.filter(
-      (r) => !sidebarRoutes.includes("/" + r) && !sidebarRoutes.includes(r),
+    const missingInSidebar = appRoutesNorm.filter(
+      (r) => !sidebarRoutesNorm.includes(r),
     );
-    const missingInRoutes = sidebarRoutes.filter(
-      (r) =>
-        !appRoutes.includes(r.replace(/^/, "")) &&
-        !appRoutes.includes(r.replace(/^/, "").replace(/^/, "")),
+    const missingInRoutes = sidebarRoutesNorm.filter(
+      (r) => !appRoutesNorm.includes(r),
     );
 
     expect(missingInSidebar).toEqual([]);

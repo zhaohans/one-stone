@@ -35,6 +35,31 @@ while [ $ITER -le $MAX_ITER ]; do
     ERRORS_THIS_ITER+="TypeScript type errors found.\n"
   fi
 
+  # Build Storybook
+  if npm run | grep -q "build-storybook"; then
+    if ! npm run build-storybook; then
+      ERRORS_THIS_ITER+="Storybook build failed.\n"
+    fi
+  else
+    echo "No build-storybook script found in package.json. Skipping Storybook build."
+  fi
+
+  # Lint Storybook stories
+  if [ -d "src/stories" ]; then
+    if ! npx eslint src/stories --ext .ts,.tsx; then
+      ERRORS_THIS_ITER+="Storybook stories linting failed.\n"
+    fi
+  fi
+
+  # Chromatic visual regression
+  if npm run | grep -q "chromatic"; then
+    if ! npm run chromatic; then
+      ERRORS_THIS_ITER+="Chromatic visual regression failed.\n"
+    fi
+  else
+    echo "No chromatic script found in package.json. Skipping Chromatic visual regression."
+  fi
+
   # Run tests if script exists
   if npm run | grep -q "test"; then
     if ! npm test; then

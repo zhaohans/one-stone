@@ -24,7 +24,7 @@ import {
 } from "@/hooks/useDocumentOperations";
 import { Upload } from "lucide-react";
 import { LoadingSpinner } from "./ui/loading-spinner";
-import { toast } from "./ui/toast-manager";
+import { useSuccessToast, useErrorToast } from "./ui/toast-manager";
 import { ErrorBoundary } from "./ui/error-boundary";
 
 interface DocumentUploadModalProps {
@@ -58,6 +58,9 @@ const DocumentUploadModal = ({
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const successToast = useSuccessToast();
+  const errorToast = useErrorToast();
+
   const documentTypes = [
     { value: "kyc", label: "KYC Document" },
     { value: "account_opening", label: "Account Opening" },
@@ -86,7 +89,7 @@ const DocumentUploadModal = ({
     try {
       const result = await uploadDocument(file, formData);
       if (result.success) {
-        toast.success("Upload successful", "Document uploaded successfully.");
+        successToast("Upload successful", "Document uploaded successfully.");
         onDocumentUploaded();
         onOpenChange(false);
         setFile(null);
@@ -101,11 +104,11 @@ const DocumentUploadModal = ({
         });
       } else {
         setError(result.error || "Upload failed");
-        toast.error("Upload failed", result.error || "Upload failed");
+        errorToast("Upload failed", result.error || "Upload failed");
       }
     } catch (err: any) {
       setError(err.message || "Upload failed");
-      toast.error("Upload failed", err.message || "Upload failed");
+      errorToast("Upload failed", err.message || "Upload failed");
     } finally {
       setIsUploading(false);
     }
