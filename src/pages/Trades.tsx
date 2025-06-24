@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -178,22 +179,6 @@ const Trades = () => {
     setSelectedTrades([]);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-    const parseResult = tradeSchema.safeParse(formData);
-    if (!parseResult.success) {
-      const fieldErrors: Record<string, string> = {};
-      parseResult.error.errors.forEach(err => {
-        if (err.path[0]) fieldErrors[err.path[0]] = err.message;
-      });
-      setErrors(fieldErrors);
-      return;
-    }
-    // Submit logic here (e.g., call onCreateTrade)
-    setShowAddTrade(false);
-  };
-
   const AddTradeModal = () => {
     const [formData, setFormData] = useState({
       date: new Date().toISOString().split('T')[0],
@@ -209,7 +194,23 @@ const Trades = () => {
       notes: ''
     });
 
-    const calculateTotal = () => {
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      setErrors({});
+      const parseResult = tradeSchema.safeParse(formData);
+      if (!parseResult.success) {
+        const fieldErrors: Record<string, string> = {};
+        parseResult.error.errors.forEach(err => {
+          if (err.path[0]) fieldErrors[err.path[0]] = err.message;
+        });
+        setErrors(fieldErrors);
+        return;
+      }
+      // Submit logic here (e.g., call onCreateTrade)
+      setShowAddTrade(false);
+    };
+
+    const calculateTotal = ()  => {
       const quantity = parseFloat(formData.quantity) || 0;
       const price = parseFloat(formData.price) || 0;
       return (quantity * price).toFixed(2);

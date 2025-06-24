@@ -68,7 +68,7 @@ const DocumentVault = () => {
         <DocumentUpload />
       </div>
       <div className="mt-8">
-        <DocumentsTable />
+        <DocumentsTable accountId="default" />
       </div>
 
       {/* Stats Cards */}

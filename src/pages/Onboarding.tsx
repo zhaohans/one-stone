@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/SimpleAuthContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -31,8 +32,9 @@ const Onboarding: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
-      setForm(prev => ({ ...prev, [name]: e.target.checked }));
+    if (type === 'checkbox') {
+      const target = e.target as HTMLInputElement;
+      setForm(prev => ({ ...prev, [name]: target.checked }));
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
     }

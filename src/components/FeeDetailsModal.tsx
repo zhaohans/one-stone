@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -53,7 +54,7 @@ const FeeDetailsModal: React.FC<FeeDetailsModalProps> = ({ open, onClose, fee })
           </div>
           <div className="flex justify-between">
             <span className="font-medium">Status:</span>
-            <span>{fee.is_paid ? <Badge variant="success">Paid</Badge> : <Badge variant="secondary">Unpaid</Badge>}</span>
+            <span>{fee.is_paid ? <Badge className="bg-green-100 text-green-800">Paid</Badge> : <Badge variant="secondary">Unpaid</Badge>}</span>
           </div>
           {fee.retrocessions && fee.retrocessions.length > 0 && (
             <div>

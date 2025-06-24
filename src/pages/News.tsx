@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/SimpleAuthContext';
-import { NewsFeed } from '@/components/NewsFeed';
+import NewsFeed from '@/components/NewsFeed';
 
 const News = () => {
   const { user } = useAuth();
@@ -12,7 +13,7 @@ const News = () => {
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Relevant News Feed</h1>
-      <NewsFeed userId={user.id} />
+      <NewsFeed />
     </div>
   );
 };
