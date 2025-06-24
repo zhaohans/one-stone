@@ -266,13 +266,57 @@ export type Database = {
           },
         ]
       }
+      compliance_training: {
+        Row: {
+          created_at: string | null
+          department: string
+          employee_name: string
+          id: string
+          last_training_date: string
+          next_due_date: string
+          proof_url: string | null
+          provider: string
+          role: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department: string
+          employee_name: string
+          id?: string
+          last_training_date: string
+          next_due_date: string
+          proof_url?: string | null
+          provider: string
+          role: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string
+          employee_name?: string
+          id?: string
+          last_training_date?: string
+          next_due_date?: string
+          proof_url?: string | null
+          provider?: string
+          role?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           account_id: string | null
           approved_by: string | null
+          category: string | null
           client_id: string | null
           created_at: string
           description: string | null
+          docling: Json | null
           document_status: Database["public"]["Enums"]["document_status"] | null
           document_type: Database["public"]["Enums"]["document_type"]
           expiry_date: string | null
@@ -281,19 +325,25 @@ export type Database = {
           id: string
           is_confidential: boolean | null
           mime_type: string | null
+          mimetype: string | null
+          size: number | null
           storage_path: string
+          tags: Json | null
           title: string
           trade_id: string | null
           updated_at: string
           upload_date: string
+          uploaded_at: string | null
           uploaded_by: string
         }
         Insert: {
           account_id?: string | null
           approved_by?: string | null
+          category?: string | null
           client_id?: string | null
           created_at?: string
           description?: string | null
+          docling?: Json | null
           document_status?:
             | Database["public"]["Enums"]["document_status"]
             | null
@@ -304,19 +354,25 @@ export type Database = {
           id?: string
           is_confidential?: boolean | null
           mime_type?: string | null
+          mimetype?: string | null
+          size?: number | null
           storage_path: string
+          tags?: Json | null
           title: string
           trade_id?: string | null
           updated_at?: string
           upload_date?: string
+          uploaded_at?: string | null
           uploaded_by: string
         }
         Update: {
           account_id?: string | null
           approved_by?: string | null
+          category?: string | null
           client_id?: string | null
           created_at?: string
           description?: string | null
+          docling?: Json | null
           document_status?:
             | Database["public"]["Enums"]["document_status"]
             | null
@@ -327,11 +383,15 @@ export type Database = {
           id?: string
           is_confidential?: boolean | null
           mime_type?: string | null
+          mimetype?: string | null
+          size?: number | null
           storage_path?: string
+          tags?: Json | null
           title?: string
           trade_id?: string | null
           updated_at?: string
           upload_date?: string
+          uploaded_at?: string | null
           uploaded_by?: string
         }
         Relationships: [
@@ -519,6 +579,47 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          read: boolean
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          read?: boolean
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          read?: boolean
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       positions: {
         Row: {
           account_id: string
@@ -571,11 +672,13 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          deleted_at: string | null
           department: string | null
           email: string
           email_confirmed_at: string | null
           first_name: string | null
           id: string
+          is_onboarded: boolean | null
           last_name: string | null
           office_number: string | null
           phone: string | null
@@ -587,11 +690,13 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           department?: string | null
           email: string
           email_confirmed_at?: string | null
           first_name?: string | null
           id: string
+          is_onboarded?: boolean | null
           last_name?: string | null
           office_number?: string | null
           phone?: string | null
@@ -603,11 +708,13 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           department?: string | null
           email?: string
           email_confirmed_at?: string | null
           first_name?: string | null
           id?: string
+          is_onboarded?: boolean | null
           last_name?: string | null
           office_number?: string | null
           phone?: string | null

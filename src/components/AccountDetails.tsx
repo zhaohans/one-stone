@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,9 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Edit, MoreHorizontal } from 'lucide-react';
 import { useAccountsContext } from '@/contexts/AccountsContext';
+import { hasPermission } from '@/lib/rbac';
 import HoldingsTable from './HoldingsTable';
 import TransactionsTable from './TransactionsTable';
 import DocumentsTable from './DocumentsTable';
+import SignatoryManagement from './SignatoryManagement';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const AccountDetails = () => {
@@ -17,6 +20,9 @@ const AccountDetails = () => {
   const { accounts, isLoading } = useAccountsContext();
 
   const account = accounts.find(acc => acc.id === accountId);
+
+  // Check if user can manage signatories (admin or write permissions)
+  const canManageSignatories = hasPermission('admin', 'write') || hasPermission('moderator', 'write');
 
   const formatCurrency = (amount?: number, currency = 'USD') => {
     if (amount === undefined || amount === null) return '-';
@@ -151,6 +157,7 @@ const AccountDetails = () => {
         <TabsList>
           <TabsTrigger value="holdings">Holdings</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          <TabsTrigger value="signatories">Signatories</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="details">Account Details</TabsTrigger>
         </TabsList>
@@ -161,6 +168,13 @@ const AccountDetails = () => {
 
         <TabsContent value="transactions">
           <TransactionsTable accountId={account.id} />
+        </TabsContent>
+
+        <TabsContent value="signatories">
+          <SignatoryManagement 
+            accountId={account.id} 
+            canManage={canManageSignatories}
+          />
         </TabsContent>
 
         <TabsContent value="documents">
