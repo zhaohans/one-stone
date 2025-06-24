@@ -1,3 +1,4 @@
+
 import { Session, User } from '../types';
 import { supabase } from '../lib/supabase';
 
@@ -36,7 +37,18 @@ export const sessionService = {
       if (error) throw error;
 
       if (data.session) {
-        const user = data.session.user as User;
+        // Convert Supabase user to our User type
+        const supabaseUser = data.session.user;
+        const user: User = {
+          id: supabaseUser.id,
+          email: supabaseUser.email || '',
+          username: supabaseUser.user_metadata?.username || supabaseUser.email?.split('@')[0] || '',
+          role: supabaseUser.user_metadata?.role || 'user',
+          is_onboarded: supabaseUser.user_metadata?.is_onboarded || false,
+          created_at: supabaseUser.created_at,
+          updated_at: supabaseUser.updated_at || supabaseUser.created_at,
+        };
+
         const newSession: Session = {
           user,
           access_token: data.session.access_token,
@@ -60,4 +72,4 @@ export const sessionService = {
       await this.setSession(session);
     }
   },
-}; 
+};
