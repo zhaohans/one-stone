@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Plus, Edit, Trash2, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Signatory, SignatoryAuditLog } from '@/types/signatory';
+import { supabase } from '@/integrations/supabase/client';
 import SignatoryForm from './SignatoryForm';
 import SignatoryAuditHistory from './SignatoryAuditHistory';
 
@@ -32,36 +33,40 @@ const SignatoryManagement = ({ accountId, canManage = false }: SignatoryManageme
 
   const fetchSignatories = async () => {
     try {
-      // Mock data until database is ready
-      const mockSignatories: Signatory[] = [
-        {
-          id: '1',
-          account_id: accountId,
-          name: 'John Doe',
-          title: 'Director',
-          email: 'john.doe@example.com',
-          phone: '+1234567890',
-          role: 'primary',
-          is_active: true,
-          start_date: '2024-01-01',
-          created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-01T00:00:00Z',
-        },
-        {
-          id: '2',
-          account_id: accountId,
-          name: 'Jane Smith',
-          title: 'Partner',
-          email: 'jane.smith@example.com',
-          role: 'secondary',
-          is_active: true,
-          start_date: '2024-01-01',
-          created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-01T00:00:00Z',
-        }
-      ];
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('signatories')
+        .select('*')
+        .eq('account_id', accountId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching signatories:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch signatories",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Transform database fields to match component expectations
+      const transformedSignatories: Signatory[] = (data || []).map(item => ({
+        id: item.id,
+        account_id: item.account_id,
+        name: item.name,
+        title: '', // This field doesn't exist in DB schema, keeping empty for now
+        email: item.email,
+        phone: item.phone || '',
+        role: item.role as 'primary' | 'secondary' | 'authorized_user' | 'view_only',
+        is_active: item.is_active,
+        start_date: item.date_added,
+        end_date: null, // This field doesn't exist in DB schema
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+      }));
       
-      setSignatories(mockSignatories);
+      setSignatories(transformedSignatories);
     } catch (error) {
       console.error('Error fetching signatories:', error);
       toast({
@@ -76,7 +81,7 @@ const SignatoryManagement = ({ accountId, canManage = false }: SignatoryManageme
 
   const fetchAuditLogs = async () => {
     try {
-      // Mock audit logs until database is ready
+      // For now, we'll use empty audit logs since we don't have audit tracking implemented yet
       setAuditLogs([]);
     } catch (error) {
       console.error('Error fetching audit logs:', error);
@@ -99,8 +104,14 @@ const SignatoryManagement = ({ accountId, canManage = false }: SignatoryManageme
     }
 
     try {
-      // Mock implementation until database is ready
-      console.log('Removing signatory:', signatory.id);
+      const { error } = await supabase
+        .from('signatories')
+        .update({ is_active: false })
+        .eq('id', signatory.id);
+
+      if (error) {
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -151,7 +162,7 @@ const SignatoryManagement = ({ accountId, canManage = false }: SignatoryManageme
   };
 
   if (isLoading) {
-    return <div>Loading signatories...</div>;
+    return <div className="p-4">Loading signatories...</div>;
   }
 
   return (

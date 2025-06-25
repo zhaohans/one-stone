@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Signatory } from '@/types/signatory';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SignatoryFormProps {
   accountId: string;
@@ -18,13 +20,12 @@ interface SignatoryFormProps {
 const SignatoryForm = ({ accountId, signatory, onSuccess, onCancel }: SignatoryFormProps) => {
   const [formData, setFormData] = useState({
     name: '',
-    title: '',
     email: '',
     phone: '',
+    address: '',
     role: 'authorized_user' as 'primary' | 'secondary' | 'authorized_user' | 'view_only',
     is_active: true,
-    start_date: new Date().toISOString().split('T')[0],
-    end_date: '',
+    date_added: new Date().toISOString().split('T')[0],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -33,13 +34,12 @@ const SignatoryForm = ({ accountId, signatory, onSuccess, onCancel }: SignatoryF
     if (signatory) {
       setFormData({
         name: signatory.name,
-        title: signatory.title || '',
         email: signatory.email,
         phone: signatory.phone || '',
+        address: '', // This would need to be fetched from the database if stored
         role: signatory.role,
         is_active: signatory.is_active,
-        start_date: signatory.start_date,
-        end_date: signatory.end_date || '',
+        date_added: signatory.start_date,
       });
     }
   }, [signatory]);
@@ -49,16 +49,43 @@ const SignatoryForm = ({ accountId, signatory, onSuccess, onCancel }: SignatoryF
     setIsSubmitting(true);
 
     try {
-      // Mock implementation until database is ready
-      console.log('Signatory data:', {
+      const signatoryData = {
         account_id: accountId,
-        ...formData,
-      });
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        address: formData.address || null,
+        role: formData.role,
+        is_active: formData.is_active,
+        date_added: formData.date_added,
+      };
 
-      toast({
-        title: "Success",
-        description: signatory ? "Signatory updated successfully" : "Signatory added successfully",
-      });
+      if (signatory) {
+        // Update existing signatory
+        const { error } = await supabase
+          .from('signatories')
+          .update(signatoryData)
+          .eq('id', signatory.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Signatory updated successfully",
+        });
+      } else {
+        // Create new signatory
+        const { error } = await supabase
+          .from('signatories')
+          .insert([signatoryData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Signatory added successfully",
+        });
+      }
 
       onSuccess();
     } catch (error) {
@@ -93,18 +120,6 @@ const SignatoryForm = ({ accountId, signatory, onSuccess, onCancel }: SignatoryF
           />
         </div>
         <div>
-          <Label htmlFor="title">Position/Title</Label>
-          <Input
-            id="title"
-            value={formData.title}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-            placeholder="e.g., Director, Partner, Manager"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
           <Label htmlFor="email">Email Address *</Label>
           <Input
             id="email"
@@ -114,6 +129,9 @@ const SignatoryForm = ({ accountId, signatory, onSuccess, onCancel }: SignatoryF
             required
           />
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="phone">Phone Number</Label>
           <Input
@@ -123,43 +141,42 @@ const SignatoryForm = ({ accountId, signatory, onSuccess, onCancel }: SignatoryF
             onChange={(e) => handleInputChange('phone', e.target.value)}
           />
         </div>
+        <div>
+          <Label htmlFor="role">Signing Authority</Label>
+          <Select value={formData.role} onValueChange={(value: 'primary' | 'secondary' | 'authorized_user' | 'view_only') => handleInputChange('role', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="primary">Primary Signatory</SelectItem>
+              <SelectItem value="secondary">Secondary Signatory</SelectItem>
+              <SelectItem value="authorized_user">Authorized User</SelectItem>
+              <SelectItem value="view_only">View Only</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div>
-        <Label htmlFor="role">Signing Authority</Label>
-        <Select value={formData.role} onValueChange={(value: 'primary' | 'secondary' | 'authorized_user' | 'view_only') => handleInputChange('role', value)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="primary">Primary Signatory</SelectItem>
-            <SelectItem value="secondary">Secondary Signatory</SelectItem>
-            <SelectItem value="authorized_user">Authorized User</SelectItem>
-            <SelectItem value="view_only">View Only</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label htmlFor="address">Address</Label>
+        <Textarea
+          id="address"
+          value={formData.address}
+          onChange={(e) => handleInputChange('address', e.target.value)}
+          placeholder="Enter full address"
+          rows={3}
+        />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="start_date">Effective Date *</Label>
-          <Input
-            id="start_date"
-            type="date"
-            value={formData.start_date}
-            onChange={(e) => handleInputChange('start_date', e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="end_date">End Date (Optional)</Label>
-          <Input
-            id="end_date"
-            type="date"
-            value={formData.end_date}
-            onChange={(e) => handleInputChange('end_date', e.target.value)}
-          />
-        </div>
+      <div>
+        <Label htmlFor="date_added">Effective Date *</Label>
+        <Input
+          id="date_added"
+          type="date"
+          value={formData.date_added}
+          onChange={(e) => handleInputChange('date_added', e.target.value)}
+          required
+        />
       </div>
 
       <div className="flex items-center space-x-2">
