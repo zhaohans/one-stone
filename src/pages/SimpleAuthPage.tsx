@@ -30,7 +30,7 @@ const SimpleAuthPage = () => {
       <Routes>
         <Route path="login" element={<SimpleLoginForm />} />
         <Route path="signup" element={<SignupForm />} />
-        <Route path="" element={<Navigate to="login" replace />} />
+        <Route path="" element={<Navigate to="/auth/login" replace />} />
       </Routes>
     </AuthLayout>
   );

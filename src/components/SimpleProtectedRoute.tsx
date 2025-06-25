@@ -11,8 +11,19 @@ interface SimpleProtectedRouteProps {
 }
 
 const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtectedRouteProps) => {
-  const { isAuthenticated, isEmailVerified, isApproved, isLoading, role } = useAuth();
   const location = useLocation();
+  
+  // Wrap useAuth in a try-catch to handle potential context issues
+  let authState;
+  try {
+    authState = useAuth();
+  } catch (error) {
+    console.error('Auth context error:', error);
+    // If auth context is not available, redirect to login
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  }
+
+  const { isAuthenticated, isEmailVerified, isApproved, isLoading, role } = authState;
 
   // Show loading while checking authentication
   if (isLoading) {

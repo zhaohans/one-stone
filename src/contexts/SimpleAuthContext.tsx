@@ -7,7 +7,16 @@ type SimpleAuthContextType = ReturnType<typeof useSimpleAuth>;
 const SimpleAuthContext = createContext<SimpleAuthContextType | undefined>(undefined);
 
 export const SimpleAuthProvider = ({ children }: { children: ReactNode }) => {
-  const auth = useSimpleAuth();
+  console.log('🔄 SimpleAuthProvider rendering');
+  
+  let auth;
+  try {
+    auth = useSimpleAuth();
+    console.log('✅ useSimpleAuth hook executed successfully');
+  } catch (error) {
+    console.error('❌ Error in useSimpleAuth:', error);
+    throw error;
+  }
 
   return (
     <SimpleAuthContext.Provider value={auth}>
@@ -19,6 +28,8 @@ export const SimpleAuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(SimpleAuthContext);
   if (context === undefined) {
+    console.error('❌ useAuth called outside of SimpleAuthProvider');
+    console.trace('Call stack:');
     throw new Error('useAuth must be used within a SimpleAuthProvider');
   }
   return context;

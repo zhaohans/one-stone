@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SimpleAuthProvider } from "@/contexts/SimpleAuthContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
+import { ErrorBoundary } from "@/components/error-boundary";
 import SimpleProtectedRoute from "@/components/SimpleProtectedRoute";
 import MainLayout from "@/components/MainLayout";
 import Index from "@/pages/Index";
@@ -28,48 +29,50 @@ import SimpleAuthPage from "@/pages/SimpleAuthPage";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <SimpleAuthProvider>
-        <SettingsProvider>
-          <AccountsProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/auth" element={<SimpleAuthPage />} />
-                <Route
-                  path="/*"
-                  element={
-                    <SimpleProtectedRoute>
-                      <MainLayout>
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/dashboard" element={<Dashboard />} />
-                          <Route path="/accounts" element={<Accounts />} />
-                          <Route path="/accounts-redesigned" element={<AccountsRedesigned />} />
-                          <Route path="/accounts/:accountId" element={<AccountDetails />} />
-                          <Route path="/clients" element={<ClientManagement />} />
-                          <Route path="/trades" element={<Trades />} />
-                          <Route path="/documents" element={<DocumentVault />} />
-                          <Route path="/fees" element={<FeeReports />} />
-                          <Route path="/messages" element={<Messages />} />
-                          <Route path="/training" element={<Training />} />
-                          <Route path="/compliance" element={<ComplianceDashboard />} />
-                          <Route path="/settings" element={<Settings />} />
-                          <Route path="/profile" element={<UserProfile />} />
-                        </Routes>
-                      </MainLayout>
-                    </SimpleProtectedRoute>
-                  }
-                />
-              </Routes>
-            </BrowserRouter>
-          </AccountsProvider>
-        </SettingsProvider>
-      </SimpleAuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <SimpleAuthProvider>
+          <SettingsProvider>
+            <AccountsProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/auth/*" element={<SimpleAuthPage />} />
+                  <Route
+                    path="/*"
+                    element={
+                      <SimpleProtectedRoute>
+                        <MainLayout>
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/accounts" element={<Accounts />} />
+                            <Route path="/accounts-redesigned" element={<AccountsRedesigned />} />
+                            <Route path="/accounts/:accountId" element={<AccountDetails />} />
+                            <Route path="/clients" element={<ClientManagement />} />
+                            <Route path="/trades" element={<Trades />} />
+                            <Route path="/documents" element={<DocumentVault />} />
+                            <Route path="/fees" element={<FeeReports />} />
+                            <Route path="/messages" element={<Messages />} />
+                            <Route path="/training" element={<Training />} />
+                            <Route path="/compliance" element={<ComplianceDashboard />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/profile" element={<UserProfile />} />
+                          </Routes>
+                        </MainLayout>
+                      </SimpleProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </BrowserRouter>
+            </AccountsProvider>
+          </SettingsProvider>
+        </SimpleAuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
