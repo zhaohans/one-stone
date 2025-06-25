@@ -21,6 +21,27 @@ export function useAuthState() {
   useEffect(() => {
     let mounted = true;
 
+    // Get initial session first
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted) {
+          console.log('🔔 Initial session loaded:', session?.user?.id || 'null');
+          setState({
+            user: session?.user || null,
+            session,
+            isLoading: false,
+            isAuthenticated: !!session?.user,
+          });
+        }
+      } catch (error) {
+        console.error('❌ Error getting initial session:', error);
+        if (mounted) {
+          setState(prev => ({ ...prev, isLoading: false }));
+        }
+      }
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -37,22 +58,7 @@ export function useAuthState() {
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        setState({
-          user: session?.user || null,
-          session,
-          isLoading: false,
-          isAuthenticated: !!session?.user,
-        });
-      }
-    }).catch(error => {
-      console.error('❌ Error getting initial session:', error);
-      if (mounted) {
-        setState(prev => ({ ...prev, isLoading: false }));
-      }
-    });
+    getInitialSession();
 
     return () => {
       mounted = false;

@@ -26,18 +26,21 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
     );
   }
 
-  // Redirect to auth if not authenticated
-  if (!isAuthenticated) {
+  // Only redirect if we're not already on an auth route
+  const isAuthRoute = location.pathname.startsWith('/auth');
+  
+  // Redirect to auth if not authenticated and not already on auth route
+  if (!isAuthenticated && !isAuthRoute) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  // Redirect to auth if email not verified
-  if (!isEmailVerified) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  // If on auth route and authenticated, let useAuthRedirect handle it
+  if (isAuthRoute && isAuthenticated) {
+    return <>{children}</>;
   }
 
-  // Show pending approval message if not approved
-  if (!isApproved) {
+  // Show pending approval message if not approved (and authenticated)
+  if (isAuthenticated && !isApproved && !isAuthRoute) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="w-full max-w-md">
@@ -61,7 +64,7 @@ const SimpleProtectedRoute = ({ children, requiredRole = 'user' }: SimpleProtect
   }
 
   // Check role-based access
-  if (requiredRole === 'admin' && role !== 'admin') {
+  if (isAuthenticated && requiredRole === 'admin' && role !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
 
