@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import {
   FolderOpen, Newspaper, Shield, Settings,
   LogOut, User,
   GraduationCap, FileText, ChevronDown, ChevronRight,
-  BarChart3, Workflow, Plus, List, GitBranch
+  BarChart3, Workflow, Plus, List, GitBranch, Package, Calculator
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -41,6 +40,7 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
       label: 'Trades', 
       path: '/trades',
       children: [
+        { icon: Package, label: 'Product List', path: '/trades/products' },
         { icon: BarChart3, label: 'RFQ Overview', path: '/trades/rfq-overview' },
         { icon: Workflow, label: 'RFQ Processing', path: '/trades/rfq-processing' },
         { icon: GitBranch, label: 'Lifecycle', path: '/trades/lifecycle' },
@@ -52,6 +52,7 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
     },
     { icon: MessageSquare, label: 'Messages & Tasks', path: '/messages' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees', requireRole: 'admin' },
+    { icon: Calculator, label: 'Fee Management', path: '/fee-management', requireRole: 'admin' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
     { icon: Receipt, label: 'Invoice System', path: '/invoice-system' },
     { icon: Newspaper, label: 'News', path: '/news' },

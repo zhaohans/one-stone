@@ -20,6 +20,7 @@ import ClientManagement from "@/pages/ClientManagement";
 import Trades from "@/pages/Trades";
 import DocumentVault from "@/pages/DocumentVault";
 import FeeReports from "@/pages/FeeReports";
+import FeeManagement from "@/pages/FeeManagement";
 import Settings from "@/pages/Settings";
 import UserProfile from "@/pages/UserProfile";
 import Messages from "@/pages/Messages";
@@ -37,6 +38,7 @@ import NewOrder from "@/pages/trades/NewOrder";
 import OrderOverview from "@/pages/trades/OrderOverview";
 import OrderProcessing from "@/pages/trades/OrderProcessing";
 import Flows from "@/pages/trades/Flows";
+import ProductList from "@/pages/trades/ProductList";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +68,7 @@ const App = () => (
                               <Route path="/accounts/:accountId" element={<AccountDetails />} />
                               <Route path="/clients" element={<ClientManagement />} />
                               <Route path="/trades" element={<Trades />} />
+                              <Route path="/trades/products" element={<ProductList />} />
                               <Route path="/trades/rfq-overview" element={<RFQOverview />} />
                               <Route path="/trades/rfq-processing" element={<RFQProcessing />} />
                               <Route path="/trades/lifecycle" element={<Lifecycle />} />
@@ -75,6 +78,7 @@ const App = () => (
                               <Route path="/trades/flows" element={<Flows />} />
                               <Route path="/documents" element={<DocumentVault />} />
                               <Route path="/fees" element={<FeeReports />} />
+                              <Route path="/fee-management" element={<FeeManagement />} />
                               <Route path="/messages" element={<Messages />} />
                               <Route path="/training" element={<Training />} />
                               <Route path="/compliance" element={<ComplianceDashboard />} />
