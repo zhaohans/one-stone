@@ -26,6 +26,8 @@ import Messages from "@/pages/Messages";
 import Training from "@/pages/Training";
 import ComplianceDashboard from "@/pages/ComplianceDashboard";
 import SimpleAuthPage from "@/pages/SimpleAuthPage";
+import InvoiceSystem from "@/pages/InvoiceSystem";
+import News from "@/pages/News";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +64,9 @@ const App = () => (
                               <Route path="/compliance" element={<ComplianceDashboard />} />
                               <Route path="/settings" element={<Settings />} />
                               <Route path="/profile" element={<UserProfile />} />
+                              <Route path="/invoice-system" element={<InvoiceSystem />} />
+                              <Route path="/invoices" element={<InvoiceSystem />} />
+                              <Route path="/news" element={<News />} />
                             </Routes>
                           </MainLayout>
                         </SimpleProtectedRoute>
