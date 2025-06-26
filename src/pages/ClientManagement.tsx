@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 
 const ClientManagement = () => {
-  const { clients, isLoading } = useClientsContext();
+  const { clients, isLoading, createClient } = useClientsContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [showClientForm, setShowClientForm] = useState(false);
   const [showClientDetails, setShowClientDetails] = useState(false);
@@ -42,7 +42,7 @@ const ClientManagement = () => {
       `${client.first_name} ${client.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.email?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || client.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || client.kyc_status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -54,12 +54,20 @@ const ClientManagement = () => {
 
   const getStatusBadge = (status: string) => {
     const colors = {
-      active: 'bg-green-100 text-green-800',
-      inactive: 'bg-gray-100 text-gray-800',
+      approved: 'bg-green-100 text-green-800',
       pending: 'bg-yellow-100 text-yellow-800',
-      restricted: 'bg-red-100 text-red-800'
+      rejected: 'bg-red-100 text-red-800',
+      expired: 'bg-gray-100 text-gray-800'
     };
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  };
+
+  const handleCreateClient = async (clientData: any) => {
+    const result = await createClient(clientData);
+    if (result.success) {
+      setShowClientForm(false);
+    }
+    return result;
   };
 
   if (isLoading) {
@@ -109,7 +117,7 @@ const ClientManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {clients?.filter(c => c.status === 'active').length || 0}
+              {clients?.filter(c => c.kyc_status === 'approved').length || 0}
             </div>
             <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
@@ -153,10 +161,10 @@ const ClientManagement = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="restricted">Restricted</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="expired">Expired</SelectItem>
           </SelectContent>
         </Select>
         <Button variant="outline">
@@ -176,7 +184,7 @@ const ClientManagement = () => {
               <TableRow>
                 <TableHead>Client</TableHead>
                 <TableHead>Contact</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>KYC Status</TableHead>
                 <TableHead>AUM</TableHead>
                 <TableHead>Risk Profile</TableHead>
                 <TableHead>Last Activity</TableHead>
@@ -212,8 +220,8 @@ const ClientManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusBadge(client.status || 'active')}>
-                      {(client.status || 'active').charAt(0).toUpperCase() + (client.status || 'active').slice(1)}
+                    <Badge className={getStatusBadge(client.kyc_status || 'pending')}>
+                      {(client.kyc_status || 'pending').charAt(0).toUpperCase() + (client.kyc_status || 'pending').slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -256,6 +264,7 @@ const ClientManagement = () => {
         <ClientForm
           isOpen={showClientForm}
           onClose={() => setShowClientForm(false)}
+          onSubmit={handleCreateClient}
         />
       )}
 
