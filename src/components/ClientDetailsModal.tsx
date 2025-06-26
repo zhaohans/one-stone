@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -34,8 +33,18 @@ import {
   Upload,
   AlertTriangle,
   CheckCircle,
-  Clock
+  Clock,
+  PieChart,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  FileBarChart,
+  Calculator,
+  Banknote,
+  Activity
 } from 'lucide-react';
+import { UploadStatementModal } from '@/components/UploadStatementModal';
+import { ExportClientReportModal } from '@/components/ExportClientReportModal';
 
 interface ClientDetailsModalProps {
   isOpen: boolean;
@@ -46,6 +55,9 @@ interface ClientDetailsModalProps {
 export const ClientDetailsModal = ({ isOpen, onClose, client }: ClientDetailsModalProps) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [editMode, setEditMode] = useState(false);
+  const [showUploadStatement, setShowUploadStatement] = useState(false);
+  const [showExportReport, setShowExportReport] = useState(false);
+  const [activeHoldingsTab, setActiveHoldingsTab] = useState('positions');
 
   if (!client) return null;
 
@@ -83,7 +95,25 @@ export const ClientDetailsModal = ({ isOpen, onClose, client }: ClientDetailsMod
       { check: 'Sanctions Check', status: 'Passed', date: '2024-01-15', nextReview: '2024-04-15' },
       { check: 'PEP Status', status: 'Clear', date: '2024-01-10', nextReview: '2024-07-10' },
       { check: 'Tax Compliance', status: 'Review Required', date: '2024-01-05', nextReview: '2024-02-05' }
-    ]
+    ],
+    holdings: {
+      positions: [
+        { symbol: 'AAPL', name: 'Apple Inc.', quantity: 500, price: 182.52, value: 91260, allocation: 4.93, change: 2.15 },
+        { symbol: 'MSFT', name: 'Microsoft Corp.', quantity: 300, price: 378.85, value: 113655, allocation: 6.14, change: -0.85 },
+        { symbol: 'GOOGL', name: 'Alphabet Inc.', quantity: 200, price: 138.21, value: 27642, allocation: 1.49, change: 1.25 },
+        { symbol: 'TSLA', name: 'Tesla Inc.', quantity: 150, price: 244.12, value: 36618, allocation: 1.98, change: -3.42 }
+      ],
+      cashDistribution: [
+        { account: 'Investment Portfolio', currency: 'USD', amount: 125000, yield: 4.2 },
+        { account: 'Pension Fund', currency: 'EUR', amount: 75000, yield: 3.8 },
+        { account: 'Trading Account', currency: 'GBP', amount: 50000, yield: 4.5 }
+      ],
+      profitLoss: {
+        unrealized: { gain: 45620, loss: -12350, net: 33270 },
+        realized: { gain: 28500, loss: -8200, net: 20300 },
+        total: { gain: 74120, loss: -20550, net: 53570 }
+      }
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -126,7 +156,7 @@ export const ClientDetailsModal = ({ isOpen, onClose, client }: ClientDetailsMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-auto">
         <DialogHeader>
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
@@ -146,23 +176,36 @@ export const ClientDetailsModal = ({ isOpen, onClose, client }: ClientDetailsMod
               <Button 
                 variant="outline" 
                 size="sm"
+                onClick={() => setShowUploadStatement(true)}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Statement
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowExportReport(true)}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export Client Report
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
                 onClick={() => setEditMode(!editMode)}
               >
                 <Edit className="w-4 h-4 mr-2" />
                 {editMode ? 'Save' : 'Edit'}
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export
               </Button>
             </div>
           </div>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="accounts">Accounts</TabsTrigger>
+            <TabsTrigger value="holdings">Holdings</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="permissions">Permissions</TabsTrigger>
             <TabsTrigger value="compliance">Compliance</TabsTrigger>
@@ -307,6 +350,260 @@ export const ClientDetailsModal = ({ isOpen, onClose, client }: ClientDetailsMod
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="holdings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <PieChart className="w-5 h-5 mr-2" />
+                  Holdings Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs value={activeHoldingsTab} onValueChange={setActiveHoldingsTab}>
+                  <TabsList className="grid w-full grid-cols-5">
+                    <TabsTrigger value="positions">Positions</TabsTrigger>
+                    <TabsTrigger value="cash">Cash Distribution</TabsTrigger>
+                    <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                    <TabsTrigger value="pnl">Profit & Loss</TabsTrigger>
+                    <TabsTrigger value="reports">Statement & Reports</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="positions" className="mt-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Symbol</TableHead>
+                          <TableHead>Security Name</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead>Current Price</TableHead>
+                          <TableHead>Market Value</TableHead>
+                          <TableHead>Allocation %</TableHead>
+                          <TableHead>Day Change %</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {clientData.holdings.positions.map((position, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-mono font-bold">{position.symbol}</TableCell>
+                            <TableCell className="font-medium">{position.name}</TableCell>
+                            <TableCell>{position.quantity.toLocaleString()}</TableCell>
+                            <TableCell>{formatCurrency(position.price)}</TableCell>
+                            <TableCell className="font-semibold">{formatCurrency(position.value)}</TableCell>
+                            <TableCell>{position.allocation}%</TableCell>
+                            <TableCell>
+                              <div className={`flex items-center ${position.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {position.change >= 0 ? 
+                                  <TrendingUp className="w-4 h-4 mr-1" /> : 
+                                  <TrendingDown className="w-4 h-4 mr-1" />
+                                }
+                                {position.change}%
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+
+                  <TabsContent value="cash" className="mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                      {clientData.holdings.cashDistribution.map((cash, index) => (
+                        <Card key={index}>
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium">{cash.account}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Currency</span>
+                                <Badge variant="outline">{cash.currency}</Badge>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Amount</span>
+                                <span className="font-semibold">{formatCurrency(cash.amount)}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Yield</span>
+                                <span className="text-green-600 font-medium">{cash.yield}%</span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="analysis" className="mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <BarChart3 className="w-5 h-5 mr-2" />
+                            Asset Allocation
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <span>Equities</span>
+                              <div className="flex items-center space-x-2">
+                                <div className="w-24 bg-gray-200 rounded-full h-2">
+                                  <div className="bg-blue-600 h-2 rounded-full" style={{width: '65%'}}></div>
+                                </div>
+                                <span className="text-sm font-medium">65%</span>
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Fixed Income</span>
+                              <div className="flex items-center space-x-2">
+                                <div className="w-24 bg-gray-200 rounded-full h-2">
+                                  <div className="bg-green-600 h-2 rounded-full" style={{width: '25%'}}></div>
+                                </div>
+                                <span className="text-sm font-medium">25%</span>
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Cash & Equivalents</span>
+                              <div className="flex items-center space-x-2">
+                                <div className="w-24 bg-gray-200 rounded-full h-2">
+                                  <div className="bg-yellow-600 h-2 rounded-full" style={{width: '10%'}}></div>
+                                </div>
+                                <span className="text-sm font-medium">10%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <Activity className="w-5 h-5 mr-2" />
+                            Performance Metrics
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <span>YTD Return</span>
+                              <span className="text-green-600 font-semibold">+12.4%</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>1 Year Return</span>
+                              <span className="text-green-600 font-semibold">+18.7%</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Volatility</span>
+                              <span className="font-semibold">14.2%</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Sharpe Ratio</span>
+                              <span className="font-semibold">1.23</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="pnl" className="mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-sm">Unrealized P&L</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Gains</span>
+                              <span className="text-green-600 font-semibold">{formatCurrency(clientData.holdings.profitLoss.unrealized.gain)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Losses</span>
+                              <span className="text-red-600 font-semibold">{formatCurrency(clientData.holdings.profitLoss.unrealized.loss)}</span>
+                            </div>
+                            <hr />
+                            <div className="flex justify-between font-bold">
+                              <span>Net P&L</span>
+                              <span className="text-green-600">{formatCurrency(clientData.holdings.profitLoss.unrealized.net)}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-sm">Realized P&L</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Gains</span>
+                              <span className="text-green-600 font-semibold">{formatCurrency(clientData.holdings.profitLoss.realized.gain)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Losses</span>
+                              <span className="text-red-600 font-semibold">{formatCurrency(clientData.holdings.profitLoss.realized.loss)}</span>
+                            </div>
+                            <hr />
+                            <div className="flex justify-between font-bold">
+                              <span>Net P&L</span>
+                              <span className="text-green-600">{formatCurrency(clientData.holdings.profitLoss.realized.net)}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-sm">Total P&L</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Total Gains</span>
+                              <span className="text-green-600 font-semibold">{formatCurrency(clientData.holdings.profitLoss.total.gain)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Total Losses</span>
+                              <span className="text-red-600 font-semibold">{formatCurrency(clientData.holdings.profitLoss.total.loss)}</span>
+                            </div>
+                            <hr />
+                            <div className="flex justify-between font-bold text-lg">
+                              <span>Net P&L</span>
+                              <span className="text-green-600">{formatCurrency(clientData.holdings.profitLoss.total.net)}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="reports" className="mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <Button variant="outline" className="h-20 flex flex-col">
+                        <FileBarChart className="w-6 h-6 mb-2" />
+                        <span>Portfolio Statement</span>
+                      </Button>
+                      <Button variant="outline" className="h-20 flex flex-col">
+                        <Calculator className="w-6 h-6 mb-2" />
+                        <span>Performance Report</span>
+                      </Button>
+                      <Button variant="outline" className="h-20 flex flex-col">
+                        <Banknote className="w-6 h-6 mb-2" />
+                        <span>Transaction Report</span>
+                      </Button>
+                      <Button variant="outline" className="h-20 flex flex-col">
+                        <FileText className="w-6 h-6 mb-2" />
+                        <span>Tax Report</span>
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </TabsContent>
@@ -491,6 +788,20 @@ export const ClientDetailsModal = ({ isOpen, onClose, client }: ClientDetailsMod
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Upload Statement Modal */}
+        <UploadStatementModal
+          isOpen={showUploadStatement}
+          onClose={() => setShowUploadStatement(false)}
+          clientId={client?.id}
+        />
+
+        {/* Export Client Report Modal */}
+        <ExportClientReportModal
+          isOpen={showExportReport}
+          onClose={() => setShowExportReport(false)}
+          client={client}
+        />
       </DialogContent>
     </Dialog>
   );
