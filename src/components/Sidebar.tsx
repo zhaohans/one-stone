@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -7,7 +8,8 @@ import {
   Home, Users, Building2, TrendingUp, MessageSquare, Receipt, 
   FolderOpen, Newspaper, Shield, Settings,
   LogOut, User,
-  GraduationCap, FileText
+  GraduationCap, FileText, ChevronDown, ChevronRight,
+  BarChart3, Workflow, Plus, List, GitBranch
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -18,12 +20,36 @@ interface SidebarProps {
 const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
   const location = useLocation();
   const { userStatus, profile, logout } = useAuth();
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
+
+  const toggleMenu = (menuKey: string) => {
+    const newExpanded = new Set(expandedMenus);
+    if (newExpanded.has(menuKey)) {
+      newExpanded.delete(menuKey);
+    } else {
+      newExpanded.add(menuKey);
+    }
+    setExpandedMenus(newExpanded);
+  };
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: Users, label: 'Clients', path: '/clients' },
     { icon: Building2, label: 'Accounts', path: '/accounts' },
-    { icon: TrendingUp, label: 'Trades', path: '/trades' },
+    { 
+      icon: TrendingUp, 
+      label: 'Trades', 
+      path: '/trades',
+      children: [
+        { icon: BarChart3, label: 'RFQ Overview', path: '/trades/rfq-overview' },
+        { icon: Workflow, label: 'RFQ Processing', path: '/trades/rfq-processing' },
+        { icon: GitBranch, label: 'Lifecycle', path: '/trades/lifecycle' },
+        { icon: Plus, label: 'New Order', path: '/trades/new-order' },
+        { icon: List, label: 'Order Overview', path: '/trades/order-overview' },
+        { icon: Settings, label: 'Order Processing', path: '/trades/order-processing' },
+        { icon: Workflow, label: 'Flows', path: '/trades/flows' }
+      ]
+    },
     { icon: MessageSquare, label: 'Messages & Tasks', path: '/messages' },
     { icon: Receipt, label: 'Fee Reports', path: '/fees', requireRole: 'admin' },
     { icon: FolderOpen, label: 'Documents', path: '/documents' },
@@ -65,12 +91,14 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
     await logout();
   };
 
+  const isMenuExpanded = (menuKey: string) => expandedMenus.has(menuKey);
+
   return (
     <div className={cn(
       "bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm h-full",
       collapsed ? "w-16" : "w-64"
     )}>
-      {/* Header - Logo only, no toggle button */}
+      {/* Header */}
       <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-center h-16">
         {!collapsed && (
           <div className="flex items-center space-x-3">
@@ -94,26 +122,40 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
         <ul className="space-y-1">
           {filteredMenuItems.map((item) => {
             const isActive = location.pathname === item.path;
-            // Render sub-menu for Compliance
-            if (item.label === 'Compliance' && item.children) {
-              return (
-                <li key={item.path}>
+            const hasChildren = item.children && item.children.length > 0;
+            const isExpanded = isMenuExpanded(item.label);
+            
+            return (
+              <li key={item.path}>
+                <div
+                  className={cn(
+                    "flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group cursor-pointer",
+                    isActive
+                      ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  )}
+                  onClick={() => hasChildren ? toggleMenu(item.label) : null}
+                >
                   <Link
                     to={item.path}
-                    className={cn(
-                      "flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group",
-                      isActive
-                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    )}
+                    className="flex items-center space-x-3 w-full"
+                    onClick={(e) => hasChildren && e.preventDefault()}
                   >
                     <item.icon className={cn(
                       "w-5 h-5 transition-colors shrink-0",
                       isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
                     )} />
-                    {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
+                    {!collapsed && <span className="font-medium text-sm flex-1">{item.label}</span>}
                   </Link>
-                  {/* Sub-menu for Compliance */}
+                  {!collapsed && hasChildren && (
+                    <div className="ml-auto">
+                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Sub-menu */}
+                {!collapsed && hasChildren && isExpanded && (
                   <ul className="ml-8 mt-1 space-y-1">
                     {item.children.map((sub) => {
                       const isSubActive = location.pathname === sub.path;
@@ -132,40 +174,20 @@ const Sidebar = ({ collapsed, onToggleCollapse }: SidebarProps) => {
                               "w-4 h-4 transition-colors shrink-0",
                               isSubActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
                             )} />
-                            {!collapsed && <span className="font-medium text-sm">{sub.label}</span>}
+                            <span className="font-medium text-sm">{sub.label}</span>
                           </Link>
                         </li>
                       );
                     })}
                   </ul>
-                </li>
-              );
-            }
-            // Render normal menu item
-            return (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={cn(
-                    "flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group",
-                    isActive
-                      ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "w-5 h-5 transition-colors shrink-0",
-                    isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
-                  )} />
-                  {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
-                </Link>
+                )}
               </li>
             );
           })}
         </ul>
       </nav>
 
-      {/* Footer with Profile and Logout */}
+      {/* Footer */}
       <div className="p-3 border-t border-gray-200">
         {!collapsed ? (
           <div className="space-y-2">

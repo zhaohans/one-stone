@@ -25,9 +25,18 @@ import UserProfile from "@/pages/UserProfile";
 import Messages from "@/pages/Messages";
 import Training from "@/pages/Training";
 import ComplianceDashboard from "@/pages/ComplianceDashboard";
+import ComplianceTraining from "@/pages/ComplianceTraining";
+import PolicyManagement from "@/pages/PolicyManagement";
 import SimpleAuthPage from "@/pages/SimpleAuthPage";
 import InvoiceSystem from "@/pages/InvoiceSystem";
 import News from "@/pages/News";
+import RFQOverview from "@/pages/trades/RFQOverview";
+import RFQProcessing from "@/pages/trades/RFQProcessing";
+import Lifecycle from "@/pages/trades/Lifecycle";
+import NewOrder from "@/pages/trades/NewOrder";
+import OrderOverview from "@/pages/trades/OrderOverview";
+import OrderProcessing from "@/pages/trades/OrderProcessing";
+import Flows from "@/pages/trades/Flows";
 
 const queryClient = new QueryClient();
 
@@ -57,11 +66,20 @@ const App = () => (
                               <Route path="/accounts/:accountId" element={<AccountDetails />} />
                               <Route path="/clients" element={<ClientManagement />} />
                               <Route path="/trades" element={<Trades />} />
+                              <Route path="/trades/rfq-overview" element={<RFQOverview />} />
+                              <Route path="/trades/rfq-processing" element={<RFQProcessing />} />
+                              <Route path="/trades/lifecycle" element={<Lifecycle />} />
+                              <Route path="/trades/new-order" element={<NewOrder />} />
+                              <Route path="/trades/order-overview" element={<OrderOverview />} />
+                              <Route path="/trades/order-processing" element={<OrderProcessing />} />
+                              <Route path="/trades/flows" element={<Flows />} />
                               <Route path="/documents" element={<DocumentVault />} />
                               <Route path="/fees" element={<FeeReports />} />
                               <Route path="/messages" element={<Messages />} />
                               <Route path="/training" element={<Training />} />
                               <Route path="/compliance" element={<ComplianceDashboard />} />
+                              <Route path="/compliance-training" element={<ComplianceTraining />} />
+                              <Route path="/policy-management" element={<PolicyManagement />} />
                               <Route path="/settings" element={<Settings />} />
                               <Route path="/profile" element={<UserProfile />} />
                               <Route path="/invoice-system" element={<InvoiceSystem />} />
