@@ -31,6 +31,7 @@ import PolicyManagement from "@/pages/PolicyManagement";
 import SimpleAuthPage from "@/pages/SimpleAuthPage";
 import InvoiceSystem from "@/pages/InvoiceSystem";
 import News from "@/pages/News";
+import EmployeeAcknowledgments from "@/pages/EmployeeAcknowledgments";
 import RFQOverview from "@/pages/trades/RFQOverview";
 import RFQProcessing from "@/pages/trades/RFQProcessing";
 import Lifecycle from "@/pages/trades/Lifecycle";
@@ -84,6 +85,7 @@ const App = () => (
                               <Route path="/compliance" element={<ComplianceDashboard />} />
                               <Route path="/compliance-training" element={<ComplianceTraining />} />
                               <Route path="/policy-management" element={<PolicyManagement />} />
+                              <Route path="/employee-acknowledgments" element={<EmployeeAcknowledgments />} />
                               <Route path="/settings" element={<Settings />} />
                               <Route path="/profile" element={<UserProfile />} />
                               <Route path="/invoice-system" element={<InvoiceSystem />} />

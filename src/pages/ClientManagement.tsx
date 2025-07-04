@@ -203,7 +203,7 @@ const ClientManagement = () => {
                       </div>
                       <div>
                         <div className="font-medium">{client.first_name} {client.last_name}</div>
-                        <div className="text-sm text-gray-500">ID: {client.id}</div>
+                        <div className="text-sm text-gray-500">Client Code: {client.client_code}</div>
                       </div>
                     </div>
                   </TableCell>

@@ -27,12 +27,10 @@ const AccountsRedesigned = () => {
   const { accounts } = useAccountsContext();
 
   const handleExportExcel = () => {
-    // Export functionality
     console.log('Exporting to Excel...');
   };
 
   const handleImportAccounts = () => {
-    // Import functionality
     console.log('Importing accounts...');
   };
 
@@ -53,7 +51,7 @@ const AccountsRedesigned = () => {
         <div className="space-y-0.5">
           <h2 className="text-2xl font-semibold tracking-tight">Accounts Management</h2>
           <p className="text-muted-foreground">
-            Manage client accounts and bank authorizations
+            Manage client accounts and bank authorizations for EAM operations
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -66,6 +64,46 @@ const AccountsRedesigned = () => {
             Export Excel
           </Button>
         </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Accounts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{accounts?.length || 0}</div>
+            <p className="text-xs text-muted-foreground">Across all banks</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total AUM</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">$2.4B</div>
+            <p className="text-xs text-muted-foreground">+8.2% this month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Banks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">4</div>
+            <p className="text-xs text-muted-foreground">Partner institutions</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Authorized Signatories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">Active authorizations</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filters Section */}
