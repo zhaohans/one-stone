@@ -24,7 +24,6 @@ import FeeManagement from "@/pages/FeeManagement";
 import Settings from "@/pages/Settings";
 import UserProfile from "@/pages/UserProfile";
 import Messages from "@/pages/Messages";
-import Training from "@/pages/Training";
 import ComplianceDashboard from "@/pages/ComplianceDashboard";
 import ComplianceTraining from "@/pages/ComplianceTraining";
 import PolicyManagement from "@/pages/PolicyManagement";
@@ -81,7 +80,6 @@ const App = () => (
                               <Route path="/fees" element={<FeeReports />} />
                               <Route path="/fee-management" element={<FeeManagement />} />
                               <Route path="/messages" element={<Messages />} />
-                              <Route path="/training" element={<Training />} />
                               <Route path="/compliance" element={<ComplianceDashboard />} />
                               <Route path="/compliance-training" element={<ComplianceTraining />} />
                               <Route path="/policy-management" element={<PolicyManagement />} />

@@ -9,13 +9,11 @@ import {
   FileText, 
   TrendingUp, 
   MessageSquare, 
-  GraduationCap, 
   Shield, 
   Settings,
   Building2,
   Receipt,
-  Newspaper,
-  CheckSquare
+  Newspaper
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -73,11 +71,6 @@ const navigationItems = [
     title: 'Messages',
     href: '/messages',
     icon: MessageSquare,
-  },
-  {
-    title: 'Training',
-    href: '/training',
-    icon: GraduationCap,
   },
   {
     title: 'Compliance',
