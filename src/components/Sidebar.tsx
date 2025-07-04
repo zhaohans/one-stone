@@ -18,6 +18,11 @@ import {
   CheckSquare
 } from 'lucide-react';
 
+interface SidebarProps {
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}
+
 const navigationItems = [
   {
     title: 'Dashboard',
@@ -96,11 +101,11 @@ const navigationItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false, onToggleCollapse }: SidebarProps) {
   const location = useLocation();
 
   return (
-    <div className="pb-12 w-64">
+    <div className={cn("pb-12 transition-all duration-300", collapsed ? "w-16" : "w-64")}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <div className="space-y-1">
@@ -111,14 +116,16 @@ export default function Sidebar() {
                   className={({ isActive }) =>
                     cn(
                       'flex items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors',
-                      isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+                      isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground',
+                      collapsed && 'justify-center'
                     )
                   }
+                  title={collapsed ? item.title : undefined}
                 >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.title}
+                  <item.icon className={cn("h-4 w-4", !collapsed && "mr-2")} />
+                  {!collapsed && item.title}
                 </NavLink>
-                {item.subItems && (
+                {item.subItems && !collapsed && (
                   <div className="ml-6 mt-1 space-y-1">
                     {item.subItems.map((subItem) => (
                       <NavLink
