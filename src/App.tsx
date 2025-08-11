@@ -58,40 +58,38 @@ const App = () => (
                     <Route
                       path="/*"
                       element={
-                        <SimpleProtectedRoute>
-                          <MainLayout>
-                            <Routes>
-                              <Route path="/" element={<Index />} />
-                              <Route path="/dashboard" element={<Dashboard />} />
-                              <Route path="/accounts" element={<Accounts />} />
-                              <Route path="/accounts-redesigned" element={<AccountsRedesigned />} />
-                              <Route path="/accounts/:accountId" element={<AccountDetails />} />
-                              <Route path="/clients" element={<ClientManagement />} />
-                              <Route path="/trades" element={<Trades />} />
-                              <Route path="/trades/products" element={<ProductList />} />
-                              <Route path="/trades/rfq-overview" element={<RFQOverview />} />
-                              <Route path="/trades/rfq-processing" element={<RFQProcessing />} />
-                              <Route path="/trades/lifecycle" element={<Lifecycle />} />
-                              <Route path="/trades/new-order" element={<NewOrder />} />
-                              <Route path="/trades/order-overview" element={<OrderOverview />} />
-                              <Route path="/trades/order-processing" element={<OrderProcessing />} />
-                              <Route path="/trades/flows" element={<Flows />} />
-                              <Route path="/documents" element={<DocumentVault />} />
-                              <Route path="/fees" element={<FeeReports />} />
-                              <Route path="/fee-management" element={<FeeManagement />} />
-                              <Route path="/messages" element={<Messages />} />
-                              <Route path="/compliance" element={<ComplianceDashboard />} />
-                              <Route path="/compliance-training" element={<ComplianceTraining />} />
-                              <Route path="/policy-management" element={<PolicyManagement />} />
-                              <Route path="/employee-acknowledgments" element={<EmployeeAcknowledgments />} />
-                              <Route path="/settings" element={<Settings />} />
-                              <Route path="/profile" element={<UserProfile />} />
-                              <Route path="/invoice-system" element={<InvoiceSystem />} />
-                              <Route path="/invoices" element={<InvoiceSystem />} />
-                              <Route path="/news" element={<News />} />
-                            </Routes>
-                          </MainLayout>
-                        </SimpleProtectedRoute>
+                        <MainLayout>
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/accounts" element={<Accounts />} />
+                            <Route path="/accounts-redesigned" element={<AccountsRedesigned />} />
+                            <Route path="/accounts/:accountId" element={<AccountDetails />} />
+                            <Route path="/clients" element={<ClientManagement />} />
+                            <Route path="/trades" element={<Trades />} />
+                            <Route path="/trades/products" element={<ProductList />} />
+                            <Route path="/trades/rfq-overview" element={<RFQOverview />} />
+                            <Route path="/trades/rfq-processing" element={<RFQProcessing />} />
+                            <Route path="/trades/lifecycle" element={<Lifecycle />} />
+                            <Route path="/trades/new-order" element={<NewOrder />} />
+                            <Route path="/trades/order-overview" element={<OrderOverview />} />
+                            <Route path="/trades/order-processing" element={<OrderProcessing />} />
+                            <Route path="/trades/flows" element={<Flows />} />
+                            <Route path="/documents" element={<DocumentVault />} />
+                            <Route path="/fees" element={<FeeReports />} />
+                            <Route path="/fee-management" element={<FeeManagement />} />
+                            <Route path="/messages" element={<Messages />} />
+                            <Route path="/compliance" element={<ComplianceDashboard />} />
+                            <Route path="/compliance-training" element={<ComplianceTraining />} />
+                            <Route path="/policy-management" element={<PolicyManagement />} />
+                            <Route path="/employee-acknowledgments" element={<EmployeeAcknowledgments />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/profile" element={<UserProfile />} />
+                            <Route path="/invoice-system" element={<InvoiceSystem />} />
+                            <Route path="/invoices" element={<InvoiceSystem />} />
+                            <Route path="/news" element={<News />} />
+                          </Routes>
+                        </MainLayout>
                       }
                     />
                   </Routes>
